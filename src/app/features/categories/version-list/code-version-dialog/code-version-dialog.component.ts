@@ -82,7 +82,7 @@ export class CodeVersionDialogComponent {
         categoryId: this.data.categoryId
       };
 
-      this.http.post(`http://localhost:3000/api/versions`, formData)
+      this.http.post(`http://localhost:3000/api/categories/${this.data.categoryId}/versions/code`, formData)
         .subscribe({
           next: (response) => {
             this.dialogRef.close(response);

@@ -1,28 +1,28 @@
 .dialog-container {
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  min-width: 800px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  min-width: 600px;
 }
 
 .dialog-header {
-  padding: 20px 24px;
+  padding: 15px 18px;
   border-bottom: 1px solid #eee;
 
   h2 {
     margin: 0;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 500;
     color: #333;
   }
 }
 
 .dialog-content {
-  padding: 24px;
+  padding: 18px;
 }
 
 .form-field {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 
   label {
     display: block;
@@ -58,14 +58,14 @@
 .columns-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
+  gap: 18px;
+  margin-bottom: 18px;
 }
 
 .column-config {
   h3 {
-    margin: 0 0 16px;
-    font-size: 16px;
+    margin: 0 0 12px;
+    font-size: 14px;
     color: #333;
   }
 }
@@ -73,8 +73,8 @@
 .column-field {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 6px;
+  margin-bottom: 6px;
   align-items: center;
 }
 
@@ -89,21 +89,21 @@
 .btn-add {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   background: none;
   border: none;
   color: #4a90e2;
   cursor: pointer;
-  padding: 8px 0;
-  font-size: 14px;
+  padding: 6px 0;
+  font-size: 12px;
 }
 
 .code-editor-section {
-  margin-top: 24px;
+  margin-top: 18px;
 
   h3 {
-    margin: 0 0 16px;
-    font-size: 16px;
+    margin: 0 0 12px;
+    font-size: 14px;
     color: #333;
   }
 }
@@ -115,18 +115,18 @@
 }
 
 .dialog-actions {
-  padding: 16px 24px;
+  padding: 12px 18px;
   border-top: 1px solid #eee;
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 9px;
 }
 
 .btn-primary,
 .btn-secondary {
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 3px;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
 }
