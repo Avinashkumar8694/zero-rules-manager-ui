@@ -1,1 +1,45 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+/* Apply Material Icons font family */
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Ensure proper icon alignment in tables and buttons */
+mat-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+/* Ensure proper icon sizing in different contexts */
+.mat-icon-button mat-icon {
+  margin: 0;
+  font-size: 20px;
+}
+
+.title-section mat-icon {
+  font-size: 28px;
+}
+
+.search-box mat-icon {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.date-cell mat-icon {
+  font-size: 16px;
+  margin-right: 4px;
+}

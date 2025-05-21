@@ -25,26 +25,7 @@ export class AppComponent implements OnInit {
   constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit() {
-    this.fetchCategories();
-    this.router.navigate(['/rules']);
-  }
-
-  private fetchCategories() {
-    this.loading = true;
-    this.error = null;
-    
-    this.http.get<Category[]>('http://localhost:3000/api/categories')
-      .subscribe({
-        next: (data) => {
-          this.categories = data;
-          this.loading = false;
-        },
-        error: (err) => {
-          this.error = 'Failed to load categories';
-          this.loading = false;
-          console.error('Error fetching categories:', err);
-        }
-      });
+    this.router.navigate(['/categories']);
   }
 
   toggleSidenav() {
