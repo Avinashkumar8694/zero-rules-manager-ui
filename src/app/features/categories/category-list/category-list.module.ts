@@ -24,7 +24,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [CategoryListComponent],
+  declarations: [CategoryListComponent, AddCategoryDialogComponent],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
