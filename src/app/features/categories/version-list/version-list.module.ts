@@ -10,16 +10,25 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { VersionListComponent } from './version-list.component';
+import { VersionTypeDialogComponent } from './version-type-dialog/version-type-dialog.component';
+import { ExcelVersionDialogComponent } from './excel-version-dialog/excel-version-dialog.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { AddVersionDialogComponent } from './add-version-dialog/add-version-dialog.component';
 
 const routes: Routes = [
   { path: '', component: VersionListComponent }
 ];
 
 @NgModule({
-  declarations: [VersionListComponent],
+  declarations: [
+    VersionListComponent,
+    VersionTypeDialogComponent,
+    ExcelVersionDialogComponent,
+    AddVersionDialogComponent
+  ],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
@@ -32,6 +41,7 @@ const routes: Routes = [
     MatInputModule,
     MatFormFieldModule,
     MatTooltipModule,
+    MatDialogModule,
     ReactiveFormsModule
   ]
 })

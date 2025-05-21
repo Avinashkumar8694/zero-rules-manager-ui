@@ -5,8 +5,9 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
-import { AddVersionDialogComponent } from './add-version-dialog/add-version-dialog.component';
 import { DeleteVersionDialogComponent } from './delete-version-dialog/delete-version-dialog.component';
+import { VersionTypeDialogComponent } from './version-type-dialog/version-type-dialog.component';
+import { AddVersionDialogComponent } from './add-version-dialog/add-version-dialog.component';
 
 interface Version {
   id: string;
@@ -72,8 +73,9 @@ export class VersionListComponent implements OnInit {
   }
 
   onAddVersion() {
-    const dialogRef = this.dialog.open(AddVersionDialogComponent, {
-      width: '500px',
+    const dialogRef = this.dialog.open(VersionTypeDialogComponent, {
+      width: 'auto',
+      minWidth: '50rem',
       disableClose: true,
       data: { categoryId: this.categoryId }
     });
@@ -87,7 +89,8 @@ export class VersionListComponent implements OnInit {
 
   onEditVersion(version: Version) {
     const dialogRef = this.dialog.open(AddVersionDialogComponent, {
-      width: '500px',
+      width: 'auto',
+      minWidth: '500px',
       disableClose: true,
       data: { ...version, categoryId: this.categoryId }
     });
