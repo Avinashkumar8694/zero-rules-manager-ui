@@ -121,7 +121,7 @@ export class VersionListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
-        this.http.delete(`http://localhost:3000/api/categories/${this.categoryId}/versions/${version.id}`)
+        this.http.delete(`http://localhost:3000/api/versions/${version.id}`)
           .subscribe({
             next: () => {
               this.loadVersions();
