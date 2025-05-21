@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -15,7 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   template: `
     <div class="dialog-container paper-theme">
       <div class="dialog-header">
-        <h2>Add New Category</h2>
+        <h2>{{ data ? 'Edit' : 'Add New' }} Category</h2>
       </div>
       <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
         <div class="dialog-content">
@@ -39,7 +39,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         <div class="dialog-actions">
           <button type="button" class="btn-secondary" (click)="onCancel()">Cancel</button>
           <button type="submit" class="btn-primary" [disabled]="categoryForm.invalid || loading">
-            <span *ngIf="!loading">Create Category</span>
+            <span *ngIf="!loading">{{ data ? 'Update' : 'Create' }} Category</span>
             <div *ngIf="loading" class="spinner"></div>
           </button>
         </div>
@@ -168,18 +168,24 @@ export class AddCategoryDialogComponent {
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<AddCategoryDialogComponent>,
-    private http: HttpClient
+    private http: HttpClient,
+    @Inject(MAT_DIALOG_DATA) public data?: { id: string; name: string; description: string }
   ) {
     this.categoryForm = this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required]
+      name: [data?.name || '', Validators.required],
+      description: [data?.description || '', Validators.required]
     });
   }
 
   onSubmit() {
     if (this.categoryForm.valid) {
       this.loading = true;
-      this.http.post('http://localhost:3000/api/categories', this.categoryForm.value)
+      const endpoint = this.data
+        ? `http://localhost:3000/api/categories/${this.data.id}`
+        : 'http://localhost:3000/api/categories';
+      const method = this.data ? 'put' : 'post';
+      
+      this.http[method](endpoint, this.categoryForm.value)
         .subscribe({
           next: (response) => {
             this.dialogRef.close(response);

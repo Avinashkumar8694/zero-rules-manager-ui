@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { faLayerGroup, faSearch, faTag, faInfoCircle, faCalendarAlt, faClock, faCog, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { AddCategoryDialogComponent } from './add-category-dialog/add-category-dialog.component';
+import { DeleteCategoryDialogComponent } from './delete-category-dialog/delete-category-dialog.component';
 
 interface Category {
   id: string;
@@ -62,15 +63,44 @@ export class CategoryListComponent implements OnInit {
     }
   }
 
-  openAddCategoryDialog() {
+  openAddCategoryDialog(category?: Category) {
     const dialogRef = this.dialog.open(AddCategoryDialogComponent, {
       width: '500px',
-      disableClose: true
+      disableClose: true,
+      data: category
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.fetchCategories();
+      }
+    });
+  }
+
+  onEditCategory(category: Category) {
+    this.openAddCategoryDialog(category);
+  }
+
+  onDeleteCategory(category: Category) {
+    const dialogRef = this.dialog.open(DeleteCategoryDialogComponent, {
+      width: '400px',
+      data: { id: category.id, name: category.name }
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.loading = true;
+        this.http.delete(`http://localhost:3000/api/categories/${category.id}`)
+          .subscribe({
+            next: () => {
+              this.fetchCategories();
+            },
+            error: (err) => {
+              console.error('Error deleting category:', err);
+              this.error = 'Failed to delete category';
+              this.loading = false;
+            }
+          });
       }
     });
   }

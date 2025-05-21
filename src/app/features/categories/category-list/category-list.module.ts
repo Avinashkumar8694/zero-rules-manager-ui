@@ -16,6 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CategoryListComponent } from './category-list.component';
 import { AddCategoryDialogComponent } from './add-category-dialog/add-category-dialog.component';
+import { DeleteCategoryDialogComponent } from './delete-category-dialog/delete-category-dialog.component';
 const routes: Routes = [
   {
     path: '',
@@ -24,7 +25,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [CategoryListComponent, AddCategoryDialogComponent],
+  declarations: [CategoryListComponent, AddCategoryDialogComponent, DeleteCategoryDialogComponent],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
