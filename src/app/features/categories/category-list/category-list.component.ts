@@ -3,8 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatDialog } from '@angular/material/dialog';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { faLayerGroup, faSearch, faTag, faInfoCircle, faCalendarAlt, faClock, faCog, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { AddCategoryDialogComponent } from './add-category-dialog/add-category-dialog.component';
 
 interface Category {
   id: string;
@@ -36,7 +38,11 @@ export class CategoryListComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private http: HttpClient, library: FaIconLibrary) {
+  constructor(
+    private http: HttpClient,
+    private dialog: MatDialog,
+    library: FaIconLibrary
+  ) {
     this.dataSource = new MatTableDataSource<Category>();
     library.addIcons(faLayerGroup, faSearch, faTag, faInfoCircle, faCalendarAlt, faClock, faCog, faEdit, faTrashAlt);
   }
@@ -54,6 +60,19 @@ export class CategoryListComponent implements OnInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  openAddCategoryDialog() {
+    const dialogRef = this.dialog.open(AddCategoryDialogComponent, {
+      width: '500px',
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.fetchCategories();
+      }
+    });
   }
 
   private fetchCategories() {

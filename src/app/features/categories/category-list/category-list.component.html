@@ -3,6 +3,10 @@
     <div class="title-content">
       <h1><mat-icon>layers</mat-icon> Categories</h1>
       <span class="total-count" *ngIf="dataSource.data.length > 0">({{ dataSource.data.length }} total)</span>
+      <button mat-flat-button color="primary" (click)="openAddCategoryDialog()">
+        <mat-icon>add</mat-icon>
+        Add Category
+      </button>
     </div>
     <div class="search-box">
       <mat-icon>search</mat-icon>
