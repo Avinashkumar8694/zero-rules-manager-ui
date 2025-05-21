@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { ExcelVersionDialogComponent } from '../excel-version-dialog/excel-version-dialog.component';
+import { CodeVersionDialogComponent } from '../code-version-dialog/code-version-dialog.component';
 
 export interface VersionTypeDialogData {
     categoryId: string;
@@ -116,21 +117,31 @@ export class VersionTypeDialogComponent {
     ) { }
 
     selectVersionType(type: string) {
+        let dialogRef;
+        
         if (type === 'excel') {
-
-            const dialogRef = this.dialog.open(ExcelVersionDialogComponent, {
+            dialogRef = this.dialog.open(ExcelVersionDialogComponent, {
                 width: '500px',
                 disableClose: true,
                 data: { categoryId: this.data.categoryId }
             });
+        } else if (type === 'code') {
+            dialogRef = this.dialog.open(CodeVersionDialogComponent, {
+                width: 'auto',
+                minWidth: '70vw',
+                maxHeight: '90vh',
+                disableClose: true,
+                data: { categoryId: this.data.categoryId }
+            });
+        }
 
+        if (dialogRef) {
             dialogRef.afterClosed().subscribe(result => {
                 if (result) {
                     this.dialogRef.close(result);
                 }
             });
         }
-        // Handle other version types in future implementations
     }
 
     onCancel() {

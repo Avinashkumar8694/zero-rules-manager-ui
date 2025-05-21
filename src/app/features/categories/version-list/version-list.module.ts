@@ -11,11 +11,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 import { VersionListComponent } from './version-list.component';
 import { VersionTypeDialogComponent } from './version-type-dialog/version-type-dialog.component';
 import { ExcelVersionDialogComponent } from './excel-version-dialog/excel-version-dialog.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { CodeVersionDialogComponent } from './code-version-dialog/code-version-dialog.component';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AddVersionDialogComponent } from './add-version-dialog/add-version-dialog.component';
 
 const routes: Routes = [
@@ -27,6 +29,7 @@ const routes: Routes = [
     VersionListComponent,
     VersionTypeDialogComponent,
     ExcelVersionDialogComponent,
+    CodeVersionDialogComponent,
     AddVersionDialogComponent
   ],
   imports: [
@@ -42,7 +45,9 @@ const routes: Routes = [
     MatFormFieldModule,
     MatTooltipModule,
     MatDialogModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule,
+    MonacoEditorModule.forRoot()
   ]
 })
 export class VersionListModule { }
