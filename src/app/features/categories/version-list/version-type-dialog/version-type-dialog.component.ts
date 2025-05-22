@@ -128,8 +128,9 @@ export class VersionTypeDialogComponent {
         } else if (type === 'code') {
             dialogRef = this.dialog.open(CodeVersionDialogComponent, {
                 width: 'auto',
-                minWidth: '70vw',
-                maxHeight: '90vh',
+                minWidth: '50rem',
+                // minHeight: '90vh',
+                maxHeight: '91vh',
                 disableClose: true,
                 data: { categoryId: this.data.categoryId }
             });
