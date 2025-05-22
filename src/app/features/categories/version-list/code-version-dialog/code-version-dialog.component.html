@@ -3,8 +3,9 @@
     <h2><mat-icon>code</mat-icon> Configure Code Version</h2>
   </div>
 
-  <form [formGroup]="codeVersionForm" (ngSubmit)="onSubmit()">
-    <mat-tab-group>
+  <form [formGroup]="codeVersionForm" (ngSubmit)="onSubmit()" class="dialog-form">
+    <div class="dialog-content">
+      <mat-tab-group>
       <mat-tab label="Basic Info">
         <div class="tab-content">
           <div class="form-field">
@@ -91,6 +92,7 @@
         </div>
       </mat-tab>
     </mat-tab-group>
+    </div>
 
     <div class="dialog-actions">
       <button type="button" class="btn-secondary" (click)="onCancel()">Cancel</button>

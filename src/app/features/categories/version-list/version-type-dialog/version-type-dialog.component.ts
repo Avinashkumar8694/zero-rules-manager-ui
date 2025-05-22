@@ -129,7 +129,7 @@ export class VersionTypeDialogComponent {
             dialogRef = this.dialog.open(CodeVersionDialogComponent, {
                 width: 'auto',
                 minWidth: '50rem',
-                // minHeight: '90vh',
+                minHeight: '30rem',
                 maxHeight: '91vh',
                 disableClose: true,
                 data: { categoryId: this.data.categoryId }
