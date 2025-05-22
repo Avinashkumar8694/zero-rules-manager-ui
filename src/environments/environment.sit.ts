@@ -1,4 +1,4 @@
-export const environment = {
+export const environment:any = {
   production: false,
   apiBaseUrl: 'http://localhost:3000/api',
   appName: 'Zero Rules Manager',

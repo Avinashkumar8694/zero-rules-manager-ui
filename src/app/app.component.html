@@ -16,6 +16,10 @@
         <fa-icon [icon]="['fas', 'scroll']"></fa-icon>
         <span [class.hidden]="!sidenavExpanded">Rules</span>
       </a>
+      <a mat-list-item routerLink="/nodes" routerLinkActive="active">
+        <fa-icon [icon]="['fas', 'cog']"></fa-icon>
+        <span [class.hidden]="!sidenavExpanded">Nodes</span>
+      </a>
       <a mat-list-item routerLink="/settings" routerLinkActive="active">
         <fa-icon [icon]="['fas', 'cog']"></fa-icon>
         <span [class.hidden]="!sidenavExpanded">Settings</span>

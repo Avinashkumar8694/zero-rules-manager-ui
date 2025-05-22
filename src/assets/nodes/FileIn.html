@@ -1,0 +1,85 @@
+<!-- FileIn.html -->
+<script type="text/x-red" data-template-name="FileIn">
+    <!-- File Path -->
+    <div id="node-input-file-path-wrp" class="editor-form-row">
+        <label for="node-input-file-path"><span data-i18n="common.label.filepath"></span></label>
+        <input type="text" id="node-input-file-path" class="node-input-property" style="width: 100%" />
+    </div>
+
+    <!-- Format -->
+    <div id="node-input-format-wrp" class="editor-form-row">
+        <label for="node-select-filein-format"><span data-i18n="filein.label.format"></span></label>
+        <br><input type="radio" id="buffer" form-radio name="filein-format" value="buffer">
+        <label for="buffer" style="font-size: 0.9em">Buffer</label><br>
+        <input type="radio" id="stream" form-radio name="filein-format" value="stream">
+        <label for="stream" style="font-size: 0.9em">Stream</label><br>
+        <input type="radio" id="utf8" form-radio name="filein-format" value="utf8">
+        <label for="utf8" style="font-size: 0.9em">Encoded</label>
+    </div>
+
+    <!-- Encoding -->
+    <div id="node-select-encoding-wrp" class="editor-form-row">
+        <label for="node-select-filein-encoding"><span data-i18n="filein.label.encoding"></span></label>
+        <select id="node-select-filein-encoding" style="width: 100%;">
+        </select>
+    </div>
+
+    <!-- resultMapping -->
+    <div id="node-input-result-mapping-wrp" class="editor-form-row">
+        <label for="node-input-result-mapping"><span data-i18n="common.label.filemapping"></span></label>
+        <input type="text" id="node-input-result-mapping" class="node-input-property" style="width: 100%" />
+    </div>
+</script>
+
+<script type="text/javascript">
+    registerNode({
+        nodeType: 'FileIn',
+        serviceType: 'server',
+        nodeDef: {
+            color: '#6AB5BC',
+            category: 'File Operation',
+            defaults: {
+                name: { value: '' },
+                encoding: { value: 'utf8' },
+                outputs: { value: 1 },
+                format: { value: 'buffer' },
+                filepath: { value: '', required: true },
+                resultMapping: {
+                    value: { type: 'bh.input', value: '' },
+                    required: true
+                }
+            },
+            inputs: 1,
+            outputs: 1,
+            icon: 'ndefault-file/file-in-node.svg',
+            paletteLabel: function() { return 'File In'; },
+            label: function() { return this.name || 'File In'; },
+            labelStyle: function() { return this.name ? 'node_label_italic' : ''; },
+            oneditprepare: function(SRD) {
+                const node = this;
+                const commonTypes = ['bh', 'bh.input', 'bh.local'];
+                const kvSpecificTypes = [{ value: 'str', label: 'string', validate: /[^\s]+/ }];
+
+                $('#node-select-encoding-wrp').hide();
+                $('#utf8').on('click', function() { $('#node-select-encoding-wrp').show(); });
+                $('#stream, #buffer').on('click', function() { $('#node-select-encoding-wrp').hide(); });
+
+                if (node.format) {
+                    document.getElementById(node.format).checked = true;
+                    if (node.format === 'utf8') {
+                        $('#node-select-encoding-wrp').show();
+                    }
+                }
+            },
+            oneditsave: function() {
+                const node = this;
+                node.format = document.querySelector('input[name="filein-format"]:checked').value;
+                if (node.format === 'utf8') {
+                    node.encoding = $('#node-select-filein-encoding').val();
+                } else {
+                    node.encoding = undefined;
+                }
+            }
+        }
+    });
+</script>
