@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -42,6 +43,7 @@ export class CategoryListComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private dialog: MatDialog,
+    private router: Router,
     library: FaIconLibrary
   ) {
     this.dataSource = new MatTableDataSource<Category>();
@@ -79,6 +81,10 @@ export class CategoryListComponent implements OnInit {
 
   onEditCategory(category: Category) {
     this.openAddCategoryDialog(category);
+  }
+
+  onViewVersions(category: Category) {
+    this.router.navigate(['/categories', category.id, 'versions']);
   }
 
   onDeleteCategory(category: Category) {

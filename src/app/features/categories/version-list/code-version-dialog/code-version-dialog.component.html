@@ -1,0 +1,104 @@
+<div class="dialog-container paper-theme">
+  <div class="dialog-header">
+    <h2><mat-icon>code</mat-icon> Configure Code Version</h2>
+  </div>
+
+  <form [formGroup]="codeVersionForm" (ngSubmit)="onSubmit()">
+    <mat-tab-group>
+      <mat-tab label="Basic Info">
+        <div class="tab-content">
+          <div class="form-field">
+            <label>Name</label>
+            <input type="text" formControlName="name" placeholder="Enter version name">
+            <div class="error-message" *ngIf="codeVersionForm.get('name')?.errors?.['required'] && codeVersionForm.get('name')?.touched">
+              Name is required
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>Description</label>
+            <textarea formControlName="description" placeholder="Enter version description" rows="3"></textarea>
+            <div class="error-message" *ngIf="codeVersionForm.get('description')?.errors?.['required'] && codeVersionForm.get('description')?.touched">
+              Description is required
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Columns Configuration">
+        <div class="tab-content">
+          <div class="columns-section">
+            <div class="column-config">
+              <h3><mat-icon>input</mat-icon> Input Columns</h3>
+              <div formArrayName="inputColumns" class="columns-list">
+                <div *ngFor="let column of inputColumns.controls; let i=index" [formGroupName]="i" class="column-field">
+                  <input type="text" formControlName="name" placeholder="Column name">
+                  <select formControlName="type">
+                    <option value="string">String</option>
+                    <option value="number">Number</option>
+                    <option value="boolean">Boolean</option>
+                    <option value="date">Date</option>
+                  </select>
+                  <button type="button" class="btn-icon btn-danger" (click)="removeInputColumn(i)">
+                    <mat-icon>remove_circle</mat-icon>
+                  </button>
+                </div>
+                <button type="button" class="btn-secondary" (click)="addInputColumn()">
+                  <mat-icon>add</mat-icon> Add Input Column
+                </button>
+              </div>
+            </div>
+
+            <div class="column-config">
+              <h3><mat-icon>output</mat-icon> Output Columns</h3>
+              <div formArrayName="outputColumns" class="columns-list">
+                <div *ngFor="let column of outputColumns.controls; let i=index" [formGroupName]="i" class="column-field">
+                  <input type="text" formControlName="name" placeholder="Column name">
+                  <select formControlName="type">
+                    <option value="string">String</option>
+                    <option value="number">Number</option>
+                    <option value="boolean">Boolean</option>
+                    <option value="date">Date</option>
+                  </select>
+                  <button type="button" class="btn-icon btn-danger" (click)="removeOutputColumn(i)">
+                    <mat-icon>remove_circle</mat-icon>
+                  </button>
+                </div>
+                <button type="button" class="btn-secondary" (click)="addOutputColumn()">
+                  <mat-icon>add</mat-icon> Add Output Column
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Code Implementation">
+        <div class="tab-content">
+          <div class="code-editor-section">
+            <ngx-monaco-editor
+              [options]="{
+                language: 'typescript',
+                theme: 'vs-light',
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                fontSize: 14,
+                automaticLayout: true
+              }"
+              formControlName="code"
+            ></ngx-monaco-editor>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+
+    <div class="dialog-actions">
+      <button type="button" class="btn-secondary" (click)="onCancel()">Cancel</button>
+      <button type="submit" class="btn-primary" [disabled]="codeVersionForm.invalid || loading">
+        <mat-icon>save</mat-icon>
+        <span *ngIf="!loading">Save Version</span>
+        <div *ngIf="loading" class="spinner"></div>
+      </button>
+    </div>
+  </form>
+</div>
