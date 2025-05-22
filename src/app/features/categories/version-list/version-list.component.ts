@@ -11,6 +11,7 @@ import { VersionTypeDialogComponent } from './version-type-dialog/version-type-d
 import { AddVersionDialogComponent } from './add-version-dialog/add-version-dialog.component';
 import { ExcelVersionDialogComponent } from './excel-version-dialog/excel-version-dialog.component';
 import { CodeVersionDialogComponent } from './code-version-dialog/code-version-dialog.component';
+import { FlowVersionDialogComponent } from './flow-version-dialog/flow-version-dialog.component';
 
 interface Version {
   id: string;
@@ -101,6 +102,15 @@ export class VersionListComponent implements OnInit {
       });
     } else if (version.type === 'code') {
       dialogRef = this.dialog.open(CodeVersionDialogComponent, {
+        width: 'auto',
+        minWidth: '50rem',
+        minHeight: '30rem',
+        maxHeight: '91vh',
+        disableClose: true,
+        data: { categoryId: this.categoryId, version }
+      });
+    } else if(version.type === 'flow') {
+      dialogRef = this.dialog.open(FlowVersionDialogComponent, {
         width: 'auto',
         minWidth: '50rem',
         minHeight: '30rem',

@@ -15,6 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { CanvasModule } from './flow-version-dialog/canvas/canvas.module';
 
 import { VersionListComponent } from './version-list.component';
 import { VersionTypeDialogComponent } from './version-type-dialog/version-type-dialog.component';
@@ -23,6 +24,7 @@ import { CodeVersionDialogComponent } from './code-version-dialog/code-version-d
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AddVersionDialogComponent } from './add-version-dialog/add-version-dialog.component';
 import { FlowVersionDialogComponent } from './flow-version-dialog/flow-version-dialog.component';
+import { CanvasComponent } from './flow-version-dialog/canvas/canvas.component';
 
 const routes: Routes = [
   { path: '', component: VersionListComponent }
@@ -55,7 +57,8 @@ const routes: Routes = [
     MatProgressSpinnerModule,
     ReactiveFormsModule,
     FormsModule,
-    MonacoEditorModule.forRoot()
+    MonacoEditorModule.forRoot(),
+    CanvasModule
   ]
 })
 export class VersionListModule { }
