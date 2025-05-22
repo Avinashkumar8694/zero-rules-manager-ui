@@ -11,6 +11,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 import { VersionListComponent } from './version-list.component';
@@ -45,6 +48,9 @@ const routes: Routes = [
     MatFormFieldModule,
     MatTooltipModule,
     MatDialogModule,
+    MatSelectModule,
+    MatTabsModule,
+    MatProgressSpinnerModule,
     ReactiveFormsModule,
     FormsModule,
     MonacoEditorModule.forRoot()
