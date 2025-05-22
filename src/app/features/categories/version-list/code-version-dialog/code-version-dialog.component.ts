@@ -5,6 +5,14 @@ import { HttpClient } from '@angular/common/http';
 
 interface CodeVersionDialogData {
   categoryId: string;
+  version?: {
+    id: string;
+    name: string;
+    description: string;
+    code: string;
+    inputColumns: Array<{ name: string; type: string }>;
+    outputColumns: Array<{ name: string; type: string }>;
+  };
 }
 
 @Component({
@@ -31,6 +39,28 @@ export class CodeVersionDialogComponent {
       inputColumns: this.fb.array([]),
       outputColumns: this.fb.array([])
     });
+
+    if (this.data.version) {
+      this.codeVersionForm.patchValue({
+        name: this.data.version.name,
+        description: this.data.version.description,
+        code: this.data.version.code
+      });
+
+      this.data.version.inputColumns.forEach(column => {
+        this.inputColumns.push(this.fb.group({
+          name: [column.name, Validators.required],
+          type: [column.type, Validators.required]
+        }));
+      });
+
+      this.data.version.outputColumns.forEach(column => {
+        this.outputColumns.push(this.fb.group({
+          name: [column.name, Validators.required],
+          type: [column.type, Validators.required]
+        }));
+      });
+    }
   }
 
   get inputColumns() {
@@ -82,7 +112,13 @@ export class CodeVersionDialogComponent {
         categoryId: this.data.categoryId
       };
 
-      this.http.post(`http://localhost:3000/api/categories/${this.data.categoryId}/versions/code`, formData)
+      const url = this.data.version
+        ? `http://localhost:3000/api/versions/${this.data.version.id}`
+        : `http://localhost:3000/api/categories/${this.data.categoryId}/versions/code`;
+
+      const request = (this.data.version
+        ? this.http.put(url, formData)
+        : this.http.post(url, formData))
         .subscribe({
           next: (response) => {
             this.dialogRef.close(response);

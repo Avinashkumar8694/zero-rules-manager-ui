@@ -8,6 +8,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { DeleteVersionDialogComponent } from './delete-version-dialog/delete-version-dialog.component';
 import { VersionTypeDialogComponent } from './version-type-dialog/version-type-dialog.component';
 import { AddVersionDialogComponent } from './add-version-dialog/add-version-dialog.component';
+import { ExcelVersionDialogComponent } from './excel-version-dialog/excel-version-dialog.component';
+import { CodeVersionDialogComponent } from './code-version-dialog/code-version-dialog.component';
 
 interface Version {
   id: string;
@@ -88,18 +90,32 @@ export class VersionListComponent implements OnInit {
   }
 
   onEditVersion(version: Version) {
-    const dialogRef = this.dialog.open(AddVersionDialogComponent, {
-      width: 'auto',
-      minWidth: '500px',
-      disableClose: true,
-      data: { ...version, categoryId: this.categoryId }
-    });
+    let dialogRef;
+    
+    if (version.type === 'excel') {
+      dialogRef = this.dialog.open(ExcelVersionDialogComponent, {
+        width: '500px',
+        disableClose: true,
+        data: { categoryId: this.categoryId, version }
+      });
+    } else if (version.type === 'code') {
+      dialogRef = this.dialog.open(CodeVersionDialogComponent, {
+        width: 'auto',
+        minWidth: '50rem',
+        minHeight: '30rem',
+        maxHeight: '91vh',
+        disableClose: true,
+        data: { categoryId: this.categoryId, version }
+      });
+    }
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadVersions();
-      }
-    });
+    if (dialogRef) {
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.loadVersions();
+        }
+      });
+    }
   }
 
   onToggleVersionStatus(version: Version) {
