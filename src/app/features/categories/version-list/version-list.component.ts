@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -54,7 +55,7 @@ export class VersionListComponent implements OnInit {
   }
 
   loadVersions() {
-    this.http.get<{ items: Version[] }>(`http://localhost:3000/api/categories/${this.categoryId}/versions`)
+    this.http.get<{ items: Version[] }>(`${environment.apiBaseUrl}/categories/${this.categoryId}/versions`)
       .subscribe({
         next: (response) => {
           this.dataSource.data = response.items;
@@ -120,7 +121,7 @@ export class VersionListComponent implements OnInit {
 
   onToggleVersionStatus(version: Version) {
     const newStatus = !version.isActive;
-    this.http.patch(`http://localhost:3000/api/versions/${version.id}`, {
+    this.http.patch(`${environment.apiBaseUrl}/versions/${version.id}`, {
       isActive: newStatus
     }).subscribe({
       next: () => {
@@ -140,7 +141,7 @@ export class VersionListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
-        this.http.delete(`http://localhost:3000/api/versions/${version.id}`)
+        this.http.delete(`${environment.apiBaseUrl}/versions/${version.id}`)
           .subscribe({
             next: () => {
               this.loadVersions();

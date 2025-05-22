@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-add-category-dialog',
@@ -181,8 +182,8 @@ export class AddCategoryDialogComponent {
     if (this.categoryForm.valid) {
       this.loading = true;
       const endpoint = this.data
-        ? `http://localhost:3000/api/categories/${this.data.id}`
-        : 'http://localhost:3000/api/categories';
+        ? `${environment.apiBaseUrl}/categories/${this.data.id}`
+        : `${environment.apiBaseUrl}/categories`;
       const method = this.data ? 'put' : 'post';
       
       this.http[method](endpoint, this.categoryForm.value)

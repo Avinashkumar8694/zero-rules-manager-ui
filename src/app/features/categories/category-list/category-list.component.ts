@@ -9,6 +9,7 @@ import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { faLayerGroup, faSearch, faTag, faInfoCircle, faCalendarAlt, faClock, faCog, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { AddCategoryDialogComponent } from './add-category-dialog/add-category-dialog.component';
 import { DeleteCategoryDialogComponent } from './delete-category-dialog/delete-category-dialog.component';
+import { environment } from '../../../../environments/environment';
 
 interface Category {
   id: string;
@@ -96,7 +97,7 @@ export class CategoryListComponent implements OnInit {
     dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
         this.loading = true;
-        this.http.delete(`http://localhost:3000/api/categories/${category.id}`)
+        this.http.delete(`${environment.apiBaseUrl}/categories/${category.id}`)
           .subscribe({
             next: () => {
               this.fetchCategories();
@@ -115,7 +116,7 @@ export class CategoryListComponent implements OnInit {
     this.loading = true;
     this.error = null;
     
-    this.http.get<CategoryResponse>('http://localhost:3000/api/categories')
+    this.http.get<CategoryResponse>(`${environment.apiBaseUrl}/categories`)
       .subscribe({
         next: (data) => {
           this.dataSource.data = data?.items || [];

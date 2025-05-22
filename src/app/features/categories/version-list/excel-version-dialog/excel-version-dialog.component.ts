@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../../environments/environment';
 
 export interface ExcelVersionDialogData {
   categoryId: string;
@@ -261,8 +262,8 @@ export class ExcelVersionDialogComponent {
       formData.append('categoryId', this.data.categoryId);
 
       const url = this.data.version
-        ? `http://localhost:3000/api/categories/${this.data.categoryId}/versions/${this.data.version.id}`
-        : `http://localhost:3000/api/categories/${this.data.categoryId}/versions/excel`;
+        ? `${environment.apiBaseUrl}/categories/${this.data.categoryId}/versions/${this.data.version.id}`
+        : `${environment.apiBaseUrl}/categories/${this.data.categoryId}/versions/excel`;
 
       const request = this.data.version
         ? this.http.put(url, formData)

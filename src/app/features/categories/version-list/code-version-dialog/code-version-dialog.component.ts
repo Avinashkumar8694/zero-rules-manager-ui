@@ -2,6 +2,7 @@ import { Component, Inject, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../../environments/environment';
 
 interface CodeVersionDialogData {
   categoryId: string;
@@ -113,8 +114,8 @@ export class CodeVersionDialogComponent {
       };
 
       const url = this.data.version
-        ? `http://localhost:3000/api/versions/${this.data.version.id}`
-        : `http://localhost:3000/api/categories/${this.data.categoryId}/versions/code`;
+        ? `${environment.apiBaseUrl}/versions/${this.data.version.id}`
+        : `${environment.apiBaseUrl}/categories/${this.data.categoryId}/versions/code`;
 
       const request = (this.data.version
         ? this.http.put(url, formData)
