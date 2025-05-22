@@ -22,6 +22,7 @@ import { ExcelVersionDialogComponent } from './excel-version-dialog/excel-versio
 import { CodeVersionDialogComponent } from './code-version-dialog/code-version-dialog.component';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AddVersionDialogComponent } from './add-version-dialog/add-version-dialog.component';
+import { FlowVersionDialogComponent } from './flow-version-dialog/flow-version-dialog.component';
 
 const routes: Routes = [
   { path: '', component: VersionListComponent }
@@ -33,7 +34,8 @@ const routes: Routes = [
     VersionTypeDialogComponent,
     ExcelVersionDialogComponent,
     CodeVersionDialogComponent,
-    AddVersionDialogComponent
+    AddVersionDialogComponent,
+    FlowVersionDialogComponent
   ],
   imports: [
     CommonModule,
