@@ -122,6 +122,48 @@ textarea {
   }
 }
 
+/* Table styles */
+.table-container {
+  background: var(--background-primary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 2px 12px var(--shadow-color),
+             0 1px 2px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+table {
+  width: 100%;
+}
+
+.mat-mdc-header-cell {
+  background: var(--background-secondary);
+  color: var(--text-primary);
+  font-weight: 500;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-base);
+
+  mat-icon {
+    margin-right: var(--spacing-sm);
+    vertical-align: middle;
+    font-size: var(--font-size-lg);
+  }
+}
+
+.mat-mdc-cell {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--font-size-base);
+}
+
+.mat-mdc-row {
+  transition: var(--transition-fast);
+  
+  &:hover {
+    background-color: var(--background-secondary);
+    transform: scale(1.001);
+  }
+}
+
 /* Apply Material Icons font family */
 .material-icons {
   font-family: 'Material Icons';

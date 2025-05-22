@@ -1,17 +1,20 @@
 <div class="version-list-container">
-  <div class="header">
-    <h1>Versions</h1>
-    <button mat-raised-button color="primary" class="add-button" (click)="onAddVersion()">
-      <mat-icon>add</mat-icon>
-      Add Version
-    </button>
+  <div class="title-section">
+    <div class="title-content">
+      <h1><mat-icon>description</mat-icon> Versions</h1>
+      <span class="total-count">{{ dataSource.data.length }} versions</span>
+      <button mat-flat-button color="primary" (click)="onAddVersion()">
+        <mat-icon>add</mat-icon>
+        Add Version
+      </button>
+    </div>
+    
+    <div class="search-box">
+      <mat-icon>search</mat-icon>
+      <input (keyup)="applyFilter($event)" placeholder="Search versions..." #input>
+    </div>
   </div>
 
-  <mat-form-field class="search-field">
-    <mat-label>Search versions</mat-label>
-    <input matInput (keyup)="applyFilter($event)" placeholder="Search by name or description" #input>
-    <mat-icon matSuffix>search</mat-icon>
-  </mat-form-field>
 
   <div class="mat-elevation-z8 table-container">
     <table mat-table [dataSource]="dataSource" matSort>
