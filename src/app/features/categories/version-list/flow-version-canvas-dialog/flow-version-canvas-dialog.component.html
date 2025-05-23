@@ -30,18 +30,38 @@
              [style.minWidth.px]="canvasMinWidth"
              [style.minHeight.px]="canvasMinHeight"
              style="transform-origin: top left; position: relative;">
-          <ng-container *ngFor="let entry of nodes | keyvalue">
-            <div class="draggable-node"
-                 cdkDrag
-                 [cdkDragBoundary]="canvasBoundary"
-                 [cdkDragFreeDragPosition]="entry.value.position"
-                 (cdkDragStarted)="onDragStart($event, entry.key)"
-                 (cdkDragMoved)="onNodeMoved($event, entry.key)"
-                 [style.background]="entry.value.appearance?.color || '#4a90e2'"
-                 style="position: absolute;">
-              {{ entry.key }} ({{ entry.value.type }})
-            </div>
-          </ng-container>
+             <ng-container *ngFor="let entry of nodes | keyvalue">
+                <div
+                  class="node-card"
+                  cdkDrag
+                  [cdkDragBoundary]="canvasBoundary"
+                  [cdkDragFreeDragPosition]="entry.value.position"
+                  (cdkDragStarted)="onDragStart($event, entry.key)"
+                  (cdkDragMoved)="onNodeMoved($event, entry.key)"
+                >
+                  <div class="node-header">
+                    <img
+                      *ngIf="entry.value.icon"
+                      [src]="entry.value.icon"
+                      alt="icon"
+                      class="node-icon"
+                    />
+                    <span class="node-title">{{ entry.value.name }}</span>
+                  </div>
+                  <div class="node-divider"></div>
+                  <div class="node-info">
+                    <div class="info-row">
+                      <span class="info-label">Run as:</span>
+                      <span class="info-value">{{ entry.value.runAs }}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">Object:</span>
+                      <span class="info-value">{{ entry.value.object }}</span>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+              
         </div>
       </div>
     </div>
