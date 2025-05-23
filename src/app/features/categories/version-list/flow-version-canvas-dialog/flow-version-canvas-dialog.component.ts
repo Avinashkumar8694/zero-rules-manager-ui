@@ -23,7 +23,7 @@ import {
     canvasMinHeight = 1000;
   
     nodes: { [key: string]: any } = {
-      node1: { position: { x: 50, y: 100 }, type: 'start', appearance: { color: '#f44336' } },
+      node1: { position: { x: 50, y: 100 }, nodeStyle: 'circle', type: 'start', appearance: { color: '#f44336' } },
       node2: { position: { x: 300, y: 200 }, type: 'process', appearance: { color: '#2196f3' } },
       node3: { position: { x: 600, y: 400 }, type: 'end', appearance: { color: '#4caf50' } }
     };

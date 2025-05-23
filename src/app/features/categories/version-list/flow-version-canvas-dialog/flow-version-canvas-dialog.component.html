@@ -33,6 +33,7 @@
              <ng-container *ngFor="let entry of nodes | keyvalue">
                 <div
                   class="node-card"
+                  [ngClass]="entry.value.nodeStyle || 'rectangle'"
                   cdkDrag
                   [cdkDragBoundary]="canvasBoundary"
                   [cdkDragFreeDragPosition]="entry.value.position"
