@@ -22,13 +22,54 @@ import {
     canvasMinWidth = 1000; // default canvas width
     canvasMinHeight = 1000;
   
-    nodes: { [key: string]: any } = {
-      node1: { position: { x: 50, y: 100 }, nodeStyle: 'circle', type: 'start', appearance: { color: '#f44336' } },
-      node2: { position: { x: 300, y: 200 }, type: 'process', appearance: { color: '#2196f3' } },
-      node3: { position: { x: 600, y: 400 }, type: 'end', appearance: { color: '#4caf50' } }
-    };
+    nodes: { [key: string]: any } = {};
+
+    private initializeNodes() {
+      if (this.data?.flowConfig?.nodes) {
+        this.nodes = this.data.flowConfig.nodes;
+        
+        // Calculate positions for nodes without positions
+        const nodeSpacing = { x: 300, y: 150 }; // Spacing between nodes
+        const startPosition = { x: 100, y: 100 }; // Initial position for first node
+        const maxNodesPerRow = 2; // Maximum nodes in a row
+        
+        // Group nodes by their vertical level
+        const nodesByLevel: { [key: string]: any[] } = {};
+        let currentLevel = 0;
+        
+        // First pass: Collect nodes with existing positions
+        const nodesWithPosition = Object.entries(this.nodes).filter(([_, node]) => node.position);
+        const nodesWithoutPosition = Object.entries(this.nodes).filter(([_, node]) => !node.position);
+        
+        // Sort nodes without position into levels
+        let currentNodes = nodesWithoutPosition;
+        while (currentNodes.length > 0) {
+          nodesByLevel[currentLevel] = currentNodes.slice(0, maxNodesPerRow);
+          currentNodes = currentNodes.slice(maxNodesPerRow);
+          currentLevel++;
+        }
+        
+        // Position nodes level by level
+        Object.entries(nodesByLevel).forEach(([level, nodes]) => {
+          const levelY = startPosition.y + (parseInt(level) * nodeSpacing.y);
+          const totalWidth = (nodes.length - 1) * nodeSpacing.x;
+          const startX = startPosition.x + (1000 - totalWidth) / 2; // Center nodes horizontally
+          
+          nodes.forEach(([nodeId, node], index) => {
+            const xPos = startX + (index * nodeSpacing.x);
+            node.position = { x: xPos, y: levelY };
+          });
+        });
+        
+        // Update canvas dimensions
+        const maxY = startPosition.y + (currentLevel * nodeSpacing.y) + nodeSpacing.y;
+        this.canvasMinHeight = Math.max(this.canvasMinHeight, maxY);
+      }
+    }
   
-    constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
+    constructor(@Inject(MAT_DIALOG_DATA) public data: any) {
+      this.initializeNodes();
+    }
   
     ngAfterViewInit(): void {}
   
