@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatSidenavContainer } from '@angular/material/sidenav';
+import { NodeRegistrationService } from './services/node-registration.service';
 interface Category {
   id: string;
   name: string;
@@ -22,7 +23,7 @@ export class AppComponent implements OnInit {
   error: string | null = null;
   sidenavExpanded = true;
   @ViewChild(MatSidenavContainer) sidenavContainer!: MatSidenavContainer;
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router,private nodeRegistrationService: NodeRegistrationService) {}
 
   ngOnInit() {
     this.router.navigate(['/categories']);

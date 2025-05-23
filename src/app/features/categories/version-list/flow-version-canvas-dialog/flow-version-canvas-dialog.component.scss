@@ -89,9 +89,64 @@
     position: absolute;
     background: white;
     border: 1px solid #ddd;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     cursor: move;
     user-select: none;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: inherit;
+      box-shadow: 0 0px 2px var(--node-shadow-color, rgba(0, 0, 0, 0.15));
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .connection-points {
+      position: absolute;
+      width: 100%;
+      
+      &.inputs {
+        top: -8px;
+        display: flex;
+        justify-content: space-evenly;
+        
+        .point {
+          width: 12px;
+          height: 12px;
+          background: #666;
+          border: 2px solid white;
+          border-radius: 50%;
+          cursor: pointer;
+          
+          &:hover {
+            transform: scale(1.2);
+          }
+        }
+      }
+      
+      &.outputs {
+        bottom: -8px;
+        display: flex;
+        justify-content: space-evenly;
+        
+        .point {
+          width: 12px;
+          height: 12px;
+          background: #666;
+          border: 2px solid white;
+          border-radius: 50%;
+          cursor: pointer;
+          
+          &:hover {
+            transform: scale(1.2);
+          }
+        }
+      }
+    }
 
     &.rectangle {
       border-radius: 8px;

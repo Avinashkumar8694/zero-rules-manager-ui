@@ -15,7 +15,9 @@ declare global {
 export class NodeRegistrationService {
   private registeredNodes: Map<string, any> = new Map();
   private nodeUrls: string[] = [
-    `${environment.apiBaseUrl}/nodes/html/files/FileIn`
+    `${environment.apiBaseUrl}/nodes/html/files/FileIn`,
+    `${environment.apiBaseUrl}/nodes/html/files/excel`,
+    `${environment.apiBaseUrl}/nodes/html/files/start`,
   ];
 
   constructor(private http: HttpClient) {

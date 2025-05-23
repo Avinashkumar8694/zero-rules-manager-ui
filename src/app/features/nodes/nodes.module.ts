@@ -6,7 +6,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 
-import { NodeRegistrationService } from '../../services/node-registration.service';
 import { NodesRoutingModule } from './nodes-routing.module';
 import { NodesListComponent } from './components/nodes-list/nodes-list.component';
 import { AttributeWindowComponent } from './components/attribute-window/attribute-window.component';
@@ -22,6 +21,6 @@ import { AttributeWindowComponent } from './components/attribute-window/attribut
     MatDialogModule,
     MatButtonModule
   ],
-  providers: [NodeRegistrationService]
+  providers: []
 })
 export class NodesModule { }
