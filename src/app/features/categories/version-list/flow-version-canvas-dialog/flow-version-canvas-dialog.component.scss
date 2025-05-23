@@ -96,7 +96,7 @@
     &.rectangle {
       border-radius: 8px;
       padding: 10px;
-      width: 200px;
+      width: 300px;
     }
 
     &.circle {
@@ -152,6 +152,8 @@
     display: flex;
     gap: 4px;
     margin-bottom: 4px;
+    overflow: ellipsis;
+    overflow: hidden;
   }
   
   .info-label {

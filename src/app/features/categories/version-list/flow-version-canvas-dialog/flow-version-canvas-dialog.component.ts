@@ -5,6 +5,8 @@ import {
     Inject,
     AfterViewInit
   } from '@angular/core';
+import { NodeRegistrationService } from '../../../../services/node-registration.service';
+  import { MatDialogRef } from '@angular/material/dialog';
   import { MAT_DIALOG_DATA } from '@angular/material/dialog';
   import { CdkDragStart, CdkDragMove } from '@angular/cdk/drag-drop';
   
@@ -26,7 +28,18 @@ import {
 
     private initializeNodes() {
       if (this.data?.flowConfig?.nodes) {
-        this.nodes = this.data.flowConfig.nodes;
+        // Apply node configurations from registration service
+        this.nodes = Object.entries(this.data.flowConfig.nodes).reduce((acc, [nodeId, node]: [string, any]) => {
+          const nodeConfig = this.nodeRegistrationService.getNodeDefinition(node.type);
+          acc[nodeId] = {
+            icon: nodeConfig?.appearance?.icon,
+            nodeStyle: nodeConfig?.appearance?.nodeStyle,
+            name: nodeConfig?.label?.call(nodeConfig.defaults) || node.type,
+            color: nodeConfig?.appearance?.color,
+            ...node,
+          };
+          return acc;
+        }, {} as any);
         
         // Calculate positions for nodes without positions
         const nodeSpacing = { x: 300, y: 150 }; // Spacing between nodes
@@ -67,7 +80,11 @@ import {
       }
     }
   
-    constructor(@Inject(MAT_DIALOG_DATA) public data: any) {
+    constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private dialogRef: MatDialogRef<FlowVersionCanvasDialogComponent>,
+    private nodeRegistrationService: NodeRegistrationService
+  ) {
       this.initializeNodes();
     }
   
@@ -136,6 +153,8 @@ import {
       console.log('Saving canvas...', this.nodes);
     }
   
-    onClose() {}
+    onClose() {
+      this.dialogRef.close();
+    }
   }
   

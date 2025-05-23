@@ -47,17 +47,17 @@
                       alt="icon"
                       class="node-icon"
                     />
-                    <span class="node-title">{{ entry.value.name }}</span>
+                    <span class="node-title">{{ entry.value.type | titlecase}}</span>
                   </div>
                   <div class="node-divider"></div>
                   <div class="node-info">
                     <div class="info-row">
-                      <span class="info-label">Run as:</span>
-                      <span class="info-value">{{ entry.value.runAs }}</span>
+                      <span class="info-label">Name</span>
+                      <span class="info-value">{{ entry.value.name }}</span>
                     </div>
                     <div class="info-row">
-                      <span class="info-label">Object:</span>
-                      <span class="info-value">{{ entry.value.object }}</span>
+                      <span class="info-label">Description:</span>
+                      <span class="info-value">{{ entry.value?.config?.metadata?.description }}</span>
                     </div>
                   </div>
                 </div>
