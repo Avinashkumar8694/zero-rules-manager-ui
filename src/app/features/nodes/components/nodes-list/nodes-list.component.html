@@ -1,0 +1,15 @@
+<div class="nodes-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Registered Nodes</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list>
+        <mat-list-item *ngFor="let node of registeredNodes | keyvalue">
+          <h3 matLine>{{ node.key }}</h3>
+          <p matLine>{{ node.value.description || 'No description available' }}</p>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+</div>

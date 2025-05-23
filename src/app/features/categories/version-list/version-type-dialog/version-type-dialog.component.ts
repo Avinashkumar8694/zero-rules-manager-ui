@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { ExcelVersionDialogComponent } from '../excel-version-dialog/excel-version-dialog.component';
 import { CodeVersionDialogComponent } from '../code-version-dialog/code-version-dialog.component';
+import { FlowVersionDialogComponent } from '../flow-version-dialog/flow-version-dialog.component';
 
 export interface VersionTypeDialogData {
     categoryId: string;
@@ -129,8 +130,14 @@ export class VersionTypeDialogComponent {
             dialogRef = this.dialog.open(CodeVersionDialogComponent, {
                 width: 'auto',
                 minWidth: '50rem',
-                // minHeight: '90vh',
+                minHeight: '30rem',
                 maxHeight: '91vh',
+                disableClose: true,
+                data: { categoryId: this.data.categoryId }
+            });
+        } else if (type === 'flow') {
+            dialogRef = this.dialog.open(FlowVersionDialogComponent, {
+                width: '500px',
                 disableClose: true,
                 data: { categoryId: this.data.categoryId }
             });

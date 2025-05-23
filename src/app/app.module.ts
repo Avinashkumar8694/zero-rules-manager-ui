@@ -16,6 +16,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NodeRegistrationService } from './services/node-registration.service';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatProgressSpinnerModule,
     FontAwesomeModule
   ],
-  providers: [],
+  providers: [NodeRegistrationService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

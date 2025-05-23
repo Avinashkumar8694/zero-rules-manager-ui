@@ -2,9 +2,16 @@ import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../../environments/environment';
 
-interface ExcelVersionDialogData {
+export interface ExcelVersionDialogData {
   categoryId: string;
+  version?: {
+    id: string;
+    name: string;
+    description: string;
+    fileName: string;
+  };
 }
 
 @Component({
@@ -216,6 +223,13 @@ export class ExcelVersionDialogComponent {
       name: ['', Validators.required],
       description: ['', Validators.required]
     });
+
+    if (this.data.version) {
+      this.versionForm.patchValue({
+        name: this.data.version.name,
+        description: this.data.version.description
+      });
+    }
   }
 
   onFileSelected(event: Event) {
@@ -235,16 +249,25 @@ export class ExcelVersionDialogComponent {
 
   onSubmit() {
     this.isSubmitted = true;
-    if (this.versionForm.valid && this.selectedFile) {
+
+    if (this.versionForm.valid && (this.selectedFile || this.data.version)) {
       this.loading = true;
-      
       const formData = new FormData();
-      formData.append('file', this.selectedFile);
+      if (this.selectedFile) {
+        formData.append('file', this.selectedFile);
+      }
       formData.append('name', this.versionForm.get('name')?.value);
       formData.append('description', this.versionForm.get('description')?.value);
       formData.append('type', 'excel');
+      formData.append('categoryId', this.data.categoryId);
 
-      this.http.post(`http://localhost:3000/api/categories/${this.data.categoryId}/versions/upload`, formData)
+      const url = this.data.version
+        ? `${environment.apiBaseUrl}/categories/${this.data.categoryId}/versions/${this.data.version.id}`
+        : `${environment.apiBaseUrl}/categories/${this.data.categoryId}/versions/excel`;
+
+      const request = this.data.version
+        ? this.http.put(url, formData)
+        : this.http.post(url, formData)
         .subscribe({
           next: () => {
             this.dialogRef.close(true);

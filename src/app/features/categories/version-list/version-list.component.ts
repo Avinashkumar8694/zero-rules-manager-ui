@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -8,6 +9,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { DeleteVersionDialogComponent } from './delete-version-dialog/delete-version-dialog.component';
 import { VersionTypeDialogComponent } from './version-type-dialog/version-type-dialog.component';
 import { AddVersionDialogComponent } from './add-version-dialog/add-version-dialog.component';
+import { ExcelVersionDialogComponent } from './excel-version-dialog/excel-version-dialog.component';
+import { CodeVersionDialogComponent } from './code-version-dialog/code-version-dialog.component';
+import { FlowVersionDialogComponent } from './flow-version-dialog/flow-version-dialog.component';
+import { FlowVersionCanvasDialogComponent } from './flow-version-canvas-dialog/flow-version-canvas-dialog.component';
 
 interface Version {
   id: string;
@@ -52,7 +57,7 @@ export class VersionListComponent implements OnInit {
   }
 
   loadVersions() {
-    this.http.get<{ items: Version[] }>(`http://localhost:3000/api/categories/${this.categoryId}/versions`)
+    this.http.get<{ items: Version[] }>(`${environment.apiBaseUrl}/categories/${this.categoryId}/versions`)
       .subscribe({
         next: (response) => {
           this.dataSource.data = response.items;
@@ -88,23 +93,48 @@ export class VersionListComponent implements OnInit {
   }
 
   onEditVersion(version: Version) {
-    const dialogRef = this.dialog.open(AddVersionDialogComponent, {
-      width: 'auto',
-      minWidth: '500px',
-      disableClose: true,
-      data: { ...version, categoryId: this.categoryId }
-    });
+    let dialogRef;
+    
+    if (version.type === 'excel') {
+      dialogRef = this.dialog.open(ExcelVersionDialogComponent, {
+        width: '500px',
+        disableClose: true,
+        data: { categoryId: this.categoryId, version }
+      });
+    } else if (version.type === 'code') {
+      dialogRef = this.dialog.open(CodeVersionDialogComponent, {
+        width: 'auto',
+        minWidth: '50rem',
+        minHeight: '30rem',
+        maxHeight: '91vh',
+        disableClose: true,
+        data: { categoryId: this.categoryId, version }
+      });
+    } else if(version.type === 'flow') {
+      dialogRef = this.dialog.open(FlowVersionCanvasDialogComponent, {
+        width: '100vw',
+        height: '100vh',
+        // minWidth:'100vw',
+        // maxWidth: '100vw',
+        // maxHeight: '100vh',
+        panelClass: 'fullscreen-dialog',
+        disableClose: true,
+        data: version
+      });
+    }
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadVersions();
-      }
-    });
+    if (dialogRef) {
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.loadVersions();
+        }
+      });
+    }
   }
 
   onToggleVersionStatus(version: Version) {
     const newStatus = !version.isActive;
-    this.http.patch(`http://localhost:3000/api/versions/${version.id}`, {
+    this.http.patch(`${environment.apiBaseUrl}/versions/${version.id}`, {
       isActive: newStatus
     }).subscribe({
       next: () => {
@@ -124,7 +154,7 @@ export class VersionListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
-        this.http.delete(`http://localhost:3000/api/versions/${version.id}`)
+        this.http.delete(`${environment.apiBaseUrl}/versions/${version.id}`)
           .subscribe({
             next: () => {
               this.loadVersions();

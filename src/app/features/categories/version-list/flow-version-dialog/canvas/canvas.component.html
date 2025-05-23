@@ -1,0 +1,62 @@
+<div class="canvas-container">
+    <!-- Header -->
+    <div class="canvas-header">
+      <h2>Canvas Editor</h2>
+      <div class="canvas-controls">
+        <button mat-icon-button (click)="zoomIn()" matTooltip="Zoom In">
+          <mat-icon>zoom_in</mat-icon>
+        </button>
+        <span class="zoom-percentage">{{ (scale * 100).toFixed(0) }}%</span>
+        <button mat-icon-button (click)="zoomOut()" matTooltip="Zoom Out">
+          <mat-icon>zoom_out</mat-icon>
+        </button>
+        <button mat-icon-button (click)="resetZoom()" matTooltip="Reset Zoom">
+          <mat-icon>center_focus_strong</mat-icon>
+        </button>
+      </div>
+    </div>
+  
+    <!-- Context Menu Trigger -->
+    <div
+      [matMenuTriggerFor]="contextMenu"
+      #menuTrigger="matMenuTrigger"
+      class="menu-trigger-area"
+    ></div>
+  
+    <!-- Context Menu -->
+    <mat-menu #contextMenu="matMenu">
+      <button mat-menu-item (click)="addNode()">
+        <mat-icon>add</mat-icon>
+        <span>Add Node</span>
+      </button>
+      <button mat-menu-item (click)="deleteNode()">
+        <mat-icon>delete</mat-icon>
+        <span>Delete Node</span>
+      </button>
+    </mat-menu>
+  
+    <!-- Canvas -->
+    <div class="canvas-wrapper" #canvasWrapper>
+      <div class="canvas-inner" [style.transform]="'scale(' + scale + ')'">
+        <div class="canvas" cdkDropList [cdkDropListData]="nodes">
+          <div
+            *ngFor="let node of nodes"
+            class="draggable-element"
+            cdkDrag
+            [cdkDragFreeDragPosition]="node.position"
+            (cdkDragStarted)="onDragStarted($event, node)"
+            (cdkDragEnded)="onDragEnded($event, node)"
+            (cdkDragMoved)="onDragMoved($event, node)"
+          >
+            <div class="drag-handle" cdkDragHandle>
+              <mat-icon>drag_indicator</mat-icon>
+            </div>
+            <span>Node {{ node.id }}</span>
+            <div class="node-connection-point input"></div>
+            <div class="node-connection-point output"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
-
+import { environment } from '../../../../../environments/environment';
 interface VersionDialogData {
   categoryId: string;
   id?: string;
@@ -218,8 +218,8 @@ export class AddVersionDialogComponent {
     if (this.versionForm.valid) {
       this.loading = true;
       const endpoint = this.data.id
-        ? `http://localhost:3000/api/categories/${this.data.categoryId}/versions/${this.data.id}`
-        : `http://localhost:3000/api/categories/${this.data.categoryId}/versions`;
+        ? `${environment.apiBaseUrl}/categories/${this.data.categoryId}/versions/${this.data.id}`
+        : `${environment.apiBaseUrl}/categories/${this.data.categoryId}/versions`;
       const method = this.data.id ? 'put' : 'post';
       
       this.http[method](endpoint, this.versionForm.value)

@@ -7,6 +7,10 @@ const routes: Routes = [
     loadChildren: () => import('./features/categories/categories.module').then(m => m.CategoriesModule)
   },
   {
+    path: 'nodes',
+    loadChildren: () => import('./features/nodes/nodes.module').then(m => m.NodesModule)
+  },
+  {
     path: '',
     redirectTo: 'categories',
     pathMatch: 'full'
