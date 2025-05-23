@@ -64,7 +64,7 @@ import {
       
         this.nodes[nodeId].position = { x: localX, y: localY };
       
-        const buffer = 150;
+        const buffer = 300;
         const nodeRight = localX + 120;
         const nodeBottom = localY + 80;
       
