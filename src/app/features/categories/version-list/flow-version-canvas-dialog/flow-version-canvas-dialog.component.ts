@@ -37,6 +37,7 @@ import { NodeRegistrationService } from '../../../../services/node-registration.
             name: nodeConfig?.label?.call(nodeConfig.defaults) || node.type,
             color: nodeConfig?.appearance?.color,
             ...node,
+            config: nodeConfig
           };
           return acc;
         }, {} as any);
