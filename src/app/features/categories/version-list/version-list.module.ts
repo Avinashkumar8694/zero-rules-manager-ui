@@ -25,7 +25,8 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AddVersionDialogComponent } from './add-version-dialog/add-version-dialog.component';
 import { FlowVersionDialogComponent } from './flow-version-dialog/flow-version-dialog.component';
 import { CanvasComponent } from './flow-version-dialog/canvas/canvas.component';
-
+import { FlowVersionCanvasDialogComponent } from './flow-version-canvas-dialog/flow-version-canvas-dialog.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 const routes: Routes = [
   { path: '', component: VersionListComponent }
 ];
@@ -37,7 +38,8 @@ const routes: Routes = [
     ExcelVersionDialogComponent,
     CodeVersionDialogComponent,
     AddVersionDialogComponent,
-    FlowVersionDialogComponent
+    FlowVersionDialogComponent,
+    FlowVersionCanvasDialogComponent
   ],
   imports: [
     CommonModule,
@@ -58,7 +60,8 @@ const routes: Routes = [
     ReactiveFormsModule,
     FormsModule,
     MonacoEditorModule.forRoot(),
-    CanvasModule
+    CanvasModule,
+    DragDropModule
   ]
 })
 export class VersionListModule { }

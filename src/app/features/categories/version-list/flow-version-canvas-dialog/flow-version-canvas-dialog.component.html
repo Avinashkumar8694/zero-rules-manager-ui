@@ -1,0 +1,45 @@
+<div class="canvas-dialog-container">
+    <div class="canvas-content">
+      <div class="canvas-container" cdkDropListGroup>
+        <div class="version-name">{{ data.name }}</div>
+  
+        <div class="canvas-controls">
+          <button mat-icon-button (click)="zoomIn()">
+            <mat-icon>zoom_in</mat-icon>
+          </button>
+          <button mat-icon-button (click)="zoomOut()">
+            <mat-icon>zoom_out</mat-icon>
+          </button>
+          <span class="zoom-percentage">{{ scale | percent }}</span>
+          <button mat-icon-button (click)="saveCanvas()">
+            <mat-icon>save</mat-icon>
+          </button>
+          <button mat-icon-button (click)="onClose()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+  
+        <div
+          #canvasBoundary
+          class="canvas-area"
+          [style.transform]="'scale(' + scale + ')'"
+          style="position: relative; width: 100%; height: 100%; overflow: hidden;"
+        >
+          <ng-container *ngFor="let entry of nodes | keyvalue">
+            <div
+              class="draggable-node"
+              cdkDrag
+              [cdkDragBoundary]="canvasBoundary"
+              [cdkDragFreeDragPosition]="entry.value.position || findNearestPosition(entry.key)"
+              (cdkDragMoved)="onNodeMoved($event, entry.key)"
+              [style.background]="entry.value.appearance?.color || '#4a90e2'"
+              style="position: absolute;"
+            >
+              {{ entry.key }} ({{ entry.value.type }})
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+  
