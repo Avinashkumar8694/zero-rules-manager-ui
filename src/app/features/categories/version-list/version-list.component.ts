@@ -112,10 +112,11 @@ export class VersionListComponent implements OnInit {
       });
     } else if(version.type === 'flow') {
       dialogRef = this.dialog.open(FlowVersionCanvasDialogComponent, {
-        width: '100%',
-        height: '100%',
-        maxWidth: '100vw',
-        maxHeight: '100vh',
+        width: '100vw',
+        height: '100vh',
+        // minWidth:'100vw',
+        // maxWidth: '100vw',
+        // maxHeight: '100vh',
         panelClass: 'fullscreen-dialog',
         disableClose: true,
         data: version
