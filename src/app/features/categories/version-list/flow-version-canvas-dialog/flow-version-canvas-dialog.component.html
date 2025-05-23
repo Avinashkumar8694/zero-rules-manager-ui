@@ -30,6 +30,18 @@
              [style.minWidth.px]="canvasMinWidth"
              [style.minHeight.px]="canvasMinHeight"
              style="transform-origin: top left; position: relative;">
+             <!-- SVG container for connections -->
+             <svg class="connections-layer" [attr.width]="canvasMinWidth" [attr.height]="canvasMinHeight">
+               <path *ngFor="let connection of connections"
+                     [attr.d]="connection.path"
+                     fill="none"
+                     stroke="#666"
+                     stroke-width="2"
+                     [style.transform]="'scale(' + scale + ')'"
+                     style="pointer-events: none;"
+               />
+             </svg>
+
              <ng-container *ngFor="let entry of nodes | keyvalue">
                 <div
                   class="node-card"
@@ -40,6 +52,7 @@
                   [cdkDragFreeDragPosition]="entry.value.position"
                   (cdkDragStarted)="onDragStart($event, entry.key)"
                   (cdkDragMoved)="onNodeMoved($event, entry.key)"
+                  id="{{ entry.value.id }}"
                 >
                   <div class="connection-points inputs" *ngIf="entry.value.config?.io?.inputs">
                     <div class="point" *ngFor="let input of [].constructor(entry.value.config.io.inputs)"></div>

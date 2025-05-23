@@ -10,7 +10,7 @@
             "type": "number"
         }
     },
-    "flow": {
+    "flowConfig": {
         "nodes": [
             {
                 "id": "start-1",
