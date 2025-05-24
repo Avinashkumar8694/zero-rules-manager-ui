@@ -32,14 +32,28 @@
              style="transform-origin: top left; position: relative;">
              <!-- SVG container for connections -->
              <svg class="connections-layer" [attr.width]="canvasMinWidth" [attr.height]="canvasMinHeight">
-               <path *ngFor="let connection of connections"
-                     [attr.d]="connection.path"
-                     fill="none"
-                     stroke="#666"
-                     stroke-width="2"
-                     [style.transform]="'scale(' + scale + ')'"
-                     style="pointer-events: none;"
-               />
+               <g *ngFor="let connection of connections">
+                 <path [attr.d]="connection.path"
+                       fill="none"
+                       stroke="#666"
+                       stroke-width="2"
+                       [style.transform]="'scale(' + scale + ')'"
+                       style="pointer-events: none;"
+                 />
+                 <foreignObject *ngIf="connection.name || connection.condition"
+                               x="0"
+                               y="0"
+                               width="100%"
+                               [attr.x]="getConnectionMidpoint(connection)?.x"
+                               [attr.y]="getConnectionMidpoint(connection)?.y"
+                               width="150"
+                               height="30"
+                               [style.transform]="'translate(-75px, -15px) scale(' + scale + ')'">
+                   <div class="condition-chip">
+                     {{ connection.name || connection.condition  }}
+                   </div>
+                 </foreignObject>
+               </g>
                <!-- Preview path during dragging -->
                <path *ngIf="isDraggingConnection && previewPath"
                      [attr.d]="previewPath"

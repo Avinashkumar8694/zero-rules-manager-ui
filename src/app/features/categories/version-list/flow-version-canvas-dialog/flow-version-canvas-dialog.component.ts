@@ -29,6 +29,8 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     source: { nodeId: string; outputIndex: number };
     target: { nodeId: string; inputIndex: number };
     path?: string;
+    condition?: string;
+    name?: string;
   }> = [];
 
   // Connection dragging state
@@ -116,7 +118,9 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
       if (this.data.flowConfig.connections) {
         this.connections = this.data.flowConfig.connections.map((conn: any) => ({
           source: { nodeId: conn.from.node, outputIndex: conn?.from?.port || 0 },
-          target: { nodeId: conn.to.node, inputIndex: conn.to?.port || 0 }
+          target: { nodeId: conn.to.node, inputIndex: conn.to?.port || 0 },
+          condition: conn.condition,
+          name: conn.name
         }));
       }
 
@@ -182,6 +186,26 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
 
   zoomOut() {
     this.scale = Math.max(0.1, this.scale - 0.1);
+  }
+
+  getConnectionMidpoint(connection: any) {
+    if (!connection.path) return null;
+    
+    // Parse the SVG path to get coordinates
+    const pathCommands = connection.path.split(' ');
+    if (pathCommands.length < 8) return null;
+    
+    // Get source and target points
+    const sourceX = parseFloat(pathCommands[1]);
+    const sourceY = parseFloat(pathCommands[2]);
+    const targetX = parseFloat(pathCommands[pathCommands.length - 2]);
+    const targetY = parseFloat(pathCommands[pathCommands.length - 1]);
+    
+    // Calculate midpoint
+    return {
+      x: (sourceX + targetX) / 2,
+      y: (sourceY + targetY) / 2
+    };
   }
 
   onDragStart(event: CdkDragStart, nodeId: string) {
