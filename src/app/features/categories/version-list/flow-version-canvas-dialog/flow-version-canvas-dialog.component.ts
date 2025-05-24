@@ -125,6 +125,7 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
         if (path) {
           connection.path = path;
         }
+        this.getConnectionMidpoint(connection);
       });
       this.pathUpdateScheduled = false;
     });
@@ -209,16 +210,19 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
 
   getConnectionMidpoint(connection: any) {
     if (!connection.path) return null;
+    const scrollContainer = this.canvasBoundary.nativeElement as HTMLElement;
+      const canvasArea = scrollContainer.querySelector('.canvas-area') as HTMLElement;
+      const canvasRect = canvasArea.getBoundingClientRect();
     
     // Parse the SVG path to get coordinates
     const pathCommands = connection.path.split(' ');
     if (pathCommands.length < 8) return null;
     
     // Get source and target points
-    const sourceX = parseFloat(pathCommands[1]);
-    const sourceY = parseFloat(pathCommands[2]);
-    const targetX = parseFloat(pathCommands[pathCommands.length - 2]);
-    const targetY = parseFloat(pathCommands[pathCommands.length - 1]);
+    const sourceX = (parseFloat(pathCommands[1]) );
+    const sourceY = (parseFloat(pathCommands[2]) );
+    const targetX = (parseFloat(pathCommands[pathCommands.length - 2]));
+    const targetY = (parseFloat(pathCommands[pathCommands.length - 1]));
     
     // Calculate midpoint
     return {
@@ -294,14 +298,16 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
       const canvasArea = scrollContainer.querySelector('.canvas-area') as HTMLElement;
       const canvasRect = canvasArea.getBoundingClientRect();
 
-      const sourceX = (rect.x + 5 - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
-      const sourceY = (rect.y + 5 - canvasRect.top + scrollContainer.scrollTop) / this.scale;
+      const sourceX = (rect.x - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
+      const sourceY = (rect.y - canvasRect.top + scrollContainer.scrollTop) / this.scale;
 
       this.draggedConnection = {
         source: { nodeId, outputIndex: index },
-        sourcePoint: { x: sourceX, y: sourceY },
+        sourcePoint: { x: rect.x +5 , y: rect.y +5},
         currentPoint: { x: sourceX, y: sourceY }
       };
+
+      console.log('dragging connection', this.draggedConnection, point);
 
       // Add mousemove and mouseup listeners to the document
       document.addEventListener('mousemove', this.onMouseMove);
@@ -370,17 +376,21 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
 
       this.draggedConnection.currentPoint = { x: currentX, y: currentY };
 
-      // Calculate preview path
-      const sourceX = this.draggedConnection.sourcePoint.x;
-      const sourceY = this.draggedConnection.sourcePoint.y;
+      // Calculate preview path using the same logic as calculateConnectionPath
+      const sourceX = (this.draggedConnection.sourcePoint.x - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
+      const sourceY = (this.draggedConnection.sourcePoint.y - canvasRect.top + scrollContainer.scrollTop) / this.scale;
       const deltaX = currentX - sourceX;
       const deltaY = currentY - sourceY;
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       
+      // Adjust control point distances based on the connection length
+      const controlPointOffset = Math.min(distance * 0.5, 100);
+      
+      // Calculate control points maintaining curve shape across different scales
       const controlPoint1X = sourceX + (deltaX * 0.25);
-      const controlPoint1Y = sourceY - (deltaY * 0.25);
+      const controlPoint1Y = sourceY + (deltaY * 0.5);
       const controlPoint2X = sourceX + (deltaX * 0.75);
-      const controlPoint2Y = sourceY + (deltaY * 0.75);
+      const controlPoint2Y = sourceY + (deltaY * 0.5);
 
       this.previewPath = `M ${sourceX} ${sourceY} C ${controlPoint1X} ${controlPoint1Y}, ${controlPoint2X} ${controlPoint2Y}, ${currentX} ${currentY}`;
     }
