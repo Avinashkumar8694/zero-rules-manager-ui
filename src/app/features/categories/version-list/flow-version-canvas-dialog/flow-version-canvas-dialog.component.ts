@@ -200,7 +200,7 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
   }
 
   zoomIn() {
-    this.scale = Math.min(2, this.scale + 0.1);
+    this.scale = Math.min(1, this.scale + 0.1);
   }
 
   zoomOut() {
@@ -222,8 +222,8 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     
     // Calculate midpoint
     return {
-      x: (sourceX + targetX) / 2,
-      y: (sourceY + targetY) / 2
+      x: ((sourceX + targetX) / 2) / this.scale,
+      y: ((sourceY + targetY) / 2) / this.scale
     };
   }
 
@@ -253,8 +253,8 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
 
     
 
-    const buffer = 300;
-    const nodeRight = localX + 120;
+    const buffer = 500;
+    const nodeRight = localX + 300;
     const nodeBottom = localY + 80;
 
     // Dynamically increase minWidth and minHeight tracked by variables
