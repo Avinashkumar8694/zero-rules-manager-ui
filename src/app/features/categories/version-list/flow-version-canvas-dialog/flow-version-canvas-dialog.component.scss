@@ -3,6 +3,23 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  position: relative;
+
+  .nodes-list-panel {
+    position: fixed;
+    top: 64px;
+    right: -320px;
+    width: 320px;
+    height: calc(100vh - 64px);
+    background: white;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    
+    &.show {
+      right: 0;
+    }
+  }
 
   .canvas-header {
     display: flex;

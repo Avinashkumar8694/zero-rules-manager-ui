@@ -3,7 +3,7 @@
     <div class="canvas-header">
       <div class="version-name">{{ data.name }}</div>
       <div class="canvas-controls">
-        <button mat-icon-button [matMenuTriggerFor]="nodeMenu" class="add-node-button">
+        <button mat-icon-button (click)="toggleNodesList()" class="add-node-button">
           <mat-icon>add</mat-icon>
         </button>
         <button mat-icon-button (click)="zoomIn()">
@@ -22,19 +22,10 @@
       </div>
     </div>
 
-    <!-- Node Menu -->
-    <mat-menu #nodeMenu="matMenu" class="node-menu">
-      <div class="node-grid">
-        <div *ngFor="let node of registeredNodes | keyvalue" 
-             class="node-card-preview" 
-             cdkDrag 
-             [cdkDragData]="node.value"
-             (cdkDragStarted)="onNodePreviewDragStart($event, node.value)">
-          <img *ngIf="node.value?.appearance?.icon" [src]="node.value.appearance.icon" alt="node icon" class="node-preview-icon">
-          <span class="node-preview-title">{{ node.value?.type | titlecase }}</span>
-        </div>
-      </div>
-    </mat-menu>
+    <!-- Nodes List Panel -->
+    <div class="nodes-list-panel" [class.show]="showNodesList">
+      <app-registered-nodes-list cdkDropList (cdkDropListDropped)="onNodeDrop($event)"></app-registered-nodes-list>
+    </div>
   
     <!-- Scrollable Content -->
     <div class="canvas-content">
