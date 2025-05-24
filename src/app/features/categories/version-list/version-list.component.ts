@@ -117,6 +117,7 @@ export class VersionListComponent implements OnInit {
         // minWidth:'100vw',
         // maxWidth: '100vw',
         // maxHeight: '100vh',
+        position: { right: '0' },
         panelClass: 'fullscreen-dialog',
         disableClose: true,
         data: version

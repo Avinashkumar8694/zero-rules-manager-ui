@@ -21,6 +21,7 @@ import { AttributeWindowComponent } from './components/attribute-window/attribut
     MatDialogModule,
     MatButtonModule
   ],
+  exports: [AttributeWindowComponent],
   providers: []
 })
 export class NodesModule { }

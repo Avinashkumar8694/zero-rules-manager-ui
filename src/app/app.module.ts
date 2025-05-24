@@ -33,7 +33,7 @@ import { NodeRegistrationService } from './services/node-registration.service';
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    FontAwesomeModule
+    FontAwesomeModule,
   ],
   providers: [NodeRegistrationService],
   bootstrap: [AppComponent]

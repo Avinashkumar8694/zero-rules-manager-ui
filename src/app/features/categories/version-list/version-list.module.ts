@@ -27,6 +27,7 @@ import { FlowVersionDialogComponent } from './flow-version-dialog/flow-version-d
 import { CanvasComponent } from './flow-version-dialog/canvas/canvas.component';
 import { FlowVersionCanvasDialogComponent } from './flow-version-canvas-dialog/flow-version-canvas-dialog.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { AttributeWindowComponent } from './flow-version-canvas-dialog/attribute-window/attribute-window.component';
 const routes: Routes = [
   { path: '', component: VersionListComponent }
 ];
@@ -39,7 +40,8 @@ const routes: Routes = [
     CodeVersionDialogComponent,
     AddVersionDialogComponent,
     FlowVersionDialogComponent,
-    FlowVersionCanvasDialogComponent
+    FlowVersionCanvasDialogComponent,
+    AttributeWindowComponent
   ],
   imports: [
     CommonModule,

@@ -66,12 +66,41 @@ export class AttributeWindowComponent implements AfterViewInit {
 
   private setupNodeTemplate(nodeDef: any) {
     if (nodeDef.template) {
-      // Create a temporary container to parse the template
-      const container = document.getElementsByClassName('node-template-container')[0];
-      container.innerHTML = nodeDef.template;
+      // Wait for container to be available in the DOM
+      setTimeout(() => {
+        const container = document.querySelector('.node-template-container');
+        if (!container) {
+          console.error('Node template container not found');
+          return;
+        }
+        container.innerHTML = nodeDef.template;
+        // Setup form elements after template is rendered
+        this.setupFormElements();
+      }, 100);
+    }
+  }
 
-      // Setup form elements after template is rendered
-      // setTimeout(() => this.setupFormElements(), 0);
+  private setupFormElements() {
+    // Setup radio buttons
+    const radioGroups = document.querySelectorAll('[form-radio]');
+    radioGroups.forEach(radio => {
+      if (radio instanceof HTMLInputElement) {
+        radio.addEventListener('change', () => this.updateNodeProperty(radio.name, radio.value));
+      }
+    });
+
+    // Setup text inputs
+    const inputs = document.querySelectorAll('.node-input-property');
+    inputs.forEach(input => {
+      if (input instanceof HTMLInputElement) {
+        input.addEventListener('input', () => this.updateNodeProperty(input.id.replace('node-input-', ''), input.value));
+      }
+    });
+  }
+
+  private updateNodeProperty(property: string, value: any) {
+    if (this.data.selectedNode && this.data.selectedNode.nodeDef) {
+      this.data.selectedNode.nodeDef[property] = value;
     }
   }
 
@@ -84,30 +113,6 @@ export class AttributeWindowComponent implements AfterViewInit {
   onCancel() {
     this.dialogRef.close();
   }
-
-  // private setupFormElements() {
-  //   // Setup radio buttons
-  //   const radioGroups = document.querySelectorAll('[form-radio]');
-  //   radioGroups.forEach(radio => {
-  //     if (radio instanceof HTMLInputElement) {
-  //       radio.addEventListener('change', () => this.updateNodeProperty(radio.name, radio.value));
-  //     }
-  //   });
-
-  //   // Setup text inputs
-  //   const inputs = document.querySelectorAll('.node-input-property');
-  //   inputs.forEach(input => {
-  //     if (input instanceof HTMLInputElement) {
-  //       input.addEventListener('input', () => this.updateNodeProperty(input.id.replace('node-input-', ''), input.value));
-  //     }
-  //   });
-  // }
-
-  // private updateNodeProperty(property: string, value: any) {
-  //   if (this.data.selectedNode && this.data.selectedNode.nodeDef) {
-  //     this.data.selectedNode.nodeDef[property] = value;
-  //   }
-  // }
 
   private collectFormValues(): any {
     if (!this.data.selectedNode || !this.data.selectedNode) {

@@ -6,9 +6,11 @@ import {
   AfterViewInit
 } from '@angular/core';
 import { NodeRegistrationService } from '../../../../services/node-registration.service';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { AttributeWindowComponent } from '../../../nodes/components/attribute-window/attribute-window.component';
 import { CdkDragStart, CdkDragMove } from '@angular/cdk/drag-drop';
+import { AttributeWindowComponent as ConnectionAttributeWindow } from './attribute-window/attribute-window.component';
 
 @Component({
   selector: 'app-flow-version-canvas-dialog',
@@ -45,7 +47,8 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<FlowVersionCanvasDialogComponent>,
-    private nodeRegistrationService: NodeRegistrationService
+    private nodeRegistrationService: NodeRegistrationService,
+    private dialog: MatDialog
   ) {
     this.initializeNodes();
   }
@@ -370,6 +373,27 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     // Remove document listeners
     document.removeEventListener('mousemove', this.onMouseMove);
     document.removeEventListener('mouseup', this.onMouseUp);
+  }
+
+  onNodeRightClick(event: MouseEvent, node: any) {
+    event.preventDefault();
+    const nodeConfig = this.nodeRegistrationService.getNodeDefinition(node.type);
+    if (nodeConfig) {
+      this.dialog.open(AttributeWindowComponent, {
+        width: '400px',
+        height: '100vh',
+        position: { right: '0' },
+        data: { selectedNode: node }
+      });
+    }
+  }
+
+  onConnectionRightClick(event: MouseEvent, connection: any) {
+    event.preventDefault();
+    this.dialog.open(ConnectionAttributeWindow, {
+      width: '400px',
+      data: { selectedNode: connection }
+    });
   }
 
   saveCanvas() {
