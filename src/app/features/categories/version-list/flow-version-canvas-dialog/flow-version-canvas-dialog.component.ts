@@ -31,6 +31,15 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     path?: string;
   }> = [];
 
+  // Connection dragging state
+  isDraggingConnection = false;
+  draggedConnection: {
+    source: { nodeId: string; outputIndex: number };
+    sourcePoint: { x: number; y: number };
+    currentPoint: { x: number; y: number };
+  } | null = null;
+  previewPath: string = '';
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<FlowVersionCanvasDialogComponent>,
@@ -230,6 +239,114 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     this.updateConnectionPaths();
   }
 
+
+  onConnectionPointMouseDown(event: MouseEvent, nodeId: string, index: number, type: 'input' | 'output') {
+    if (type === 'output') {
+      event.stopPropagation();
+      this.isDraggingConnection = true;
+
+      const point = event.target as HTMLElement;
+      const rect = point.getBoundingClientRect();
+      const scrollContainer = this.canvasBoundary.nativeElement as HTMLElement;
+      const canvasArea = scrollContainer.querySelector('.canvas-area') as HTMLElement;
+      const canvasRect = canvasArea.getBoundingClientRect();
+
+      const sourceX = (rect.x + 5 - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
+      const sourceY = (rect.y + 5 - canvasRect.top + scrollContainer.scrollTop) / this.scale;
+
+      this.draggedConnection = {
+        source: { nodeId, outputIndex: index },
+        sourcePoint: { x: sourceX, y: sourceY },
+        currentPoint: { x: sourceX, y: sourceY }
+      };
+
+      // Add mousemove and mouseup listeners to the document
+      document.addEventListener('mousemove', this.onMouseMove);
+      document.addEventListener('mouseup', this.onMouseUp);
+    }
+  }
+
+  onConnectionPointMouseUp(event: MouseEvent, nodeId: string, index: number, type: 'input' | 'output') {
+    if (this.isDraggingConnection && type === 'input' && this.draggedConnection) {
+      event.stopPropagation();
+      
+      // Create new connection
+      const newConnection = {
+        source: this.draggedConnection.source,
+        target: { nodeId, inputIndex: index }
+      };
+
+      // Check if connection already exists or is self-connecting
+      const connectionExists = this.connections.some(conn =>
+        conn.source.nodeId === newConnection.source.nodeId &&
+        conn.source.outputIndex === newConnection.source.outputIndex &&
+        conn.target.nodeId === newConnection.target.nodeId &&
+        conn.target.inputIndex === newConnection.target.inputIndex
+      );
+
+      const isSelfConnection = newConnection.source.nodeId === newConnection.target.nodeId;
+      const isValidConnection = !connectionExists && !isSelfConnection;
+
+      if (isValidConnection) {
+        // Remove any existing connections to this input
+        const existingInputConnection = this.connections.findIndex(conn =>
+          conn.target.nodeId === newConnection.target.nodeId &&
+          conn.target.inputIndex === newConnection.target.inputIndex
+        );
+
+        // if (existingInputConnection !== -1) {
+        //   this.connections.splice(existingInputConnection, 1);
+        // }
+
+        // Add new connection and update paths
+        this.connections.push(newConnection);
+        requestAnimationFrame(() => {
+          this.updateConnectionPaths();
+        });
+      }
+
+      // Reset dragging state
+      this.isDraggingConnection = false;
+      this.draggedConnection = null;
+      this.previewPath = '';
+      
+      // Remove document listeners
+      document.removeEventListener('mousemove', this.onMouseMove);
+      document.removeEventListener('mouseup', this.onMouseUp);
+    }
+  }
+
+  private onMouseMove = (event: MouseEvent) => {
+    if (this.isDraggingConnection && this.draggedConnection) {
+      const scrollContainer = this.canvasBoundary.nativeElement as HTMLElement;
+      const canvasArea = scrollContainer.querySelector('.canvas-area') as HTMLElement;
+      const canvasRect = canvasArea.getBoundingClientRect();
+
+      const currentX = (event.clientX - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
+      const currentY = (event.clientY - canvasRect.top + scrollContainer.scrollTop) / this.scale;
+
+      this.draggedConnection.currentPoint = { x: currentX, y: currentY };
+
+      // Calculate preview path
+      const sourceX = this.draggedConnection.sourcePoint.x;
+      const sourceY = this.draggedConnection.sourcePoint.y;
+      const deltaY = Math.abs(currentY - sourceY);
+      const controlPoint1Y = sourceY + (deltaY * 0.5);
+      const controlPoint2Y = currentY - (deltaY * 0.5);
+
+      this.previewPath = `M ${sourceX} ${sourceY} C ${sourceX} ${controlPoint1Y}, ${currentX} ${controlPoint2Y}, ${currentX} ${currentY}`;
+    }
+  }
+
+  private onMouseUp = () => {
+    this.isDraggingConnection = false;
+    this.draggedConnection = null;
+    this.previewPath = '';
+
+    // Remove document listeners
+    document.removeEventListener('mousemove', this.onMouseMove);
+    document.removeEventListener('mouseup', this.onMouseUp);
+  }
 
   saveCanvas() {
     console.log('Saving canvas...', this.nodes);

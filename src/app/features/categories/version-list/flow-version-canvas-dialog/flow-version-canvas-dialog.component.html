@@ -40,6 +40,16 @@
                      [style.transform]="'scale(' + scale + ')'"
                      style="pointer-events: none;"
                />
+               <!-- Preview path during dragging -->
+               <path *ngIf="isDraggingConnection && previewPath"
+                     [attr.d]="previewPath"
+                     fill="none"
+                     stroke="#666"
+                     stroke-width="2"
+                     stroke-dasharray="5,5"
+                     [style.transform]="'scale(' + scale + ')'"
+                     style="pointer-events: none;"
+               />
              </svg>
 
              <ng-container *ngFor="let entry of nodes | keyvalue">
@@ -55,10 +65,13 @@
                   id="{{ entry.value.id }}"
                 >
                   <div class="connection-points inputs" *ngIf="entry.value.config?.io?.inputs">
-                    <div class="point" *ngFor="let input of [].constructor(entry.value.config.io.inputs)"></div>
+                    <div class="point" *ngFor="let input of [].constructor(entry.value.config.io.inputs); let i = index"
+                         (mouseup)="onConnectionPointMouseUp($event, entry.key, i, 'input')"></div>
                   </div>
                   <div class="connection-points outputs" *ngIf="entry.value.config?.io?.outputs">
-                    <div class="point" *ngFor="let output of [].constructor(entry.value.config.io.outputs)"></div>
+                    <div class="point" *ngFor="let output of [].constructor(entry.value.config.io.outputs); let i = index"
+                         (mousedown)="onConnectionPointMouseDown($event, entry.key, i, 'output')"
+                         (mouseup)="onConnectionPointMouseUp($event, entry.key, i, 'output')"></div>
                   </div>
                   <div class="node-header">
                     <img
