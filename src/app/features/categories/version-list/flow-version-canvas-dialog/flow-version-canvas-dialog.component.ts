@@ -86,17 +86,26 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     const sourcePointBoundingRect = sourceOutputPoint[connection.source.outputIndex || 0].getBoundingClientRect();
     const targetPointBoundingRect = targetInputPoint[connection.target.inputIndex || 0].getBoundingClientRect();
 
-    // Calculate source and target points with scroll and scale adjustments
-    const sourceX = (sourcePointBoundingRect.x +5 - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
-    const sourceY = (sourcePointBoundingRect.y +5 - canvasRect.top + scrollContainer.scrollTop) / this.scale;
-    const targetX = (targetPointBoundingRect.x +5 - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
-    const targetY = (targetPointBoundingRect.y +5 - canvasRect.top + scrollContainer.scrollTop) / this.scale;
+    // Calculate source and target points with scroll adjustments
+    const sourceX = (sourcePointBoundingRect.x + 5 - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
+    const sourceY = (sourcePointBoundingRect.y + 5 - canvasRect.top + scrollContainer.scrollTop) / this.scale;
+    const targetX = (targetPointBoundingRect.x + 5 - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
+    const targetY = (targetPointBoundingRect.y + 5 - canvasRect.top + scrollContainer.scrollTop) / this.scale;
 
-    // Calculate control points for bezier curve
-    const deltaY = Math.abs(targetY - sourceY);
+    // Calculate control points for bezier curve with proper scaling
+    const deltaX = targetX - sourceX;
+    const deltaY = targetY - sourceY;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    
+    // Adjust control point distances based on the connection length
+    const controlPointOffset = Math.min(distance * 0.5, 100);
+    
+    // Calculate control points maintaining curve shape across different scales
+    const controlPoint1X = sourceX + (deltaX * 0.);
     const controlPoint1Y = sourceY + (deltaY * 0.5);
-    const controlPoint2Y = targetY - (deltaY * 0.5);
-
+    const controlPoint2X = sourceX + (deltaX * 0.75);
+    const controlPoint2Y = sourceY + (deltaY * 0.5);
+    
     const path = `M ${sourceX} ${sourceY} C ${sourceX} ${controlPoint1Y}, ${targetX} ${controlPoint2Y}, ${targetX} ${targetY}`;
     this.pathCache.set(cacheKey, path);
     return path;
@@ -106,14 +115,21 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     if (this.pathUpdateScheduled) return;
     this.pathUpdateScheduled = true;
 
+    // Clear path cache when scale changes to ensure proper recalculation
+    this.pathCache.clear();
+    
     requestAnimationFrame(() => {
-      this.pathCache.clear();
       this.connections.forEach(connection => {
-        connection.path = this.calculateConnectionPath(connection);
+        // Force recalculation of paths when scale changes
+        const path = this.calculateConnectionPath(connection);
+        if (path) {
+          connection.path = path;
+        }
       });
       this.pathUpdateScheduled = false;
     });
   }
+  
 
   private initializeNodes() {
     if (this.data?.flowConfig) {
@@ -357,11 +373,16 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
       // Calculate preview path
       const sourceX = this.draggedConnection.sourcePoint.x;
       const sourceY = this.draggedConnection.sourcePoint.y;
-      const deltaY = Math.abs(currentY - sourceY);
-      const controlPoint1Y = sourceY + (deltaY * 0.5);
-      const controlPoint2Y = currentY - (deltaY * 0.5);
+      const deltaX = currentX - sourceX;
+      const deltaY = currentY - sourceY;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      
+      const controlPoint1X = sourceX + (deltaX * 0.25);
+      const controlPoint1Y = sourceY - (deltaY * 0.25);
+      const controlPoint2X = sourceX + (deltaX * 0.75);
+      const controlPoint2Y = sourceY + (deltaY * 0.75);
 
-      this.previewPath = `M ${sourceX} ${sourceY} C ${sourceX} ${controlPoint1Y}, ${currentX} ${controlPoint2Y}, ${currentX} ${currentY}`;
+      this.previewPath = `M ${sourceX} ${sourceY} C ${controlPoint1X} ${controlPoint1Y}, ${controlPoint2X} ${controlPoint2Y}, ${currentX} ${currentY}`;
     }
   }
 
