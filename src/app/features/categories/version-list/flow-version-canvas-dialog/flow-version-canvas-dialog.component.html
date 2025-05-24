@@ -30,6 +30,42 @@
              [style.minWidth.px]="canvasMinWidth"
              [style.minHeight.px]="canvasMinHeight"
              style="transform-origin: top left; position: relative;">
+             <!-- SVG container for connections -->
+             <svg class="connections-layer" [attr.width]="canvasMinWidth" [attr.height]="canvasMinHeight">
+               <g *ngFor="let connection of connections">
+                 <path [attr.d]="connection.path"
+                       fill="none"
+                       stroke="#666"
+                       stroke-width="2"
+                       [style.transform]="'scale(' + scale + ')'"
+                       style="pointer-events: none;"
+                 />
+                 <foreignObject *ngIf="connection.name || connection.condition"
+                               x="0"
+                               y="0"
+                               width="100%"
+                               [attr.x]="getConnectionMidpoint(connection)?.x"
+                               [attr.y]="getConnectionMidpoint(connection)?.y"
+                               width="150"
+                               height="30"
+                               [style.transform]="'translate(-75px, -15px) scale(' + scale + ')'">
+                   <div class="condition-chip">
+                     {{ connection.name || connection.condition  }}
+                   </div>
+                 </foreignObject>
+               </g>
+               <!-- Preview path during dragging -->
+               <path *ngIf="isDraggingConnection && previewPath"
+                     [attr.d]="previewPath"
+                     fill="none"
+                     stroke="#666"
+                     stroke-width="2"
+                     stroke-dasharray="5,5"
+                     [style.transform]="'scale(' + scale + ')'"
+                     style="pointer-events: none;"
+               />
+             </svg>
+
              <ng-container *ngFor="let entry of nodes | keyvalue">
                 <div
                   class="node-card"
@@ -40,12 +76,16 @@
                   [cdkDragFreeDragPosition]="entry.value.position"
                   (cdkDragStarted)="onDragStart($event, entry.key)"
                   (cdkDragMoved)="onNodeMoved($event, entry.key)"
+                  id="{{ entry.value.id }}"
                 >
                   <div class="connection-points inputs" *ngIf="entry.value.config?.io?.inputs">
-                    <div class="point" *ngFor="let input of [].constructor(entry.value.config.io.inputs)"></div>
+                    <div class="point" *ngFor="let input of [].constructor(entry.value.config.io.inputs); let i = index"
+                         (mouseup)="onConnectionPointMouseUp($event, entry.key, i, 'input')"></div>
                   </div>
                   <div class="connection-points outputs" *ngIf="entry.value.config?.io?.outputs">
-                    <div class="point" *ngFor="let output of [].constructor(entry.value.config.io.outputs)"></div>
+                    <div class="point" *ngFor="let output of [].constructor(entry.value.config.io.outputs); let i = index"
+                         (mousedown)="onConnectionPointMouseDown($event, entry.key, i, 'output')"
+                         (mouseup)="onConnectionPointMouseUp($event, entry.key, i, 'output')"></div>
                   </div>
                   <div class="node-header">
                     <img
