@@ -9,14 +9,14 @@ import { NodeRegistrationService } from '../../../../services/node-registration.
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AttributeWindowComponent } from '../../../nodes/components/attribute-window/attribute-window.component';
-import { CdkDragStart, CdkDragMove } from '@angular/cdk/drag-drop';
 import { AttributeWindowComponent as ConnectionAttributeWindow } from './attribute-window/attribute-window.component';
+import { CdkDragStart, CdkDragMove } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-flow-version-canvas-dialog',
   templateUrl: './flow-version-canvas-dialog.component.html',
   styleUrls: ['./flow-version-canvas-dialog.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class FlowVersionCanvasDialogComponent implements AfterViewInit {
   @ViewChild('canvasBoundary', { static: true }) canvasBoundary!: ElementRef;
@@ -44,16 +44,64 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
   } | null = null;
   previewPath: string = '';
 
+  registeredNodes: any[] = [];
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<FlowVersionCanvasDialogComponent>,
     private nodeRegistrationService: NodeRegistrationService,
     private dialog: MatDialog
   ) {
+    const nodes = this.nodeRegistrationService.getAllNodeDefinitions();
+    this.registeredNodes = Array.from(nodes.values());
     this.initializeNodes();
   }
 
   ngAfterViewInit(): void { }
+
+  onNodePreviewDragStart(event: CdkDragStart, nodeConfig: any): void {
+    // Create a preview element that follows the cursor
+    const previewElement = event.source.element.nativeElement.cloneNode(true) as HTMLElement;
+    previewElement.classList.add('dragging-preview');
+    document.body.appendChild(previewElement);
+
+    // Update preview position on drag
+    const dragMove = (moveEvent: MouseEvent) => {
+      previewElement.style.left = `${moveEvent.pageX}px`;
+      previewElement.style.top = `${moveEvent.pageY}px`;
+    };
+
+    // Clean up on drag end
+    const dragEnd = (endEvent: MouseEvent) => {
+      previewElement.remove();
+      document.removeEventListener('mousemove', dragMove);
+      document.removeEventListener('mouseup', dragEnd);
+
+      // Add the new node to the canvas
+      const canvasRect = this.canvasBoundary.nativeElement.getBoundingClientRect();
+      const scrollContainer = this.canvasBoundary.nativeElement as HTMLElement;
+      
+      const nodeId = `node-${Date.now()}`;
+      const position = {
+        x: (endEvent.clientX - canvasRect.left + scrollContainer.scrollLeft) / this.scale,
+        y: (endEvent.clientY - canvasRect.top + scrollContainer.scrollTop) / this.scale
+      };
+
+      this.nodes[nodeId] = {
+        id: nodeId,
+        type: nodeConfig.type,
+        position: position,
+        icon: nodeConfig.appearance?.icon,
+        nodeStyle: nodeConfig.appearance?.nodeStyle,
+        name: nodeConfig.label?.call(nodeConfig.defaults) || nodeConfig.type,
+        color: nodeConfig.appearance?.color,
+        config: nodeConfig
+      };
+    };
+
+    document.addEventListener('mousemove', dragMove);
+    document.addEventListener('mouseup', dragEnd);
+  }
 
   private pathUpdateScheduled = false;
   private pathCache = new Map<string, string>();

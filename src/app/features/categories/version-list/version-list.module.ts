@@ -28,6 +28,7 @@ import { CanvasComponent } from './flow-version-dialog/canvas/canvas.component';
 import { FlowVersionCanvasDialogComponent } from './flow-version-canvas-dialog/flow-version-canvas-dialog.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { AttributeWindowComponent } from './flow-version-canvas-dialog/attribute-window/attribute-window.component';
+import { MatMenuModule } from '@angular/material/menu';
 const routes: Routes = [
   { path: '', component: VersionListComponent }
 ];
@@ -63,7 +64,8 @@ const routes: Routes = [
     FormsModule,
     MonacoEditorModule.forRoot(),
     CanvasModule,
-    DragDropModule
+    DragDropModule,
+    MatMenuModule
   ]
 })
 export class VersionListModule { }
