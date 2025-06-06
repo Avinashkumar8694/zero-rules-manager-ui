@@ -1,5 +1,6 @@
 <div class="dialog-container">
-  <div class="dialog-header">
+  <div class="dialog-header enhanced-header">
+    <mat-icon class="header-icon">tune</mat-icon>
     <h2>Configure Connection Conditions</h2>
   </div>
   
@@ -110,18 +111,32 @@
                     </select>
                   </div>
                   
-                  <!-- Value Input -->
-                  <ng-container *ngIf="shouldShowValue(rule.get('comparison')?.value)">                    <div class="value-input">
-                      <input [formControlName]="'value'" class="form-control"
-                             [placeholder]="'Enter value'"
-                             [type]="getFieldType(rule.get('valueType')?.value)"
-                             [class.flow-variable-input]="isFlowVariable(rule.get('value')?.value)">
-                      <div class="hint" *ngIf="rule.get('comparison')?.value === 'in'">
-                        Enter array as JSON: ["value1", "value2"]
-                      </div>
-                      <div class="error-message" *ngIf="rule.get('value')?.errors">
-                        Invalid value format
-                      </div>
+                  <!-- Value Type Selector and Value Input for Top-level Rules -->
+                  <ng-container *ngIf="shouldShowValue(rule.get('comparison')?.value)">
+                    <div class="value-type-value-combo">
+                      <select [formControlName]="'valueType'" class="form-control value-type-select" (change)="updateValueType(rule, true)">
+                        <option value="any">Any</option>
+                        <option value="string">String</option>
+                        <option value="number">Number</option>
+                        <option value="boolean">Boolean</option>
+                        <option value="flowvariable">Flow Variable</option>
+                      </select>
+                      <ng-container [ngSwitch]="rule.get('valueType')?.value">
+                        <select *ngSwitchCase="'boolean'" [formControlName]="'value'" class="form-control value-input">
+                          <option [ngValue]="true">true</option>
+                          <option [ngValue]="false">false</option>
+                        </select>
+                        <input *ngSwitchCase="'number'" [formControlName]="'value'" class="form-control value-input" type="number" [placeholder]="'Enter number'">
+                        <input *ngSwitchCase="'string'" [formControlName]="'value'" class="form-control value-input" type="text" [placeholder]="'Enter string'">
+                        <input *ngSwitchCase="'flowvariable'" [formControlName]="'value'" class="form-control value-input" type="text" [placeholder]="'Enter flow variable name'">
+                        <input *ngSwitchDefault [formControlName]="'value'" class="form-control value-input" type="text" [placeholder]="'Enter value'">
+                      </ng-container>
+                    </div>
+                    <div class="hint" *ngIf="rule.get('comparison')?.value === 'in'">
+                      Enter array as JSON: ["value1", "value2"]
+                    </div>
+                    <div class="error-message" *ngIf="rule.get('value')?.errors">
+                      Invalid value format
                     </div>
                   </ng-container>
                 </div>
@@ -178,11 +193,26 @@
                           </select>
                         </div>
                         
+                        <!-- Value Type Selector and Value Input for Nested Rules -->
                         <ng-container *ngIf="shouldShowValue(rule.get('comparison')?.value)">
-                          <div class="value-input">
-                            <input formControlName="value" class="form-control"
-                                   [placeholder]="'Enter value'"
-                                   [type]="getFieldType(rule.get('valueType')?.value)">
+                          <div class="value-type-value-combo">
+                            <select formControlName="valueType" class="form-control value-type-select" (change)="updateValueType(rule, true)">
+                              <option value="any">Any</option>
+                              <option value="string">String</option>
+                              <option value="number">Number</option>
+                              <option value="boolean">Boolean</option>
+                              <option value="flowvariable">Flow Variable</option>
+                            </select>
+                            <ng-container [ngSwitch]="rule.get('valueType')?.value">
+                              <select *ngSwitchCase="'boolean'" formControlName="value" class="form-control value-input">
+                                <option [ngValue]="true">true</option>
+                                <option [ngValue]="false">false</option>
+                              </select>
+                              <input *ngSwitchCase="'number'" formControlName="value" class="form-control value-input" type="number" [placeholder]="'Enter number'">
+                              <input *ngSwitchCase="'string'" formControlName="value" class="form-control value-input" type="text" [placeholder]="'Enter string'">
+                              <input *ngSwitchCase="'flowvariable'" formControlName="value" class="form-control value-input" type="text" [placeholder]="'Enter flow variable name'">
+                              <input *ngSwitchDefault formControlName="value" class="form-control value-input" type="text" [placeholder]="'Enter value'">
+                            </ng-container>
                           </div>
                         </ng-container>
                       </div>
@@ -270,19 +300,26 @@
             </select>
           </div>
           
-          <!-- Value Input -->
+          <!-- Value Type Selector and Value Input for Nested Rules -->
           <ng-container *ngIf="shouldShowValue(rule.get('comparison')?.value)">
-            <div class="value-input">
-              <input [formControlName]="'value'" class="form-control"
-                     [placeholder]="rule.get('isFlowVariable')?.value ? '$.flow.variable_name or value' : 'Enter value'"
-                     [type]="getFieldType(rule.get('valueType')?.value)"
-                     [class.flow-variable-input]="isFlowVariable(rule.get('value')?.value)">
-              <div class="error-message" *ngIf="rule.get('value')?.errors?.['invalidFlowVariable']">
-                Invalid flow variable format
-              </div>
-              <div class="error-message" *ngIf="rule.get('value')?.errors?.['invalidArray']">
-                Invalid array format
-              </div>
+            <div class="value-type-value-combo">
+              <select formControlName="valueType" class="form-control value-type-select" (change)="updateValueType(rule, true)">
+                <option value="any">Any</option>
+                <option value="string">String</option>
+                <option value="number">Number</option>
+                <option value="boolean">Boolean</option>
+                <option value="flowvariable">Flow Variable</option>
+              </select>
+              <ng-container [ngSwitch]="rule.get('valueType')?.value">
+                <select *ngSwitchCase="'boolean'" formControlName="value" class="form-control value-input">
+                  <option [ngValue]="true">true</option>
+                  <option [ngValue]="false">false</option>
+                </select>
+                <input *ngSwitchCase="'number'" formControlName="value" class="form-control value-input" type="number" [placeholder]="'Enter number'">
+                <input *ngSwitchCase="'string'" formControlName="value" class="form-control value-input" type="text" [placeholder]="'Enter string'">
+                <input *ngSwitchCase="'flowvariable'" formControlName="value" class="form-control value-input" type="text" [placeholder]="'Enter flow variable name'">
+                <input *ngSwitchDefault formControlName="value" class="form-control value-input" type="text" [placeholder]="'Enter value'">
+              </ng-container>
             </div>
           </ng-container>
         </div>

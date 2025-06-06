@@ -19,7 +19,7 @@ interface Rule {
   comparison: string;
   value: string | number | boolean;
   isFlowVariable?: boolean; // Flag to indicate if the field is a flow variable
-  valueType?: 'string' | 'number' | 'boolean' | 'array'; // Type of the value for validation
+  valueType?: 'any' | 'string' | 'number' | 'boolean' | 'array' | 'flowvariable'; // Type of the value for validation
 }
 
 interface ConditionGroup {
@@ -479,23 +479,57 @@ export class ConditionEditorComponent implements OnInit {
   }
 
   // Update method for value type detection
-  updateValueType(rule: AbstractControl) {
+  updateValueType(rule: AbstractControl, manual: boolean = false) {
     const field = rule.get('field')?.value;
     const isFlowVar = this.isFlowVariable(field);
-    
+    let valueType = rule.get('valueType')?.value;
+    if (!manual) {
+      valueType = this.detectValueType(field);
+    }
     rule.patchValue({
       isFlowVariable: isFlowVar,
-      valueType: this.detectValueType(field)
+      valueType: valueType
     }, { emitEvent: false });
   }
 
-  private detectValueType(field: string): 'string' | 'number' | 'boolean' | 'array' {
-    // Add logic to detect value type based on field
-    // This is a simple example - expand based on your needs
+  private detectValueType(field: string): 'any' | 'string' | 'number' | 'boolean' | 'array' | 'flowvariable' {
+    if (!field) return 'any';
+    if (field.startsWith(this.FLOW_VARIABLE_PREFIX)) return 'flowvariable';
     if (field.includes('count') || field.includes('amount')) return 'number';
     if (field.includes('is') || field.includes('has')) return 'boolean';
     if (field.includes('list') || field.includes('array')) return 'array';
     return 'string';
+  }
+
+  private isValidFlowVariableName(name: string): boolean {
+    // Must start with a letter or underscore, and contain only letters, numbers, and underscores
+    return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name);
+  }
+
+  private isRuleValueValid(rule: Rule): boolean {
+    // For flowvariable type, value must be a valid flow variable name
+    if (rule.valueType === 'flowvariable') {
+      if (typeof rule.value !== 'string') return false;
+      const val = rule.value.startsWith(this.FLOW_VARIABLE_PREFIX)
+        ? rule.value.substring(this.FLOW_VARIABLE_PREFIX.length)
+        : rule.value;
+      return this.isValidFlowVariableName(val);
+    }
+    // For any type, value must not be empty/null/undefined
+    if (rule.value === undefined || rule.value === null || rule.value === '') return false;
+    return true;
+  }
+
+  private areAllRulesValid(groups: ConditionGroup[]): boolean {
+    for (const group of groups) {
+      for (const rule of group.rules) {
+        if (!this.isRuleValueValid(rule)) return false;
+      }
+      if (group.nestedGroups && group.nestedGroups.length) {
+        if (!this.areAllRulesValid(group.nestedGroups)) return false;
+      }
+    }
+    return true;
   }
 
   save() {
@@ -503,18 +537,21 @@ export class ConditionEditorComponent implements OnInit {
       this.markFormGroupTouched(this.conditionForm);
       return;
     }
-
     const conditions = this.conditions.getRawValue() as ConditionGroup[];
+    if (!this.areAllRulesValid(conditions)) {
+      alert('Please provide valid values for all rules. Flow variable names must start with a letter or underscore and contain only letters, numbers, and underscores.');
+      return;
+    }
     const conditionString = conditions
       .map(group => this.buildConditionString(group))
       .filter(str => str)
       .join(' AND ');
       
     console.log('Final condition string:', conditionString);
-    this.dialogRef.close({
-      name: this.conditionForm.get('name')?.value,
-      condition: conditionString
-    });
+    // this.dialogRef.close({
+    //   name: this.conditionForm.get('name')?.value,
+    //   condition: conditionString
+    // });
   }
 
   cancel() {
@@ -607,132 +644,131 @@ export class ConditionEditorComponent implements OnInit {
     }
   }
 
- private buildConditionString(group: ConditionGroup): string {
-  const parts: string[] = [];
-
-  const escapeString = (val: string) => `"${val.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
-
-  const serializeValue = (value: any): string => {
-    if (typeof value === 'string') {
-      // Handle flow variable
-      if (value.startsWith(this.FLOW_VARIABLE_PREFIX)) return value;
-
-      // Handle stringified boolean
-      if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
-        return value.toLowerCase();
+  private buildConditionString(group: ConditionGroup): string {
+    const parts: string[] = [];
+    const escapeString = (val: string) => `"${val.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+    const isFlowVariable = (val: any): boolean => (
+      typeof val === 'string' && val.startsWith(this.FLOW_VARIABLE_PREFIX)
+    );
+    const serializeValue = (value: any, valueType: string): string => {
+      if (valueType === 'flowvariable') {
+        let val = value;
+        if (typeof val === 'string' && val.startsWith(this.FLOW_VARIABLE_PREFIX)) {
+          val = val.substring(this.FLOW_VARIABLE_PREFIX.length);
+        }
+        if (!this.isValidFlowVariableName(val)) {
+          throw new Error('Invalid flow variable name');
+        }
+        return `${this.FLOW_VARIABLE_PREFIX}${val}`;
       }
-
-      return escapeString(value);
-    }
-    if (typeof value === 'number' || typeof value === 'boolean') {
-      return String(value);
-    }
-    if (value === null) {
-      return 'null';
-    }
-    if (Array.isArray(value)) {
-      return JSON.stringify(value);
-    }
-    if (typeof value === 'object') {
-      return JSON.stringify(value);
-    }
-
-    return 'undefined'; // fallback
-  };
-  const buildRule = (rule: Rule): string => {
-    const field = rule.field;
-    const comparison = rule.comparison;
-    const rawValue = rule.value;
-
-    // Special checks for empty and non-empty
-    if (comparison === 'is_empty') {
-      return `(!${field} || ${field} === "" || ${field} === undefined || ${field} === null || (Array.isArray(${field}) && ${field}.length === 0) || (typeof ${field} === 'object' && Object.keys(${field}).length === 0))`;
-    }
-    if (comparison === 'is_not_empty') {
-      return `(${field} && ${field} !== "" && ${field} !== undefined && ${field} !== null && (!Array.isArray(${field}) || ${field}.length > 0) && (typeof ${field} !== 'object' || Object.keys(${field}).length > 0))`;
-    }
-
-    const value = serializeValue(rawValue);
-
-    // String operations
-    if (['contains', 'not_contains', 'starts_with', 'ends_with'].includes(comparison)) {
-      const opMap: Record<string, string> = {
-        contains: `.includes(${value})`,
-        not_contains: `.includes(${value})`,
-        starts_with: `.startsWith(${value})`,
-        ends_with: `.endsWith(${value})`
-      };
-      const base = `(typeof ${field} === 'string' && ${field}${opMap[comparison]})`;
-      return comparison === 'not_contains' ? `!${base}` : base;
-    }
-
-    // in / not_in
-    if (comparison === 'in' || comparison === 'not_in') {
-      const values = Array.isArray(rawValue) ? JSON.stringify(rawValue) : `[${serializeValue(rawValue)}]`;
-      const base = `${values}.includes(${field})`;
-      return comparison === 'not_in' ? `!${base}` : base;
-    }
-
-    // Map of safe operators
-    const operatorMap: Record<string, string> = {
-      equals: '===',
-      not_equals: '!==',
-      greater_than: '>',
-      less_than: '<',
-      greater_equals: '>=',
-      less_equals: '<='
+      if (valueType === 'number') {
+        return String(Number(value));
+      }
+      if (valueType === 'boolean') {
+        return value === true || value === 'true' ? 'true' : 'false';
+      }
+      if (valueType === 'string') {
+        return escapeString(String(value));
+      }
+      if (valueType === 'any') {
+        // Try to detect type: boolean, number, flow variable, or string
+        if (typeof value === 'boolean' || value === 'true' || value === 'false') {
+          return value === true || value === 'true' ? 'true' : 'false';
+        }
+        if (!isNaN(Number(value)) && value !== '' && value !== null) {
+          return String(Number(value));
+        }
+        if (typeof value === 'string' && value.startsWith(this.FLOW_VARIABLE_PREFIX)) {
+          return value;
+        }
+        return escapeString(String(value));
+      }
+      // fallback
+      return escapeString(String(value));
     };
-
-    const jsOperator = operatorMap[comparison];
-
-    if (jsOperator) {
-      // If it's a flow variable, no typeof checks
-      if (typeof rawValue === 'string' && rawValue.startsWith(this.FLOW_VARIABLE_PREFIX)) {
+    const buildRule = (rule: Rule): string => {
+      const { field, comparison, value: rawValue, valueType = 'any' } = rule;
+      if (comparison === 'is_empty') {
+        return `(!${field} || ${field} === "" || ${field} === undefined || ${field} === null || (Array.isArray(${field}) && ${field}.length === 0) || (typeof ${field} === 'object' && Object.keys(${field}).length === 0))`;
+      }
+      if (comparison === 'is_not_empty') {
+        return `(${field} && ${field} !== "" && ${field} !== undefined && ${field} !== null && (!Array.isArray(${field}) || ${field}.length > 0) && (typeof ${field} !== 'object' || Object.keys(${field}).length > 0))`;
+      }
+      const value = serializeValue(rawValue, valueType);
+      // Handle string-specific operations
+      if (["contains", "not_contains", "starts_with", "ends_with"].includes(comparison)) {
+        const methodMap: Record<string, string> = {
+          contains: `.includes(${value})`,
+          not_contains: `.includes(${value})`,
+          starts_with: `.startsWith(${value})`,
+          ends_with: `.endsWith(${value})`
+        };
+        const base = `(typeof ${field} === 'string' && ${field}${methodMap[comparison]})`;
+        return comparison === 'not_contains' ? `!${base}` : base;
+      }
+      // Handle array membership
+      if (comparison === 'in' || comparison === 'not_in') {
+        const array = Array.isArray(rawValue) ? JSON.stringify(rawValue) : `[${serializeValue(rawValue, valueType)}]`;
+        const expression = `${array}.includes(${field})`;
+        return comparison === 'not_in' ? `!${expression}` : expression;
+      }
+      // Map comparisons to JS operators
+      const operatorMap: Record<string, string> = {
+        equals: '===',
+        not_equals: '!==',
+        greater_than: '>',
+        less_than: '<',
+        greater_equals: '>=',
+        less_equals: '<='
+      };
+      const jsOperator = operatorMap[comparison];
+      if (!jsOperator) throw new Error(`Unsupported comparison: ${comparison}`);
+      // Flow variable direct comparison
+      if (valueType === 'flowvariable') {
         return `${field} ${jsOperator} ${value}`;
       }
-
-      // Type-specific checks
-      if (typeof rawValue === 'string') {
-        return `(typeof ${field} === 'string' && ${field} ${jsOperator} ${value})`;
-      }
-      if (typeof rawValue === 'number') {
-        return `(typeof ${field} === 'number' && ${field} ${jsOperator} ${value})`;
-      }
-      if (typeof rawValue === 'boolean') {
-        return `(typeof ${field} === 'boolean' && ${field} ${jsOperator} ${value})`;
-      }
+      // Null check
       if (rawValue === null) {
         return `${field} ${jsOperator} null`;
       }
-    }
-
-    throw new Error(`Unsupported comparison operator: ${comparison}`);
-  };
-
-  // Handle direct rules
-  if (group.rules?.length) {
-    for (const rule of group.rules) {
-      try {
-        const result = buildRule(rule);
-        if (result) parts.push(result);
-      } catch (e) {
-        console.warn(`Skipping invalid rule:`, rule, e);
+      // Type checks
+      if (valueType === 'string') {
+        return `(typeof ${field} === 'string' && ${field} ${jsOperator} ${value})`;
+      }
+      if (valueType === 'number') {
+        return `(typeof ${field} === 'number' && ${field} ${jsOperator} ${value})`;
+      }
+      if (valueType === 'boolean') {
+        return `(typeof ${field} === 'boolean' && ${field} ${jsOperator} ${value})`;
+      }
+      if (valueType === 'any') {
+        // No type check, just compare
+        return `${field} ${jsOperator} ${value}`;
+      }
+      // fallback
+      return `${field} ${jsOperator} ${value}`;
+    };
+    // Process rules
+    if (group.rules?.length) {
+      for (const rule of group.rules) {
+        try {
+          const result = buildRule(rule);
+          if (result) parts.push(result);
+        } catch (e) {
+          console.warn(`Skipping invalid rule:`, rule, e);
+        }
       }
     }
-  }
-
-  // Handle nested groups recursively
-  if (group.nestedGroups?.length) {
-    for (const nested of group.nestedGroups) {
-      const nestedStr = this.buildConditionString(nested);
-      if (nestedStr) parts.push(`(${nestedStr})`);
+    // Process nested groups
+    if (group.nestedGroups?.length) {
+      for (const nested of group.nestedGroups) {
+        const nestedStr = this.buildConditionString(nested);
+        if (nestedStr) parts.push(`(${nestedStr})`);
+      }
     }
+    const logicalOp = group.operator === 'AND' ? '&&' : '||';
+    return parts.join(` ${logicalOp} `);
   }
-
-  const logicalOp = group.operator === 'AND' ? '&&' : '||';
-  return parts.join(` ${logicalOp} `);
-}
-
 
   private markFormGroupTouched(control: AbstractControl) {
     if (control instanceof FormGroup) {
@@ -750,25 +786,12 @@ export class ConditionEditorComponent implements OnInit {
     });
   }
 
-  getExtendedPath(path: number[], index: number): number[] {
-    return path ? [...path, index] : [index];
-  }
-
   shouldShowValue(comparison: string | null | undefined): boolean {
     // Return false for comparisons that don't need a value input
     return !['is_empty', 'is_not_empty'].includes(comparison || '');
   }
 
-  getFieldType(valueType: string | undefined): string {
-    switch (valueType) {
-      case 'number':
-        return 'number';
-      case 'boolean':
-        return 'checkbox';
-      case 'array':
-      case 'string':
-      default:
-        return 'text';
-    }
+  getExtendedPath(path: number[], index: number): number[] {
+    return path ? [...path, index] : [index];
   }
 }
