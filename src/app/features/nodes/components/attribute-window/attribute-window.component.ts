@@ -21,7 +21,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
   styles: [`
     .attribute-window {
       width: 100%;
-      height: 100%;
+      height: 99%;
       background: white;
       display: flex;
       flex-direction: column;

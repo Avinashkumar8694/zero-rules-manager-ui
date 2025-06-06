@@ -161,9 +161,9 @@ select {
 /* Dialog styles */
 .mat-dialog-container {
   border-radius: var(--border-radius-lg) !important;
-  padding: var(--spacing-xl) !important;
-  max-height: 90vh !important;
-  overflow: auto !important;
+  padding: 0 !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -181,6 +181,95 @@ select {
     &:hover {
       background: var(--text-primary);
     }
+  }
+}
+
+/* Attribute window specific styles */
+.attribute-window-dialog {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-width: 400px !important;
+  max-width: 600px !important;
+  width: auto !important;
+  background: var(--background-primary);
+
+  .mat-mdc-dialog-surface {
+    width: auto !important;
+  }
+
+  .dialog-header {
+    padding: var(--spacing-lg);
+    background: var(--background-secondary);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+
+    h2 {
+      margin: 0;
+      font-size: var(--font-size-xl);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .dialog-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: var(--spacing-lg);
+    min-width: 0; // Enable flex child shrinking
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--background-secondary);
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--text-secondary);
+      border-radius: 4px;
+
+      &:hover {
+        background: var(--text-primary);
+      }
+    }
+
+    > * {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    typed-input-mapping-widget,
+    input-mapping-widget,
+    typed-input-widget,
+    input-widget,
+    dropdown-widget,
+    toggle-widget,
+    file-widget {
+      display: block;
+      margin-bottom: var(--spacing-md);
+      width: 100%;
+      min-width: 0;
+    }
+  }
+
+  .dialog-actions {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--background-secondary);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
   }
 }
 

@@ -1,4 +1,4 @@
-import { Component, Input, ViewEncapsulation } from '@angular/core';
+import { Component, Input, ViewEncapsulation, OnInit, OnChanges } from '@angular/core';
 
 @Component({
   selector: 'input-widget',
@@ -7,10 +7,24 @@ import { Component, Input, ViewEncapsulation } from '@angular/core';
   encapsulation: ViewEncapsulation.ShadowDom,
   standalone: false
 })
-export class InputWidgetComponent {
+export class InputWidgetComponent implements OnInit, OnChanges {
   @Input() label: string = '';
-  @Input() placeholder: string = '';
+  @Input() placeholder: string | string[] = '';
   @Input() type: string = 'text';
   @Input() value: string = '';
   @Input() disabled: boolean = false;
+
+  ngOnInit() {
+    this.parsePlaceholder();
+  }
+
+  ngOnChanges() {
+    this.parsePlaceholder();
+  }
+
+  private parsePlaceholder() {
+    if (Array.isArray(this.placeholder)) {
+      this.placeholder = this.placeholder.join(', ');
+    }
+  }
 }

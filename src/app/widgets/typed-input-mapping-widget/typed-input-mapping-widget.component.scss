@@ -1,35 +1,80 @@
 .typed-input-mapping-widget {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  min-width: 500px;
+  --font-size-base: 14px;
+  --spacing-sm: 8px;
+  --spacing-xs: 4px;
+  --text-primary: #333;
+  --text-disabled: #666;
+  --border-color: #e0e0e0;
+  --primary-color: #0066cc;
+  --primary-light: #0066cc40;
+  --border-radius: 4px;
+  --background-secondary: #f5f5f7;
 
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 8px;
+
+  > label {
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    display: block;
+  }  .mapping-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: #fff;
+  }
   .input-section {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-
-    label {
+    gap: 4px;
+      > label {
+      display: block;
       font-size: 14px;
       font-weight: 500;
-      color: #333;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      user-select: none;
+      flex-shrink: 0;
     }
 
     .input-group {
       display: flex;
       gap: 0;
-
-      select {
-        min-width: 100px;
-        padding: 8px;
-        font-size: 14px;
+      min-width: 0;      select {
+        width: 85px;
+        min-width: 85px;
+        height: 36px;
+        padding: 0 24px 0 8px;
+        font-size: var(--font-size-base);
         border: 1px solid var(--border-color);
-        border-radius: var(--border-radius) 0 0 var(--border-radius);
-        background-color: #fff;
+        border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+        background-color: var(--background-primary);
         cursor: pointer;
         outline: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%2386868b' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 4px center;
+        background-size: 20px;
+
+        &:hover {
+          border-color: var(--primary-color);
+        }
 
         &:focus {
           border-color: var(--primary-color);
@@ -37,19 +82,25 @@
         }
 
         &:disabled {
-          background-color: #e9ecef;
+          background-color: var(--background-secondary);
           cursor: not-allowed;
-        }
-      }
-
-      input {
+          opacity: 0.7;
+        }      }
+        input {
         flex: 1;
-        padding: 8px;
-        font-size: 14px;
+        min-width: 0;
+        height: 36px;
+        padding: 0 8px;
+        font-size: var(--font-size-base);
         border: 1px solid var(--border-color);
         border-left: none;
-        border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
         outline: none;
+        background-color: var(--background-primary);
+
+        &:hover {
+          border-color: var(--primary-color);
+        }
 
         &:focus {
           border-color: var(--primary-color);
@@ -59,28 +110,37 @@
         }
 
         &:disabled {
-          background-color: #e9ecef;
+          background-color: var(--background-secondary);
           cursor: not-allowed;
+          opacity: 0.7;
+        }
+
+        &::placeholder {
+          color: var(--text-disabled);
+          opacity: 0.7;
         }
       }
     }
-  }
-
-  .arrow-section {
+  }  .arrow-section {
     display: flex;
     align-items: center;
-    padding: 24px 8px 0;
+    padding: var(--spacing-xs);
+    margin-top: 22px; // Align with inputs after label
 
     .arrow {
       color: var(--primary-color);
-      transition: transform 0.3s ease;
+      opacity: 0.6;
+      transition: all 0.2s ease;
+      cursor: default;
 
       &:hover {
-        transform: scale(1.2);
+        opacity: 0.8;
       }
 
       svg {
         display: block;
+        width: 20px;
+        height: 20px;
       }
     }
   }
