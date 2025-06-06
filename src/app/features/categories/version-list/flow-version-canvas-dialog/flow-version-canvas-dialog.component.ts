@@ -28,6 +28,7 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
   dragOffset = { x: 0, y: 0 };
   canvasMinWidth = 2000; // default canvas width
   canvasMinHeight = 2000;
+  showNodesList = true; // Initialize to true to show palette by default
 
   nodes: { [key: string]: any } = {};
   connections: Array<{
@@ -49,7 +50,6 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
 
   registeredNodes: any[] = [];
 
-  showNodesList = false;
     private pathUpdateScheduled = false;
   private pathCache = new Map<string, string>();
 
@@ -100,9 +100,15 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     });
     this.updateConnectionPaths();
   }
-
   toggleNodesList() {
     this.showNodesList = !this.showNodesList;
+    // Force layout recalculation
+    this.ngZone.run(() => {
+      setTimeout(() => {
+        this.updateConnectionPaths();
+        this.cdr.detectChanges();
+      });
+    });
   }
 
   onNodeDrop(event: CdkDragDrop<any, any, any>): void {
@@ -529,5 +535,31 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
 
   onClose() {
     this.dialogRef.close();
+  }
+
+  refreshCanvas(): void {
+    // Logic to refresh the canvas
+    this.nodes = {}; // Clear all nodes
+    this.connections = []; // Clear all connections
+    this.updateConnectionPaths(); // Recalculate paths
+    console.log('Canvas refreshed');
+  }
+
+  toggleFullScreen(): void {
+    const elem = document.documentElement;
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen().catch(err => {
+        console.error(`Error attempting to exit full-screen mode: ${err.message}`);
+      });
+    }
+  }
+
+  openSettings(): void {
+    // Logic to open settings dialog
+    console.log('Settings dialog opened');
   }
 }

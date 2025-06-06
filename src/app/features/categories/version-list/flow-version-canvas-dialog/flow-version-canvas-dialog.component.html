@@ -1,5 +1,5 @@
 <div class="canvas-dialog-container">
-  <!-- Redesigned Header -->
+  <!-- Updated Header -->
   <div class="canvas-header">
     <div class="header-left">
       <mat-icon>menu</mat-icon>
@@ -19,9 +19,8 @@
     </button>
     <app-registered-nodes-list cdkDropList (cdkDropListDropped)="onNodeDrop($event)"></app-registered-nodes-list>
   </div>
-
   <!-- Scrollable Content -->
-  <div class="canvas-content">
+  <div class="canvas-content" [class.with-palette]="showNodesList">
     <div #canvasBoundary
          class="canvas-container"
          [style.minWidth.px]="canvasMinWidth"
@@ -114,13 +113,19 @@
     </div>
   </div>
 
-  <!-- Fixed Zoom Controller -->
+  <!-- Updated Zoom Controller -->
   <div class="zoom-controller">
     <button mat-icon-button (click)="zoomIn()">
       <mat-icon>zoom_in</mat-icon>
     </button>
     <button mat-icon-button (click)="zoomOut()">
       <mat-icon>zoom_out</mat-icon>
+    </button>
+    <button mat-icon-button (click)="refreshCanvas()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+    <button mat-icon-button (click)="toggleFullScreen()">
+      <mat-icon>fullscreen</mat-icon>
     </button>
     <span class="zoom-percentage">{{ scale | percent }}</span>
   </div>

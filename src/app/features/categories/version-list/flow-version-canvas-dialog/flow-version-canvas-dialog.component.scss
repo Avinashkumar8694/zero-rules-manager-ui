@@ -9,10 +9,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
-    background: linear-gradient(90deg, #4caf50, #81c784);
-    color: white;
+    padding: 8px 16px;
+    background: #f5f5f5; /* Match other components */
+    color: #333; /* Consistent font color */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    height: 48px; /* Adjusted height */
 
     .header-left {
       display: flex;
@@ -20,7 +21,7 @@
       gap: 8px;
 
       .version-name {
-        font-size: 18px;
+        font-size: 16px; /* Match font size */
         font-weight: bold;
       }
     }
@@ -30,21 +31,20 @@
       align-items: center;
     }
   }
-
   .nodes-list-panel {
-    position: fixed;
-    top: 64px;
+    position: absolute;
+    top: 48px;
     left: 0;
     width: 320px;
-    height: calc(100vh - 64px);
+    height: calc(100vh - 48px);
     background: white;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
+    z-index: 100;
 
     &.collapsed {
-      transform: translateX(-100%);
-    }
-
+      transform: translateX(-320px);
+    }    
     button {
       position: absolute;
       top: 50%;
@@ -52,15 +52,37 @@
       transform: translateY(-50%);
       background: white;
       border-radius: 50%;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      z-index: 101;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      outline: none;
+
+      .mat-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
   }
-
   .canvas-content {
     flex: 1;
     overflow: auto;
-    padding-top: 64px;
-    margin-left: 320px;
+    padding-top: 48px;
+    margin-left: 0;
+    transition: margin-left 0.3s ease;
+
+    &.with-palette {
+      margin-left: 320px;
+    }
   }
 
   .zoom-controller {
