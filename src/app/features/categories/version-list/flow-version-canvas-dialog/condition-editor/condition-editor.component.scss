@@ -63,6 +63,36 @@
   }
 }
 
+// Condition Editor Header
+.condition-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  background: linear-gradient(90deg, var(--primary-light) 60%, #fff 100%);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.04);
+  margin-bottom: 16px;
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    h1 {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--primary-color);
+      margin: 0;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+}
+
 // Node Connection Styles
 .node-connection {
   display: flex;

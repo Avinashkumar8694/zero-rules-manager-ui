@@ -33,13 +33,13 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
   selectedNodes: Set<string> = new Set(); // Track selected nodes
   selectedConnections: Set<string> = new Set(); // Track selected connections
 
-  nodes: { [key: string]: any } = {};
-  connections: Array<{
+  nodes: { [key: string]: any } = {};  connections: Array<{
     source: { nodeId: string; outputIndex: number };
     target: { nodeId: string; inputIndex: number };
     path?: string;
     condition?: string;
     name?: string;
+    design?: any;
   }> = [];
 
   // Connection dragging state
@@ -541,7 +541,8 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
           port: conn.target.inputIndex
         },
         condition: conn.condition,
-        name: conn.name
+        name: conn.name,
+        design: conn.design // Save design data
       }))
     };
 
@@ -734,18 +735,20 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
         condition: connection.condition || '',
         name: connection.name || '',
         sourceNode: sourceNode,
-        targetNode: targetNode
+        targetNode: targetNode,
+        design: connection.design // Pass the saved design to the condition editor
       },
       panelClass: 'condition-editor-dialog'
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result?: {condition: string, name: string, design: any}) => {
       if (result) {
         const connectionId = `${connection.source.nodeId}-${connection.target.nodeId}`;
         
-        // Update connection properties
+        // Update connection properties including the design
         connection.condition = result.condition;
         connection.name = result.name;
+        connection.design = result.design;
 
         // Add visual feedback by briefly highlighting the connection
         if (this.selectedConnections.has(connectionId)) {
@@ -763,6 +766,9 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
 
         // Force update of connection paths
         this.updateConnectionPaths();
+
+        // Debug log to verify design is saved
+        console.log('Updated connection with design:', connection);
       }
     });
   }

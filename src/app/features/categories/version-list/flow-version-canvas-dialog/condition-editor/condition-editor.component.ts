@@ -12,6 +12,7 @@ interface ConditionEditorData {
   name?: string;
   sourceNode: any;
   targetNode: any;
+  design?: any; // Saved condition design data
 }
 
 interface Rule {
@@ -74,16 +75,43 @@ export class ConditionEditorComponent implements OnInit {
   ngOnInit() {
     this.initializeFieldSearch();
   }
-
   private initializeForm() {
     this.initializeAvailableFields();
-    
+
     this.conditionForm = this.fb.group({
       name: [this.data.name || '', [Validators.maxLength(50)]],
       conditions: this.fb.array([])
     });
 
-    if (this.data.condition) {
+    if (this.data.design) {
+      // Load saved design data
+      const conditions = this.data.design;
+      conditions.forEach((group: any) => {
+        const groupForm = this.createConditionGroup(group.operator);
+        const rulesArray = this.getRules(groupForm);
+
+        group.rules.forEach((rule: any) => {
+          const ruleForm = this.createRule();
+          ruleForm.patchValue(rule);
+          rulesArray.push(ruleForm);
+        });
+
+        if (group.nestedGroups?.length) {
+          const nestedGroupsArray = this.getNestedGroups(groupForm);
+          group.nestedGroups.forEach((nestedGroup: any) => {
+            const nestedGroupForm = this.createConditionGroup(nestedGroup.operator);
+            nestedGroup.rules.forEach((rule: any) => {
+              const ruleForm = this.createRule();
+              ruleForm.patchValue(rule);
+              this.getRules(nestedGroupForm).push(ruleForm);
+            });
+            nestedGroupsArray.push(nestedGroupForm);
+          });
+        }
+
+        this.conditions.push(groupForm);
+      });
+    } else if (this.data.condition) {
       this.parseExistingCondition(this.data.condition);
     } else {
       const group = this.createConditionGroup();
@@ -118,7 +146,7 @@ export class ConditionEditorComponent implements OnInit {
 
   private _filterFields(value: string): string[] {
     const filterValue = value.toLowerCase();
-    return this.availableFields.filter(field => 
+    return this.availableFields.filter(field =>
       this.getFlattenedFieldName(field).toLowerCase().includes(filterValue)
     );
   }
@@ -160,7 +188,7 @@ export class ConditionEditorComponent implements OnInit {
       });
 
       // Add common fields based on node type
-      switch(node.type?.toLowerCase()) {
+      switch (node.type?.toLowerCase()) {
         case 'input':
           fields.add('value');
           fields.add('type');
@@ -190,7 +218,7 @@ export class ConditionEditorComponent implements OnInit {
 
   getRulesControls(group: AbstractControl): AbstractControl[] {
     return this.getRules(group).controls;
-  }  getNestedGroups(group: AbstractControl): FormArray {
+  } getNestedGroups(group: AbstractControl): FormArray {
     if (!(group instanceof FormGroup)) {
       console.warn('Expected FormGroup for nested groups');
       return this.fb.array([]);
@@ -203,7 +231,7 @@ export class ConditionEditorComponent implements OnInit {
       group.addControl('nestedGroups', newArray);
       return newArray;
     }
-    
+
     return nestedGroups as FormArray;
   }
 
@@ -218,16 +246,16 @@ export class ConditionEditorComponent implements OnInit {
 
   private getGroupAtPath(path: number[]): AbstractControl | null {
     if (!path.length) return null;
-    
+
     let currentGroup: AbstractControl | null = this.conditions.at(path[0]);
     if (!currentGroup) return null;
-    
+
     for (let i = 1; i < path.length; i++) {
       const nestedGroups = this.getNestedGroups(currentGroup);
       currentGroup = nestedGroups.at(path[i]);
       if (!currentGroup) return null;
     }
-    
+
     return currentGroup;
   }
   createConditionGroup(operator: 'AND' | 'OR' = 'AND'): FormGroup {
@@ -251,41 +279,41 @@ export class ConditionEditorComponent implements OnInit {
   addConditionGroup() {
     const group = this.createConditionGroup();
     this.conditions.push(group);
-    
+
     // Add a default rule to the new group
     const rule = this.createRule();
     this.getRules(group).push(rule);
-  }  addNestedGroup(parentIndex: number, path: number[] = []) {
-    let parentGroup = path.length === 0 ? 
-      this.conditions.at(parentIndex) : 
+  } addNestedGroup(parentIndex: number, path: number[] = []) {
+    let parentGroup = path.length === 0 ?
+      this.conditions.at(parentIndex) :
       this.getGroupAtPath([parentIndex, ...path]);
-      
+
     if (!parentGroup) {
       console.warn('Parent group not found');
       return;
     }
-    
+
     const nestedGroups = this.getNestedGroups(parentGroup);
     nestedGroups.push(this.createConditionGroup());
-    
+
     // Force validation after changes
     setTimeout(() => this.validateConditionForm());
   }
 
   removeNestedGroup(parentIndex: number, index: number, path: number[] = []) {
-    let parentGroup = path.length === 0 ? 
-      this.conditions.at(parentIndex) : 
+    let parentGroup = path.length === 0 ?
+      this.conditions.at(parentIndex) :
       this.getGroupAtPath([parentIndex, ...path]);
-      
+
     if (!parentGroup) {
       console.warn('Parent group not found');
       return;
     }
-    
+
     const nestedGroups = this.getNestedGroups(parentGroup);
     if (nestedGroups.length > index) {
       nestedGroups.removeAt(index);
-      
+
       // Force validation after changes
       setTimeout(() => this.validateConditionForm());
     }
@@ -302,10 +330,10 @@ export class ConditionEditorComponent implements OnInit {
 
     const parentPath = path.slice(0, -1);
     const lastIndex = path[path.length - 1];
-    
+
     const parentGroup = this.getGroupAtPath([groupIndex, ...parentPath]);
     if (!parentGroup) return;
-    
+
     const nestedGroups = this.getNestedGroups(parentGroup);
     if (nestedGroups.length > 1) {
       nestedGroups.removeAt(lastIndex);
@@ -314,15 +342,15 @@ export class ConditionEditorComponent implements OnInit {
   }
 
   addRule(groupIndex: number, path: number[] = []) {
-    let group = path.length === 0 ? 
-      this.conditions.at(groupIndex) : 
+    let group = path.length === 0 ?
+      this.conditions.at(groupIndex) :
       this.getGroupAtPath([groupIndex, ...path]);
-    
+
     if (!group) return;
-    
+
     const rules = this.getRules(group);
     const rule = this.createRule();
-    
+
     // Subscribe to field changes to handle custom field
     rule.get('field')?.valueChanges.subscribe(value => {
       if (value === 'custom') {
@@ -347,12 +375,12 @@ export class ConditionEditorComponent implements OnInit {
   }
 
   removeRule(groupIndex: number, ruleIndex: number, path: number[] = []) {
-    let group = path.length === 0 ? 
-      this.conditions.at(groupIndex) : 
+    let group = path.length === 0 ?
+      this.conditions.at(groupIndex) :
       this.getGroupAtPath([groupIndex, ...path]);
-    
+
     if (!group) return;
-    
+
     const rules = this.getRules(group);
     if (rules.length > 1) {
       rules.removeAt(ruleIndex);
@@ -367,12 +395,12 @@ export class ConditionEditorComponent implements OnInit {
   }
 
   dropRule(event: CdkDragDrop<any[]>, groupIndex: number, path: number[] = []) {
-    let group = path.length === 0 ? 
-      this.conditions.at(groupIndex) : 
+    let group = path.length === 0 ?
+      this.conditions.at(groupIndex) :
       this.getGroupAtPath([groupIndex, ...path]);
-    
+
     if (!group) return;
-    
+
     const rules = this.getRules(group);
     if (event.previousContainer === event.container) {
       moveItemInArray(rules.controls, event.previousIndex, event.currentIndex);
@@ -387,12 +415,12 @@ export class ConditionEditorComponent implements OnInit {
   }
 
   dropNestedGroup(event: CdkDragDrop<any[]>, groupIndex: number, path: number[] = []) {
-    let group = path.length === 0 ? 
-      this.conditions.at(groupIndex) : 
+    let group = path.length === 0 ?
+      this.conditions.at(groupIndex) :
       this.getGroupAtPath([groupIndex, ...path]);
-    
+
     if (!group) return;
-    
+
     const nestedGroups = this.getNestedGroups(group);
     if (event.previousContainer === event.container) {
       moveItemInArray(nestedGroups.controls, event.previousIndex, event.currentIndex);
@@ -411,16 +439,16 @@ export class ConditionEditorComponent implements OnInit {
     return (control: AbstractControl): ValidationErrors | null => {
       const value = control.value;
       if (!value) return { required: true };
-      
+
       if (!value.startsWith(this.FLOW_VARIABLE_PREFIX)) {
         return { invalidFlowVariable: true };
       }
-      
+
       const varName = value.substring(this.FLOW_VARIABLE_PREFIX.length);
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(varName)) {
         return { invalidFlowVariable: true };
       }
-      
+
       return null;
     };
   }
@@ -428,40 +456,51 @@ export class ConditionEditorComponent implements OnInit {
   // Update value validator to handle flow variables
   private conditionValueValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-      const parentGroup = control.parent;
-      if (!parentGroup) return null;
+        const parentGroup = control.parent;
+        if (!parentGroup) return null;
 
-      const comparison = parentGroup.get('comparison')?.value;
-      const field = parentGroup.get('field')?.value;
-      const value = control.value;
+        const comparison = parentGroup.get('comparison')?.value;
+        const valueType = parentGroup.get('valueType')?.value;
+        const value = control.value;
 
-      // Skip validation for empty/null values in comparisons that don't require values
-      if (['is_empty', 'is_not_empty'].includes(comparison)) {
-        return null;
-      }
-
-      // Handle flow variables in value
-      if (typeof value === 'string' && value.startsWith(this.FLOW_VARIABLE_PREFIX)) {
-        const varName = value.substring(this.FLOW_VARIABLE_PREFIX.length);
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(varName)) {
-          return { invalidFlowVariable: true };
+        // Skip validation for empty/null values in comparisons that don't require values
+        if (['is_empty', 'is_not_empty'].includes(comparison)) {
+            return null;
         }
-        return null;
-      }
 
-      // Validate array values for 'in' and 'not_in' comparisons
-      if (['in', 'not_in'].includes(comparison)) {
-        try {
-          const arr = JSON.parse(value);
-          if (!Array.isArray(arr)) {
-            return { invalidArray: true };
-          }
-        } catch {
-          return { invalidArray: true };
+        // Validate for 'in' and 'not_in' comparisons
+        if (['in', 'not_in'].includes(comparison)) {
+            if (valueType === 'flowvariable') {
+                if (typeof value === 'string') {
+                    const varName = value;
+                    if (!this.isValidFlowVariableName(varName)) {
+                        return { invalidFlowVariable: true };
+                    }
+                } else {
+                    return { invalidFlowVariable: true };
+                }
+            } else if (valueType === 'any') {
+                if (typeof value === 'string') {
+                    if (value.startsWith('$')) {
+                        return null; // Valid if it starts with $
+                    }
+                    try {
+                        const parsedValue = JSON.parse(value);
+                        if (!Array.isArray(parsedValue)) {
+                            return { invalidAnyValue: true };
+                        }
+                    } catch {
+                        return { invalidAnyValue: true };
+                    }
+                } else {
+                    return { invalidAnyValue: true };
+                }
+            } else {
+                return { invalidValueType: true };
+            }
         }
-      }
 
-      return null;
+        return null;
     };
   }
 
@@ -537,21 +576,24 @@ export class ConditionEditorComponent implements OnInit {
       this.markFormGroupTouched(this.conditionForm);
       return;
     }
+
     const conditions = this.conditions.getRawValue() as ConditionGroup[];
     if (!this.areAllRulesValid(conditions)) {
       alert('Please provide valid values for all rules. Flow variable names must start with a letter or underscore and contain only letters, numbers, and underscores.');
       return;
     }
+
     const conditionString = conditions
       .map(group => this.buildConditionString(group))
       .filter(str => str)
       .join(' AND ');
-      
+
     console.log('Final condition string:', conditionString);
-    // this.dialogRef.close({
-    //   name: this.conditionForm.get('name')?.value,
-    //   condition: conditionString
-    // });
+    this.dialogRef.close({
+      name: this.conditionForm.get('name')?.value,
+      condition: conditionString,
+      design: this.conditions.getRawValue() // Save the full design data
+    });
   }
 
   cancel() {
@@ -561,7 +603,7 @@ export class ConditionEditorComponent implements OnInit {
   private parseConditionGroups(condition: string): ConditionGroup[] {
     const groups: ConditionGroup[] = [];
     const parts = condition.split(' AND ');
-    
+
     parts.forEach(part => {
       const group: ConditionGroup = {
         operator: 'AND',
@@ -583,7 +625,7 @@ export class ConditionEditorComponent implements OnInit {
       const conditions = part.replace(/\(.*?\)/g, '').trim().split(/ (?:AND|OR) /);
       conditions.forEach(condition => {
         if (!condition) return;
-        
+
         const matches = condition.match(/^(\w+)\s+(\w+(?:_\w+)*)\s*(.*)$/);
         if (matches) {
           const [, field, comparison, value] = matches;
@@ -598,15 +640,15 @@ export class ConditionEditorComponent implements OnInit {
 
     return groups;
   }
-  
+
   private parseExistingCondition(condition: string) {
     try {
       const groups = this.parseConditionGroups(condition);
-      
+
       groups.forEach((group: ConditionGroup) => {
         const groupForm = this.createConditionGroup(group.operator);
         const rulesArray = this.getRules(groupForm);
-        
+
         group.rules.forEach((rule: Rule) => {
           const ruleForm = this.fb.group({
             field: [rule.field, Validators.required],
@@ -707,11 +749,40 @@ export class ConditionEditorComponent implements OnInit {
         return comparison === 'not_contains' ? `!${base}` : base;
       }
       // Handle array membership
+      // Inside buildRule
+
+      // Handle array membership
       if (comparison === 'in' || comparison === 'not_in') {
-        const array = Array.isArray(rawValue) ? JSON.stringify(rawValue) : `[${serializeValue(rawValue, valueType)}]`;
-        const expression = `${array}.includes(${field})`;
-        return comparison === 'not_in' ? `!${expression}` : expression;
+        const isFlow = valueType === 'flowvariable' || isFlowVariable(rawValue);
+        let expression: string;
+
+        if (isFlow) {
+          let flowVar = rawValue;
+          if (typeof flowVar === 'string' && flowVar.startsWith(this.FLOW_VARIABLE_PREFIX)) {
+            flowVar = flowVar.substring(this.FLOW_VARIABLE_PREFIX.length);
+          }
+          if (typeof flowVar === 'string' && !this.isValidFlowVariableName(flowVar)) {
+            throw new Error('Invalid flow variable name for in/not_in');
+          }
+
+          const varRef = `${this.FLOW_VARIABLE_PREFIX}${flowVar}`;
+          // Check if it's an array or object at runtime and get values accordingly
+          expression = `(Array.isArray(${varRef}) ? ${varRef}.includes(${field}) : Object.values(${varRef}).includes(${field}))`;
+        } else if (valueType === 'any') {
+          const array = Array.isArray(rawValue)
+            ? JSON.stringify(rawValue)
+            : `[${serializeValue(rawValue, valueType)}]`;
+          expression = `${array}.includes(${field})`;
+        } else {
+          const array = Array.isArray(rawValue)
+            ? JSON.stringify(rawValue)
+            : `[${serializeValue(rawValue, valueType)}]`;
+          expression = `${array}.includes(${field})`;
+        }
+
+        return comparison === 'not_in' ? `!(${expression})` : expression;
       }
+
       // Map comparisons to JS operators
       const operatorMap: Record<string, string> = {
         equals: '===',
