@@ -90,8 +90,7 @@
             [style.--node-color]="entry.value.color || '#1976d2'"            cdkDrag
             [cdkDragBoundary]="canvasBoundary"
             [cdkDragFreeDragPosition]="entry.value.position"
-            (cdkDragStarted)="onDragStart($event, entry.key)"
-            (cdkDragMoved)="onNodeMoved($event, entry.key)"
+            (cdkDragStarted)="onDragStart($event, entry.key)"            (cdkDragMoved)="onNodeMoved($event, entry.key)"
             (click)="selectNode($event, entry.key)"
             (contextmenu)="onNodeRightClick($event, entry.value)"
             [class.selected]="selectedNodes.has(entry.key)"

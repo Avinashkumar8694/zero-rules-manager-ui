@@ -443,3 +443,38 @@
       overflow: hidden;
     }
   }
+
+  /* Condition Editor Dialog Styles */
+:host ::ng-deep {
+  .condition-editor-dialog {
+    .mat-mdc-dialog-container {
+      padding: 0;
+    }
+  }
+
+  .mat-mdc-form-field {
+    .mat-mdc-form-field-subscript-wrapper {
+      height: 20px;
+    }
+  }
+
+  .mat-mdc-form-field-error {
+    font-size: 12px;
+  }
+
+  // Connection highlight animation
+  .connections-layer {
+    path {
+      transition: stroke-width 0.3s ease-in-out, stroke-opacity 0.3s ease-in-out;
+    }
+
+    .condition-chip {
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+      &.selected {
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
+}

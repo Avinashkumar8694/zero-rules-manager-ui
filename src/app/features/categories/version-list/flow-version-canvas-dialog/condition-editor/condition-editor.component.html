@@ -1,0 +1,147 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2>Configure Connection</h2>
+  </div>
+
+  <form [formGroup]="conditionForm" (ngSubmit)="save()" class="dialog-form">
+    <div class="dialog-content">
+      <!-- Node Connection Info -->
+      <div class="node-info">
+        <div class="node-row">
+          <div class="node-icon source" [style.background]="data.sourceNode.color || '#1976d2'">
+            <mat-icon>arrow_forward</mat-icon>
+          </div>
+          <div class="node-text">
+            <strong>{{ data.sourceNode.type }}</strong>
+            <span>{{ data.sourceNode.name }}</span>
+          </div>
+        </div>
+        <div class="connector-line">
+          <mat-icon>arrow_downward</mat-icon>
+        </div>
+        <div class="node-row">
+          <div class="node-icon target" [style.background]="data.targetNode.color || '#1976d2'">
+            <mat-icon>arrow_back</mat-icon>
+          </div>
+          <div class="node-text">
+            <strong>{{ data.targetNode.type }}</strong>
+            <span>{{ data.targetNode.name }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connection Name -->
+      <div class="form-field">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Connection Name</mat-label>
+          <input matInput formControlName="name" placeholder="Enter a name for this connection">
+          <mat-hint>Optional: Give this connection a meaningful name</mat-hint>
+          <mat-error *ngIf="conditionForm.get('name')?.errors?.['maxlength']">
+            Name cannot exceed 50 characters
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Conditions Group -->
+      <div class="condition-group mat-elevation-z1">
+        <div class="condition-header">
+          <h3>Flow Conditions</h3>
+          <mat-form-field appearance="outline">
+            <mat-label>Join Operator</mat-label>
+            <mat-select formControlName="operator">
+              <mat-option *ngFor="let op of operators" [value]="op">
+                {{ op }}
+              </mat-option>
+            </mat-select>
+            <mat-hint>How to combine multiple conditions</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Conditions List -->
+        <div formArrayName="conditions" class="conditions-list">
+          <!-- Helper text for no conditions -->
+          <div *ngIf="conditions.length === 0" class="no-conditions">
+            <mat-icon>info</mat-icon>
+            <span>No conditions defined. Add a condition below.</span>
+          </div>
+
+          <!-- Individual Conditions -->
+          <div *ngFor="let condition of conditions.controls; let i=index" [formGroupName]="i" 
+               class="condition-row mat-elevation-z1">
+            <!-- Field Selection -->
+            <mat-form-field appearance="outline">
+              <mat-label>Field</mat-label>
+              <mat-select formControlName="field">
+                <mat-option *ngFor="let field of availableFields" [value]="field">
+                  {{ field }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="condition.get('field')?.errors?.['required']">
+                Field is required
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Comparison Selection -->
+            <mat-form-field appearance="outline">
+              <mat-label>Comparison</mat-label>
+              <mat-select formControlName="comparison">
+                <mat-option *ngFor="let comp of comparisons" [value]="comp.value">
+                  {{ comp.label }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="condition.get('comparison')?.errors?.['required']">
+                Comparison is required
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Value Input - Only show for comparisons that need a value -->
+            <mat-form-field appearance="outline" *ngIf="shouldShowValue(condition.get('comparison')?.value)">
+              <mat-label>Value</mat-label>
+              <ng-container [ngSwitch]="getFieldType(condition.get('field')?.value)">
+                <!-- Number input -->
+                <input *ngSwitchCase="'number'" matInput type="number" formControlName="value" 
+                       placeholder="Enter a number">
+                
+                <!-- Boolean input -->
+                <mat-select *ngSwitchCase="'boolean'" formControlName="value">
+                  <mat-option [value]="true">True</mat-option>
+                  <mat-option [value]="false">False</mat-option>
+                </mat-select>
+                
+                <!-- Default text input -->
+                <input *ngSwitchDefault matInput formControlName="value" placeholder="Enter value">
+              </ng-container>
+              <mat-error *ngIf="condition.get('value')?.errors?.['required']">
+                Value is required
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Remove Condition Button -->
+            <button type="button" mat-icon-button color="warn" 
+                    (click)="removeCondition(i)"
+                    [disabled]="conditions.length === 1"
+                    matTooltip="Remove condition">
+              <mat-icon>remove_circle</mat-icon>
+            </button>
+          </div>
+
+          <!-- Add Condition Button -->
+          <div class="add-condition">
+            <button type="button" mat-stroked-button color="primary" (click)="addCondition()">
+              <mat-icon>add</mat-icon>
+              Add Condition
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dialog Actions -->
+    <div class="dialog-actions">
+      <button type="button" mat-button (click)="cancel()">Cancel</button>
+      <button type="submit" mat-raised-button color="primary" [disabled]="!conditionForm.valid">
+        Save
+      </button>
+    </div>
+  </form>
+</div>

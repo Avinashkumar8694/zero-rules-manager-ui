@@ -14,6 +14,7 @@ import { AttributeWindowComponent as ConnectionAttributeWindow } from './attribu
 import { CdkDragStart, CdkDragMove } from '@angular/cdk/drag-drop';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { take } from 'rxjs/operators';
+import { ConditionEditorComponent } from './condition-editor/condition-editor.component';
 
 @Component({
   selector: 'app-flow-version-canvas-dialog',
@@ -522,13 +523,10 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
       });
     }
   }
-
   onConnectionRightClick(event: MouseEvent, connection: any) {
     event.preventDefault();
-    this.dialog.open(ConnectionAttributeWindow, {
-      width: '400px',
-      data: { selectedNode: connection }
-    });
+    // When right-clicking on connection or condition chip, open the condition editor
+    this.openConditionEditor(connection);
   }
   saveCanvas() {
     const flowConfig = {
@@ -711,5 +709,62 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
 
   getNodeColor(nodeId: string): string {
     return this.nodes[nodeId]?.color || '#1976d2';
+  }  openConditionEditor(connection: any) {
+    // Validate that connection and required nodes exist
+    if (!connection || !connection.source?.nodeId || !connection.target?.nodeId) {
+      console.warn('Invalid connection data for condition editor');
+      return;
+    }
+
+    const sourceNode = this.nodes[connection.source.nodeId];
+    const targetNode = this.nodes[connection.target.nodeId];
+
+    if (!sourceNode || !targetNode) {
+      console.warn('Source or target node not found for condition editor');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ConditionEditorComponent, {
+      width: 'auto',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      data: {
+        sourceNodeId: connection.source.nodeId,
+        targetNodeId: connection.target.nodeId,
+        condition: connection.condition || '',
+        name: connection.name || '',
+        sourceNode: sourceNode,
+        targetNode: targetNode
+      },
+      panelClass: 'condition-editor-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const connectionId = `${connection.source.nodeId}-${connection.target.nodeId}`;
+        
+        // Update connection properties
+        connection.condition = result.condition;
+        connection.name = result.name;
+
+        // Add visual feedback by briefly highlighting the connection
+        if (this.selectedConnections.has(connectionId)) {
+          this.selectedConnections.delete(connectionId);
+          setTimeout(() => {
+            this.selectedConnections.add(connectionId);
+            this.cdr.detectChanges();
+            // Remove highlight after animation
+            setTimeout(() => {
+              this.selectedConnections.delete(connectionId);
+              this.cdr.detectChanges();
+            }, 1000);
+          }, 100);
+        }
+
+        // Force update of connection paths
+        this.updateConnectionPaths();
+      }
+    });
   }
+
 }
