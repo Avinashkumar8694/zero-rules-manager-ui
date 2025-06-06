@@ -594,8 +594,10 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     this.selectedNodes.clear();
     this.cdr.detectChanges();
   }
-
   deleteSelectedNodes() {
+    // Clear path cache before deletion
+    this.pathCache.clear();
+
     // Remove associated connections first
     this.connections = this.connections.filter(conn => 
       !this.selectedNodes.has(conn.source.nodeId) && !this.selectedNodes.has(conn.target.nodeId)
@@ -607,7 +609,24 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     });
 
     this.selectedNodes.clear();
-    this.updateConnectionPaths();
-    this.cdr.detectChanges();
+
+    // Force a recalculation of all connection paths
+    this.ngZone.run(() => {
+      requestAnimationFrame(() => {
+        this.connections.forEach(connection => {
+          const path = this.calculateConnectionPath(connection);
+          if (path) {
+            connection.path = path;
+          }
+        });
+        this.cdr.detectChanges();
+
+        // Double check paths after a short delay to ensure DOM is updated
+        setTimeout(() => {
+          this.updateConnectionPaths();
+          this.cdr.detectChanges();
+        }, 50);
+      });
+    });
   }
 }
