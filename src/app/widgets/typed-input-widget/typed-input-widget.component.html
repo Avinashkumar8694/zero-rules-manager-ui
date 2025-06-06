@@ -1,0 +1,9 @@
+<div class="typed-input-widget">
+  <label *ngIf="label">{{ label }}</label>
+  <div class="input-group">
+    <select [(ngModel)]="selectedType" [disabled]="disabled">
+      <option *ngFor="let option of options" [value]="option">{{ option }}</option>
+    </select>
+    <input [type]="type" [(ngModel)]="value" [disabled]="disabled" [placeholder]="'Enter ' + selectedType" />
+  </div>
+</div>

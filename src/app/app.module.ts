@@ -17,12 +17,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NodeRegistrationService } from './services/node-registration.service';
+import { WidgetsModule } from './widgets/widgets.module';
 
 @NgModule({
   declarations: [
     AppComponent
   ],
   imports: [
+    WidgetsModule,
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
