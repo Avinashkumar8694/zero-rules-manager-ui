@@ -4,9 +4,21 @@
     <div class="header-left">
       <mat-icon>menu</mat-icon>
       <div class="version-name">{{ data.name }}</div>
-    </div>
-    <div class="header-right">
-      <button mat-icon-button (click)="onClose()">
+    </div>    <div class="header-right">
+      <button mat-icon-button 
+              [disabled]="selectedNodes.size === 0"
+              (click)="deleteSelectedNodes()"
+              matTooltip="Delete selected nodes">
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button mat-icon-button 
+              (click)="saveCanvas()"
+              matTooltip="Save changes">
+        <mat-icon>save</mat-icon>
+      </button>
+      <button mat-icon-button 
+              (click)="onClose()"
+              matTooltip="Close">
         <mat-icon>close</mat-icon>
       </button>
     </div>
@@ -24,12 +36,12 @@
     <div #canvasBoundary
          class="canvas-container"
          [style.minWidth.px]="canvasMinWidth"
-         [style.minHeight.px]="canvasMinHeight">
-      <div class="canvas-area"
+         [style.minHeight.px]="canvasMinHeight">      <div class="canvas-area"
            [ngStyle]="{ transform: 'scale(' + scale + ')' }"
            [style.minWidth.px]="canvasMinWidth"
            [style.minHeight.px]="canvasMinHeight"
-           style="transform-origin: top left; position: relative;">
+           style="transform-origin: top left; position: relative;"
+           (click)="clearSelection()">
         <!-- SVG container for connections -->
         <svg class="connections-layer" [attr.width]="canvasMinWidth" [attr.height]="canvasMinHeight">
           <g *ngFor="let connection of connections">
@@ -69,13 +81,14 @@
           <div
             class="node-card"
             [ngClass]="entry.value.nodeStyle || 'rectangle'"
-            [style.--node-shadow-color]="entry.value.color || 'rgba(0, 0, 0, 0.15)'"
-            cdkDrag
+            [style.--node-shadow-color]="entry.value.color || 'rgba(0, 0, 0, 0.15)'"            cdkDrag
             [cdkDragBoundary]="canvasBoundary"
             [cdkDragFreeDragPosition]="entry.value.position"
             (cdkDragStarted)="onDragStart($event, entry.key)"
             (cdkDragMoved)="onNodeMoved($event, entry.key)"
+            (click)="selectNode($event, entry.key)"
             (contextmenu)="onNodeRightClick($event, entry.value)"
+            [class.selected]="selectedNodes.has(entry.key)"
             id="{{ entry.value.id }}"
           >
             <div class="connection-points inputs" *ngIf="entry.value.config?.io?.inputs">

@@ -29,6 +29,7 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
   canvasMinWidth = 2000; // default canvas width
   canvasMinHeight = 2000;
   showNodesList = true; // Initialize to true to show palette by default
+  selectedNodes: Set<string> = new Set(); // Track selected nodes
 
   nodes: { [key: string]: any } = {};
   connections: Array<{
@@ -528,9 +529,26 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
       data: { selectedNode: connection }
     });
   }
-
   saveCanvas() {
-    console.log('Saving canvas...', this.nodes);
+    const flowConfig = {
+      nodes: this.nodes,
+      connections: this.connections.map(conn => ({
+        from: {
+          node: conn.source.nodeId,
+          port: conn.source.outputIndex
+        },
+        to: {
+          node: conn.target.nodeId,
+          port: conn.target.inputIndex
+        },
+        condition: conn.condition,
+        name: conn.name
+      }))
+    };
+
+    console.log('Saving flow config:', flowConfig);
+    // Close dialog with the updated config
+    this.dialogRef.close({ flowConfig });
   }
 
   onClose() {
@@ -561,5 +579,35 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
   openSettings(): void {
     // Logic to open settings dialog
     console.log('Settings dialog opened');
+  }
+
+  selectNode(event: MouseEvent, nodeId: string) {
+    event.stopPropagation();
+    if (!event.ctrlKey && !event.metaKey) {
+      this.selectedNodes.clear();
+    }
+    this.selectedNodes.add(nodeId);
+    this.cdr.detectChanges();
+  }
+
+  clearSelection() {
+    this.selectedNodes.clear();
+    this.cdr.detectChanges();
+  }
+
+  deleteSelectedNodes() {
+    // Remove associated connections first
+    this.connections = this.connections.filter(conn => 
+      !this.selectedNodes.has(conn.source.nodeId) && !this.selectedNodes.has(conn.target.nodeId)
+    );
+
+    // Remove selected nodes
+    this.selectedNodes.forEach(nodeId => {
+      delete this.nodes[nodeId];
+    });
+
+    this.selectedNodes.clear();
+    this.updateConnectionPaths();
+    this.cdr.detectChanges();
   }
 }
