@@ -1,9 +1,10 @@
-import {
-  Component,
+import { Component,
   ElementRef,
   ViewChild,
   Inject,
-  AfterViewInit
+  AfterViewInit,
+  NgZone,
+  ChangeDetectorRef
 } from '@angular/core';
 import { NodeRegistrationService } from '../../../../services/node-registration.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -12,6 +13,7 @@ import { AttributeWindowComponent } from '../../../nodes/components/attribute-wi
 import { AttributeWindowComponent as ConnectionAttributeWindow } from './attribute-window/attribute-window.component';
 import { CdkDragStart, CdkDragMove } from '@angular/cdk/drag-drop';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-flow-version-canvas-dialog',
@@ -24,8 +26,8 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
 
   scale = 1;
   dragOffset = { x: 0, y: 0 };
-  canvasMinWidth = 1000; // default canvas width
-  canvasMinHeight = 1000;
+  canvasMinWidth = 2000; // default canvas width
+  canvasMinHeight = 2000;
 
   nodes: { [key: string]: any } = {};
   connections: Array<{
@@ -48,19 +50,56 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
   registeredNodes: any[] = [];
 
   showNodesList = false;
+    private pathUpdateScheduled = false;
+  private pathCache = new Map<string, string>();
+
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<FlowVersionCanvasDialogComponent>,
     private nodeRegistrationService: NodeRegistrationService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {
     const nodes = this.nodeRegistrationService.getAllNodeDefinitions();
     this.registeredNodes = Array.from(nodes.values());
     this.initializeNodes();
+    this.updateConnectionPaths();
   }
 
-  ngAfterViewInit(): void { }
+  ngAfterViewInit(): void {
+    // Run updateConnectionPaths after Angular has completed initial rendering
+    this.ngZone.onStable.pipe(take(1)).subscribe(() => {
+      setTimeout(() => {
+        // Force position recalculation
+        Object.entries(this.nodes).forEach(([nodeId, node]) => {
+          if (node.position) {
+            // Temporarily offset position to force recalculation
+            const originalPos = { ...node.position };
+            node.position = {
+              x: originalPos.x + 0.1,
+              y: originalPos.y + 0.1
+            };
+            
+            // Schedule revert and path update
+            requestAnimationFrame(() => {
+              this.updateConnectionPaths();
+              node.position = originalPos;
+              this.cdr.detectChanges();
+              
+              // One more update to ensure connections are correct
+              requestAnimationFrame(() => {
+                this.updateConnectionPaths();
+                this.cdr.detectChanges();
+              });
+            });
+          }
+        });
+      }, 100); // Small delay to ensure DOM is ready
+    });
+    this.updateConnectionPaths();
+  }
 
   toggleNodesList() {
     this.showNodesList = !this.showNodesList;
@@ -91,10 +130,6 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     };
   }
   
-
-  private pathUpdateScheduled = false;
-  private pathCache = new Map<string, string>();
-
   private calculateConnectionPath(connection: any): string {
     const cacheKey = `${connection.source.nodeId}-${connection.source.outputIndex}-${connection.target.nodeId}-${connection.target.inputIndex}-${this.scale}`;
     if (this.pathCache.has(cacheKey)) {
@@ -114,38 +149,67 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     const sourceOutputPoint = sourceElement.querySelectorAll('.connection-points.outputs .point');
     const targetInputPoint = targetElement.querySelectorAll('.connection-points.inputs .point');
 
-    if (!sourceOutputPoint || !targetInputPoint) return '';
+    if (!sourceOutputPoint.length || !targetInputPoint.length) return '';
 
     const scrollContainer = this.canvasBoundary.nativeElement as HTMLElement;
     const canvasArea = scrollContainer.querySelector('.canvas-area') as HTMLElement;
     const canvasRect = canvasArea.getBoundingClientRect();
 
-    const sourcePointBoundingRect = sourceOutputPoint[connection.source.outputIndex || 0].getBoundingClientRect();
-    const targetPointBoundingRect = targetInputPoint[connection.target.inputIndex || 0].getBoundingClientRect();
+    try {
+      const sourcePointRect = sourceOutputPoint[connection.source.outputIndex || 0].getBoundingClientRect();
+      const targetPointRect = targetInputPoint[connection.target.inputIndex || 0].getBoundingClientRect();
 
-    // Calculate source and target points with scroll adjustments
-    const sourceX = (sourcePointBoundingRect.x + 5 - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
-    const sourceY = (sourcePointBoundingRect.y + 5 - canvasRect.top + scrollContainer.scrollTop) / this.scale;
-    const targetX = (targetPointBoundingRect.x + 5 - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
-    const targetY = (targetPointBoundingRect.y + 5 - canvasRect.top + scrollContainer.scrollTop) / this.scale;
+      // If elements aren't properly sized yet, use node positions as fallback
+      if (sourcePointRect.width === 0 || targetPointRect.width === 0) {
+        const nodeWidth = 280; // Typical node width
+        const nodeHeight = 40;  // Typical point vertical position
 
-    // Calculate control points for bezier curve with proper scaling
+        // Calculate approximate connection points based on node positions
+        const sourceX = sourceNode.position.x + nodeWidth;
+        const sourceY = sourceNode.position.y + nodeHeight;
+        const targetX = targetNode.position.x;
+        const targetY = targetNode.position.y + nodeHeight;
+
+        // Generate path
+        return this.createPathFromPoints(sourceX, sourceY, targetX, targetY);
+      }
+
+      // Get center points of the connection points
+      const sourceCenterX = (sourcePointRect.left + sourcePointRect.right) / 2;
+      const sourceCenterY = (sourcePointRect.top + sourcePointRect.bottom) / 2;
+      const targetCenterX = (targetPointRect.left + targetPointRect.right) / 2;
+      const targetCenterY = (targetPointRect.top + targetPointRect.bottom) / 2;
+
+      // Calculate positions relative to canvas
+      const sourceX = (sourceCenterX - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
+      const sourceY = (sourceCenterY - canvasRect.top + scrollContainer.scrollTop) / this.scale;
+      const targetX = (targetCenterX - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
+      const targetY = (targetCenterY - canvasRect.top + scrollContainer.scrollTop) / this.scale;
+
+      if (isNaN(sourceX) || isNaN(sourceY) || isNaN(targetX) || isNaN(targetY)) {
+        return '';
+      }
+
+      const path = this.createPathFromPoints(sourceX, sourceY, targetX, targetY);
+      this.pathCache.set(cacheKey, path);
+      return path;
+    } catch (error) {
+      console.error('Error calculating connection path:', error);
+      return '';
+    }
+  }
+
+  private createPathFromPoints(sourceX: number, sourceY: number, targetX: number, targetY: number): string {
     const deltaX = targetX - sourceX;
     const deltaY = targetY - sourceY;
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     
-    // Adjust control point distances based on the connection length
-    const controlPointOffset = Math.min(distance * 0.5, 100);
-    
-    // Calculate control points maintaining curve shape across different scales
-    const controlPoint1X = sourceX + (deltaX * 0.);
+    // Calculate control points for bezier curve
+    const controlPoint1X = sourceX + (deltaX * 0.25);
     const controlPoint1Y = sourceY + (deltaY * 0.5);
     const controlPoint2X = sourceX + (deltaX * 0.75);
     const controlPoint2Y = sourceY + (deltaY * 0.5);
     
-    const path = `M ${sourceX} ${sourceY} C ${sourceX} ${controlPoint1Y}, ${targetX} ${controlPoint2Y}, ${targetX} ${targetY}`;
-    this.pathCache.set(cacheKey, path);
-    return path;
+    return `M ${sourceX} ${sourceY} C ${sourceX} ${controlPoint1Y}, ${targetX} ${controlPoint2Y}, ${targetX} ${targetY}`;
   }
 
   private updateConnectionPaths() {
@@ -171,19 +235,8 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
 
   private initializeNodes() {
     if (this.data?.flowConfig) {
-      // Initialize connections from flowConfig
-      if (this.data.flowConfig.connections) {
-        this.connections = this.data.flowConfig.connections.map((conn: any) => ({
-          source: { nodeId: conn.from.node, outputIndex: conn?.from?.port || 0 },
-          target: { nodeId: conn.to.node, inputIndex: conn.to?.port || 0 },
-          condition: conn.condition,
-          name: conn.name
-        }));
-      }
-
-      // Initialize nodes
+      // Initialize nodes first with complete configuration
       if (this.data.flowConfig.nodes) {
-        // Apply node configurations from registration service
         this.nodes = Object.entries(this.data.flowConfig.nodes).reduce((acc, [nodeId, node]: [string, any]) => {
           const nodeConfig = this.nodeRegistrationService.getNodeDefinition(node.type);
           acc[node.id] = {
@@ -191,48 +244,54 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
             nodeStyle: nodeConfig?.appearance?.nodeStyle,
             name: nodeConfig?.label?.call(nodeConfig.defaults) || node.type,
             color: nodeConfig?.appearance?.color,
-            ...node,
+            ...node, // Keep original node data including positions if they exist
             config: nodeConfig
           };
           return acc;
         }, {} as any);
 
-        // Calculate positions for nodes without positions
-        const nodeSpacing = { x: 300, y: 150 }; // Spacing between nodes
-        const startPosition = { x: 100, y: 100 }; // Initial position for first node
-        const maxNodesPerRow = 2; // Maximum nodes in a row
-
-        // Group nodes by their vertical level
-        const nodesByLevel: { [key: string]: any[] } = {};
-        let currentLevel = 0;
-
-        // First pass: Collect nodes with existing positions
-        const nodesWithPosition = Object.entries(this.nodes).filter(([_, node]) => node.position);
+        // Calculate positions only for nodes without positions
         const nodesWithoutPosition = Object.entries(this.nodes).filter(([_, node]) => !node.position);
+        
+        if (nodesWithoutPosition.length > 0) {
+          const nodeSpacing = { x: 300, y: 150 };
+          const startPosition = { x: 100, y: 100 };
+          const maxNodesPerRow = 2;
 
-        // Sort nodes without position into levels
-        let currentNodes = nodesWithoutPosition;
-        while (currentNodes.length > 0) {
-          nodesByLevel[currentLevel] = currentNodes.slice(0, maxNodesPerRow);
-          currentNodes = currentNodes.slice(maxNodesPerRow);
-          currentLevel++;
-        }
+          const nodesByLevel: { [key: string]: any[] } = {};
+          let currentLevel = 0;
+          let currentNodes = nodesWithoutPosition;
 
-        // Position nodes level by level
-        Object.entries(nodesByLevel).forEach(([level, nodes]) => {
-          const levelY = startPosition.y + (parseInt(level) * nodeSpacing.y);
-          const totalWidth = (nodes.length - 1) * nodeSpacing.x;
-          const startX = startPosition.x + (1000 - totalWidth) / 2; // Center nodes horizontally
+          while (currentNodes.length > 0) {
+            nodesByLevel[currentLevel] = currentNodes.slice(0, maxNodesPerRow);
+            currentNodes = currentNodes.slice(maxNodesPerRow);
+            currentLevel++;
+          }
 
-          nodes.forEach(([nodeId, node], index) => {
-            const xPos = startX + (index * nodeSpacing.x);
-            node.position = { x: xPos, y: levelY };
+          Object.entries(nodesByLevel).forEach(([level, nodes]) => {
+            const levelY = startPosition.y + (parseInt(level) * nodeSpacing.y);
+            const totalWidth = (nodes.length - 1) * nodeSpacing.x;
+            const startX = startPosition.x + (1000 - totalWidth) / 2;
+
+            nodes.forEach(([nodeId, node], index) => {
+              const xPos = startX + (index * nodeSpacing.x);
+              this.nodes[nodeId].position = { x: xPos, y: levelY };
+            });
           });
-        });
 
-        // Update canvas dimensions
-        const maxY = startPosition.y + (currentLevel * nodeSpacing.y) + nodeSpacing.y;
-        this.canvasMinHeight = Math.max(this.canvasMinHeight, maxY);
+          const maxY = startPosition.y + (currentLevel * nodeSpacing.y) + nodeSpacing.y;
+          this.canvasMinHeight = Math.max(this.canvasMinHeight, maxY);
+        }
+      }
+
+      // Initialize connections after nodes are fully set up
+      if (this.data.flowConfig.connections) {
+        this.connections = this.data.flowConfig.connections.map((conn: any) => ({
+          source: { nodeId: conn.from.node, outputIndex: conn?.from?.port || 0 },
+          target: { nodeId: conn.to.node, inputIndex: conn.to?.port || 0 },
+          condition: conn.condition,
+          name: conn.name
+        }));
       }
     }
   }
