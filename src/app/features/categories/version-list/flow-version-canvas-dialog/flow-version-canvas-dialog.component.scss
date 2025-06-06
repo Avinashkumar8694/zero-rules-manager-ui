@@ -220,20 +220,44 @@
     pointer-events: none;
     z-index: 1;
 
-    .condition-chip {
+    path {
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        stroke: #1976d2;
+        stroke-width: 3;
+      }
+    }    .condition-chip {
+      --chip-color: #1976d2;
       background: rgba(255, 255, 255, 0.9);
       border: 1px solid #ddd;
       border-radius: 12px;
       padding: 2px 8px;
       font-size: 12px;
-      color: #666;
+      color: rgba(0, 0, 0, 0.6);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       text-align: center;
-      pointer-events: none;
+      pointer-events: all;
       user-select: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: color-mix(in srgb, var(--chip-color) 10%, white);
+        border-color: var(--chip-color);
+        color: var(--chip-color);
+      }
+
+      &.selected {
+        background: color-mix(in srgb, var(--chip-color) 10%, white);
+        border-color: var(--chip-color);
+        color: var(--chip-color);
+        box-shadow: 0 1px 3px color-mix(in srgb, var(--chip-color) 20%, transparent);
+      }
     }
   }
   
@@ -355,11 +379,11 @@
     }
 
     &.selected {
-      border: 2px solid #1976d2;
-      box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.2);
+      border: 1px solid var(--node-color, #1976d2);
+      box-shadow: 0 0 0 1px var(--node-shadow-color, rgba(25, 118, 210, 0.2));
       
       &::before {
-        box-shadow: 0 0 8px rgba(25, 118, 210, 0.4);
+        box-shadow: 0 0 1px var(--node-shadow-color, rgba(25, 118, 210, 0.4));
       }
     }
   }

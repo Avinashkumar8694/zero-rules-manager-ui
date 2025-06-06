@@ -30,6 +30,7 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
   canvasMinHeight = 2000;
   showNodesList = true; // Initialize to true to show palette by default
   selectedNodes: Set<string> = new Set(); // Track selected nodes
+  selectedConnections: Set<string> = new Set(); // Track selected connections
 
   nodes: { [key: string]: any } = {};
   connections: Array<{
@@ -580,13 +581,20 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     // Logic to open settings dialog
     console.log('Settings dialog opened');
   }
-
   selectNode(event: MouseEvent, nodeId: string) {
     event.stopPropagation();
     if (!event.ctrlKey && !event.metaKey) {
+      // If not using Ctrl/Cmd, clear other selections and select just this node
       this.selectedNodes.clear();
+      this.selectedNodes.add(nodeId);
+    } else {
+      // Toggle selection when using Ctrl/Cmd
+      if (this.selectedNodes.has(nodeId)) {
+        this.selectedNodes.delete(nodeId);
+      } else {
+        this.selectedNodes.add(nodeId);
+      }
     }
-    this.selectedNodes.add(nodeId);
     this.cdr.detectChanges();
   }
 
@@ -628,5 +636,80 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
         }, 50);
       });
     });
+  }
+  selectConnection(event: MouseEvent, connection: any) {
+    event.stopPropagation();
+    const connectionId = `${connection.source.nodeId}-${connection.target.nodeId}`;
+    
+    if (!event.ctrlKey && !event.metaKey) {
+      // Clear all selections if not using Ctrl/Cmd
+      this.selectedNodes.clear();
+      this.selectedConnections.clear();
+    }
+
+    // Toggle connection selection
+    if (this.selectedConnections.has(connectionId)) {
+      this.selectedConnections.delete(connectionId);
+    } else {
+      this.selectedConnections.add(connectionId);
+    }
+    
+    this.cdr.detectChanges();
+  }
+
+  clearAllSelections() {
+    this.selectedNodes.clear();
+    this.selectedConnections.clear();
+    this.cdr.detectChanges();
+  }
+
+  deleteSelectedItems() {
+    // Clear path cache before deletion
+    this.pathCache.clear();
+
+    // Remove selected connections
+    if (this.selectedConnections.size > 0) {
+      this.connections = this.connections.filter(conn => {
+        const connectionId = `${conn.source.nodeId}-${conn.target.nodeId}`;
+        return !this.selectedConnections.has(connectionId);
+      });
+    }
+
+    // Remove connections connected to selected nodes
+    this.connections = this.connections.filter(conn => 
+      !this.selectedNodes.has(conn.source.nodeId) && !this.selectedNodes.has(conn.target.nodeId)
+    );
+
+    // Remove selected nodes
+    this.selectedNodes.forEach(nodeId => {
+      delete this.nodes[nodeId];
+    });
+
+    // Clear selections
+    this.selectedNodes.clear();
+    this.selectedConnections.clear();
+
+    // Force a recalculation of all connection paths
+    this.ngZone.run(() => {
+      requestAnimationFrame(() => {
+        this.connections.forEach(connection => {
+          const path = this.calculateConnectionPath(connection);
+          if (path) {
+            connection.path = path;
+          }
+        });
+        this.cdr.detectChanges();
+
+        // Double check paths after a short delay to ensure DOM is updated
+        setTimeout(() => {
+          this.updateConnectionPaths();
+          this.cdr.detectChanges();
+        }, 50);
+      });
+    });
+  }
+
+  getNodeColor(nodeId: string): string {
+    return this.nodes[nodeId]?.color || '#1976d2';
   }
 }

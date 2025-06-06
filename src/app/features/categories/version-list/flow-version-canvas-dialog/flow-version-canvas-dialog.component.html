@@ -6,9 +6,9 @@
       <div class="version-name">{{ data.name }}</div>
     </div>    <div class="header-right">
       <button mat-icon-button 
-              [disabled]="selectedNodes.size === 0"
-              (click)="deleteSelectedNodes()"
-              matTooltip="Delete selected nodes">
+              [disabled]="selectedNodes.size === 0 && selectedConnections.size === 0"
+              (click)="deleteSelectedItems()"
+              matTooltip="Delete selected items">
         <mat-icon>delete</mat-icon>
       </button>
       <button mat-icon-button 
@@ -40,15 +40,16 @@
            [ngStyle]="{ transform: 'scale(' + scale + ')' }"
            [style.minWidth.px]="canvasMinWidth"
            [style.minHeight.px]="canvasMinHeight"
-           style="transform-origin: top left; position: relative;"
-           (click)="clearSelection()">
+           style="transform-origin: top left; position: relative;"           (click)="clearAllSelections()">
         <!-- SVG container for connections -->
         <svg class="connections-layer" [attr.width]="canvasMinWidth" [attr.height]="canvasMinHeight">
           <g *ngFor="let connection of connections">
             <path [attr.d]="connection.path"
                   fill="none"
-                  stroke="#666"
-                  stroke-width="2"
+                  [attr.stroke]="selectedConnections.has(connection.source.nodeId + '-' + connection.target.nodeId) ? getNodeColor(connection.source.nodeId) : 'rgba(0, 0, 0, 0.4)'"
+                  [attr.stroke-width]="selectedConnections.has(connection.source.nodeId + '-' + connection.target.nodeId) ? '3' : '2'"
+                  [attr.stroke-opacity]="selectedConnections.has(connection.source.nodeId + '-' + connection.target.nodeId) ? '1' : '0.6'"
+                  (click)="selectConnection($event, connection)"
                   style="pointer-events: all;"
                   (contextmenu)="onConnectionRightClick($event, connection)"
             />
@@ -61,8 +62,12 @@
                            width="150"
                            height="30"
                            [style.transform]="'translate(-75px, -15px) scale(' + scale + ')'">
-              <div class="condition-chip">
-                {{ connection.name || connection.condition  }}
+              <div class="condition-chip"
+                   [style.--chip-color]="getNodeColor(connection.source.nodeId)"
+                   [class.selected]="selectedConnections.has(connection.source.nodeId + '-' + connection.target.nodeId)"
+                   (click)="selectConnection($event, connection)"
+                   (contextmenu)="onConnectionRightClick($event, connection)">
+                {{ connection.name || connection.condition }}
               </div>
             </foreignObject>
           </g>
@@ -81,7 +86,8 @@
           <div
             class="node-card"
             [ngClass]="entry.value.nodeStyle || 'rectangle'"
-            [style.--node-shadow-color]="entry.value.color || 'rgba(0, 0, 0, 0.15)'"            cdkDrag
+            [style.--node-shadow-color]="entry.value.color || 'rgba(0, 0, 0, 0.15)'"
+            [style.--node-color]="entry.value.color || '#1976d2'"            cdkDrag
             [cdkDragBoundary]="canvasBoundary"
             [cdkDragFreeDragPosition]="entry.value.position"
             (cdkDragStarted)="onDragStart($event, entry.key)"
