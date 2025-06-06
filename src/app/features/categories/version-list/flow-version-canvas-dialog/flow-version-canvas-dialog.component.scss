@@ -1,55 +1,79 @@
 .canvas-dialog-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 100%;
   overflow: hidden;
   position: relative;
-
-  .nodes-list-panel {
-    position: fixed;
-    top: 64px;
-    right: -320px;
-    width: 320px;
-    height: calc(100vh - 64px);
-    background: white;
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-    transition: right 0.3s ease;
-    z-index: 1000;
-    
-    &.show {
-      right: 0;
-    }
-  }
 
   .canvas-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
-    background-color: #f5f5f5;
-    border-bottom: 1px solid #ddd;
+    padding: 16px;
+    background: linear-gradient(90deg, #4caf50, #81c784);
+    color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 
-    .version-name {
-      font-size: 1.2rem;
-      font-weight: 500;
-    }
-
-    .canvas-controls {
+    .header-left {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 8px;
 
-      .zoom-percentage {
-        min-width: 3rem;
-        text-align: center;
+      .version-name {
+        font-size: 18px;
+        font-weight: bold;
       }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .nodes-list-panel {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    width: 320px;
+    height: calc(100vh - 64px);
+    background: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+
+    &.collapsed {
+      transform: translateX(-100%);
+    }
+
+    button {
+      position: absolute;
+      top: 50%;
+      right: -32px;
+      transform: translateY(-50%);
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
   }
 
   .canvas-content {
     flex: 1;
     overflow: auto;
-    position: relative;
+    padding-top: 64px;
+    margin-left: 320px;
+  }
+
+  .zoom-controller {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -349,4 +373,3 @@
       overflow: hidden;
     }
   }
-  
