@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NodesModule } from '../../../nodes/nodes.module';
@@ -14,7 +15,8 @@ import { FlowVersionCanvasDialogComponent } from './flow-version-canvas-dialog.c
 import { AttributeWindowComponent } from './attribute-window/attribute-window.component';
 import { ConditionEditorComponent } from './condition-editor/condition-editor.component';
 
-@NgModule({  declarations: [
+@NgModule({
+  declarations: [
     FlowVersionCanvasDialogComponent,
     AttributeWindowComponent,
     ConditionEditorComponent
@@ -23,10 +25,11 @@ import { ConditionEditorComponent } from './condition-editor/condition-editor.co
     CommonModule,
     MatDialogModule,
     MatButtonModule,
-    MatIconModule,
+    MatIconModule, 
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatAutocompleteModule,
     ReactiveFormsModule,
     DragDropModule,
     NodesModule
