@@ -3,50 +3,24 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-delete-category-dialog',
-  template: `
-    <div class="dialog-container paper-theme">
+  template: `    <div class="dialog-container">
       <div class="dialog-header">
         <h2><mat-icon>delete</mat-icon> Delete Category</h2>
       </div>
       <div class="dialog-content">
         <p>Are you sure you want to delete this category?</p>
-        <p class="category-name">"{{ data.name }}"</p>
-        <p class="warning-text">This action cannot be undone.</p>
+        <p class="highlighted-text">"{{ data.name }}"</p>
+        <p class="warning-text"><mat-icon>warning</mat-icon> This action cannot be undone.</p>
       </div>
-      <div class="dialog-actions">        <button type="button" mat-button (click)="onCancel()" class="secondary">Cancel</button>
-        <button type="button" mat-button (click)="onConfirm()" [disabled]="loading" class="primary">
+      <div class="dialog-actions">
+        <button mat-flat-button (click)="onCancel()">Cancel</button>
+        <button mat-flat-button color="warn" (click)="onConfirm()" [disabled]="loading">
           <span *ngIf="!loading">Delete</span>
-          <mat-spinner diameter="20" color="primary" *ngIf="loading"></mat-spinner>
+          <mat-spinner *ngIf="loading" diameter="20" color="primary"></mat-spinner>
         </button>
       </div>
     </div>
-  `,
-  styles: [`
-    .category-name {
-      font-weight: 500;
-      color: var(--text-primary);
-      margin: var(--spacing-md) 0;
-    }
-
-    .warning-text {
-      color: var(--error-color);
-      font-size: var(--font-size-base);
-      margin-top: var(--spacing-sm);
-    }
-
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 2px solid #ffffff;
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  `],
+  `,  styles: [``],
   standalone: false,
 })
 export class DeleteCategoryDialogComponent {

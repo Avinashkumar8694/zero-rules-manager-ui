@@ -13,52 +13,148 @@ import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-add-category-dialog',
-  template: `
-    <div class="dialog-container paper-theme">
+  template: `    <div class="dialog-container">
       <div class="dialog-header">
         <h2><mat-icon>folder</mat-icon> {{ data ? 'Edit' : 'Add New' }} Category</h2>
       </div>
-      <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="dialog-form">
-        <div class="dialog-content">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Name</mat-label>
-            <input matInput formControlName="name" placeholder="Enter category name">
-            <mat-error *ngIf="categoryForm.get('name')?.errors?.['required'] && categoryForm.get('name')?.touched">
+      <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">        <div class="dialog-content">
+          <div class="form-field">
+            <label for="name">Name</label>
+            <input id="name"
+                   type="text"
+                   class="mat-mdc-input-element"
+                   formControlName="name"
+                   placeholder="Enter category name">
+            <div class="error-message" *ngIf="categoryForm.get('name')?.errors?.['required'] && categoryForm.get('name')?.touched">
               Name is required
-            </mat-error>
-          </mat-form-field>
+            </div>
+          </div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Description</mat-label>
-            <textarea matInput formControlName="description" placeholder="Enter category description" rows="3"></textarea>
-            <mat-error *ngIf="categoryForm.get('description')?.errors?.['required'] && categoryForm.get('description')?.touched">
+          <div class="form-field">
+            <label for="description">Description</label>
+            <textarea id="description"
+                      class="mat-mdc-input-element"
+                      formControlName="description"
+                      placeholder="Enter category description"
+                      rows="3"></textarea>
+            <div class="error-message" *ngIf="categoryForm.get('description')?.errors?.['required'] && categoryForm.get('description')?.touched">
               Description is required
-            </mat-error>          </mat-form-field>
+            </div>
+          </div>
         </div>
-        <div class="dialog-actions">
-          <button mat-button type="button" (click)="onCancel()" class="secondary">Cancel</button>
-          <button mat-button type="submit" [disabled]="categoryForm.invalid || loading" class="primary">
+        <div class="dialog-actions">          <button mat-button (click)="onCancel()" class="secondary-button">Cancel</button>
+          <button mat-flat-button color="primary" type="submit" [disabled]="categoryForm.invalid || loading" class="primary-button">
             <span *ngIf="!loading">{{ data ? 'Update' : 'Create' }} Category</span>
-            <mat-spinner diameter="20" color="primary" *ngIf="loading"></mat-spinner>
+            <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
           </button>
         </div>
       </form>
     </div>
-  `,
-  styles: [`    .dialog-form {
+  `,  styles: [`
+    .dialog-container {
       display: flex;
       flex-direction: column;
-      flex: 1;
-      overflow: hidden;
+      min-width: 500px;
+      max-width: 600px;
+      width: 100%;
+    }    .dialog-header {
+      width: 100%;
+      height: 3.5rem;
+      padding: 0 24px;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      align-items: center;
     }
 
-    .full-width {
+    .dialog-header h2 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .dialog-content {
       width: 100%;
-      margin-bottom: var(--spacing-md);
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .form-field {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .form-field:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-field label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    .form-field input,
+    .form-field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+
+    .form-field input:focus,
+    .form-field textarea:focus {
+      outline: none;
+      border-color: #1976d2;
+      box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+    }
+
+    .error-message {
+      color: var(--error-color);
+      font-size: 12px;
+      margin-top: 4px;
+    }    .dialog-actions {
+      width: 100%;
+      height: 3.5rem;
+      padding: 0 24px;
+      background-color: #f8f9fa;
+      border-top: 1px solid #e9ecef;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      box-sizing: border-box;
+    }
+
+    .dialog-actions button {
+      min-width: 100px;
+      height: 36px;
+    }
+
+    .dialog-actions button.mat-mdc-button {
+      color: #666;
+    }
+
+    .dialog-actions button.mat-mdc-flat-button {
+      background-color: var(--primary-color, #1976d2);
+      color: white;
+    }
+
+    .mat-mdc-input-element {
+      background-color: #fff;
     }
 
     mat-spinner {
-      margin: 0 var(--spacing-sm);
+      display: inline-block;
+      margin-left: 8px;
     }
   `],
   standalone: false

@@ -167,4 +167,13 @@ export class VersionListComponent implements OnInit {
       }
     });
   }
+  onCopyId(version: Version, event: Event) {
+    event.stopPropagation();
+    navigator.clipboard.writeText(version.id).then(() => {
+      // Optional: Show a temporary tooltip or snackbar to indicate successful copy
+      console.log('Version ID copied to clipboard');
+    }).catch(err => {
+      console.error('Failed to copy ID:', err);
+    });
+  }
 }

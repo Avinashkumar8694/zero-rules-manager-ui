@@ -78,7 +78,7 @@ select {
   color: var(--text-primary);
   background-color: var(--background-primary);
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-sm);
   padding: var(--spacing-sm) var(--spacing-md);
   transition: var(--transition-fast);
   width: 100%;
@@ -87,10 +87,14 @@ select {
   
   &:hover {
     border-color: var(--primary-light);
+    background: rgba(108, 99, 255, 0.02);
   }
   
   &:focus {
-    @include focus-state;
+    outline: none;
+    background: var(--background-primary);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-light);
   }
 
   &::placeholder {
@@ -119,16 +123,6 @@ textarea {
     font-size: var(--font-size-base);
     color: var(--text-primary);
     font-weight: 500;
-  }
-
-  .mat-mdc-form-field {
-    width: 100%;
-    
-    &.mat-focused {
-      .mat-mdc-form-field-flex {
-        @include focus-state;
-      }
-    }
   }
 }
 
