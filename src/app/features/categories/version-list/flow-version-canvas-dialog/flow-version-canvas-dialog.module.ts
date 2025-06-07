@@ -12,13 +12,11 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NodesModule } from '../../../nodes/nodes.module';
 
 import { FlowVersionCanvasDialogComponent } from './flow-version-canvas-dialog.component';
-import { AttributeWindowComponent } from './attribute-window/attribute-window.component';
 import { ConditionEditorComponent } from './condition-editor/condition-editor.component';
 
 @NgModule({
   declarations: [
     FlowVersionCanvasDialogComponent,
-    AttributeWindowComponent,
     ConditionEditorComponent
   ],
   imports: [

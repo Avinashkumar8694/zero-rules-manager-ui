@@ -10,7 +10,6 @@ import { NodeRegistrationService } from '../../../../services/node-registration.
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AttributeWindowComponent } from '../../../nodes/components/attribute-window/attribute-window.component';
-import { AttributeWindowComponent as ConnectionAttributeWindow } from './attribute-window/attribute-window.component';
 import { CdkDragStart, CdkDragMove } from '@angular/cdk/drag-drop';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { take } from 'rxjs/operators';
@@ -515,11 +514,55 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     event.preventDefault();
     const nodeConfig = this.nodeRegistrationService.getNodeDefinition(node.type);
     if (nodeConfig) {
-      this.dialog.open(AttributeWindowComponent, {
+      const dialogRef = this.dialog.open(AttributeWindowComponent, {
         width: '400px',
         height: '100vh',
         position: { right: '0' },
-        data: { selectedNode: node }
+        data: { selectedNode: node },
+        panelClass: 'resizable-dialog'
+      });
+
+      // Add resize logic
+      dialogRef.afterOpened().subscribe(() => {
+        const dialogElement = document.querySelector('.resizable-dialog') as HTMLElement;
+        if (dialogElement) {
+          const resizeHandle = document.createElement('div');
+          resizeHandle.style.width = '1px';
+          resizeHandle.style.height = '100%';
+          resizeHandle.style.position = 'absolute';
+          resizeHandle.style.left = '0';
+          resizeHandle.style.top = '0';
+          resizeHandle.style.cursor = 'ew-resize';
+          resizeHandle.style.backgroundColor = 'rgba(0, 0, 0, 0.1)'; // Add visibility
+          resizeHandle.style.zIndex = '1000';
+          dialogElement.style.position = 'relative'; // Ensure parent is positioned
+          dialogElement.appendChild(resizeHandle);
+
+          let isResizing = false;
+          let startX = 0;
+          let startWidth = 0;
+
+          const onMouseMove = (moveEvent: MouseEvent) => {
+            if (isResizing) {
+              const newWidth = Math.max(200, startWidth - (moveEvent.clientX - startX)); // Minimum width
+              dialogElement.style.width = `${newWidth}px`;
+            }
+          };
+
+          const onMouseUp = () => {
+            isResizing = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+          };
+
+          resizeHandle.addEventListener('mousedown', (downEvent: MouseEvent) => {
+            isResizing = true;
+            startX = downEvent.clientX;
+            startWidth = dialogElement.offsetWidth;
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+          });
+        }
       });
     }
   }

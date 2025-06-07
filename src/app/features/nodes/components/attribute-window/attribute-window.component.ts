@@ -3,44 +3,104 @@ import { NodeRegistrationService } from '../../../../services/node-registration.
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-attribute-window',
-  template: `
+  selector: 'app-attribute-window',  template: `
     <div class="attribute-window" *ngIf="data.selectedNode">
       <div class="header">
-        <h3>{{ data.selectedNode.type }} Properties</h3>
+        <h3>{{ formatHeader(data.selectedNode.type) }}</h3>
+        <div class="header-icons">
+          <button mat-icon-button (click)="onSave()">
+            <mat-icon>save</mat-icon>
+          </button>
+          <button mat-icon-button (click)="onCancel()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
       </div>
       <div class="node-template-container">
         <!-- Node template will be dynamically injected here -->
-      </div>
-      <div class="actions">
-        <button mat-raised-button color="primary" (click)="onSave()">Save</button>
-        <button mat-raised-button color="accent" (click)="onCancel()">Cancel</button>
       </div>
     </div>
   `,
   styles: [`
     .attribute-window {
       width: 100%;
-      height: 99%;
+      max-width: 600px;
+      margin: auto;
       background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
     }
+
     .header {
-      padding-bottom: 1rem;
-      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 48px;
+      background: linear-gradient(135deg, #f8fafd 0%, #edf1f7 100%);
+      border-bottom: 1px solid #e0e4e8;
+      // border-radius: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
+
+    .header h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2a3b4d;
+    }    .header-icons {
+      display: flex;
+      gap: 0.5rem;
+      
+      ::ng-deep {
+        .mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          line-height: 20px;
+          color: #5f6368;
+        }
+
+        .mat-icon-button {
+          width: 36px;
+          height: 36px;
+          line-height: 36px;
+          
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+          }
+        }
+      }
+    }
+
     .node-template-container {
       flex: 1;
       overflow-y: auto;
-      padding: 1rem 0;
-    }
-    .actions {
-      padding-top: 1rem;
-      border-top: 1px solid #eee;
+      padding: 1.5rem;
       display: flex;
-      justify-content: flex-end;
-      gap: 0.5rem;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .node-template-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .node-template-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+
+    .node-template-container::-webkit-scrollbar-thumb {
+      background: #c1c9d6;
+      border-radius: 3px;
+    }
+
+    .node-template-container::-webkit-scrollbar-thumb:hover {
+      background: #a3adb9;
     }
   `], 
   standalone: false
@@ -119,5 +179,9 @@ export class AttributeWindowComponent implements AfterViewInit {
       return {};
     }
     return { ...this.data.selectedNode }
+  }
+
+  formatHeader(type: string): string {
+    return type.charAt(0).toUpperCase() + type.slice(1).replace(/([A-Z])/g, ' $1');
   }
 }
