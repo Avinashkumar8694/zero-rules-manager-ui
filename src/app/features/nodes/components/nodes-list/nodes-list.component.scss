@@ -7,6 +7,7 @@
 }
 
 .nodes-header {
+  /* Enhanced header styling applied globally via styles.scss */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -14,9 +15,20 @@
   padding: 0 1rem;
 
   h2 {
-    font-size: 1.5rem;
-    color: #2c3e50;
+    font-size: 28px;
+    font-weight: 600;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  button {
+    /* Enhanced button styling applied via global .nodes-header in styles.scss */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
   }
 }
 

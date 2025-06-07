@@ -1,57 +1,168 @@
 .canvas-dialog-container {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   height: 100%;
   overflow: hidden;
-  position: relative;
-
-  .canvas-header {
+  position: relative;  .canvas-header {
+    /* Enhanced header styling applied globally via styles.scss */
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 16px;
-    background: #f5f5f5; /* Match other components */
-    color: #333; /* Consistent font color */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    height: 48px; /* Adjusted height */
-
+    height: 2.5rem;
+    min-height: 2.5rem;
+    background: #ffffff;
+    color: var(--text-primary);
+    border-bottom: 1px solid rgba(108, 99, 255, 0.1);
+    box-shadow: 0 2px 12px rgba(108, 99, 255, 0.15), 
+                0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 10;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(108, 99, 255, 0.02) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    
     .header-left {
       display: flex;
       align-items: center;
       gap: 8px;
+      z-index: 1;
+      position: relative;
+
+      mat-icon {
+        color: var(--primary-color);
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
 
       .version-name {
-        font-size: 16px; /* Match font size */
-        font-weight: bold;
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+        color: var(--text-primary);
       }
     }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 4px;
+      z-index: 1;
+      position: relative;
 
-      button {
-        &[matTooltip="Save changes"] {
-          color: #1976d2;
+      /* Override Material Design button defaults to fix hover circle issue */
+      .mat-mdc-icon-button {
+        --mdc-icon-button-state-layer-size: 32px;
+        --mdc-icon-button-size: 32px;
+        background: rgba(108, 99, 255, 0.05) !important;
+        color: var(--primary-color) !important;
+        border: 1px solid rgba(108, 99, 255, 0.1) !important;
+        border-radius: 6px !important;
+        width: 32px !important;
+        height: 32px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.2s ease !important;
+        
+        /* Disable Material Design ripple effect */
+        .mat-mdc-button-ripple,
+        .mat-ripple,
+        .mdc-button__ripple {
+          display: none !important;
+        }
+        
+        /* Override Material Design hover state layer */
+        &::before,
+        &::after,
+        .mdc-button__ripple::before,
+        .mdc-button__ripple::after {
+          display: none !important;
+        }
+        
+        mat-icon {
+          font-size: 18px !important;
+          width: 18px !important;
+          height: 18px !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          margin: 0 !important;
+        }
+        
+        &:hover {
+          background: rgba(108, 99, 255, 0.15) !important;
+          border-color: var(--primary-color) !important;
+          transform: translateY(-1px) !important;
+          box-shadow: 0 2px 8px rgba(108, 99, 255, 0.2) !important;
+        }
+        
+        &[disabled] {
+          color: rgba(0, 0, 0, 0.26) !important;
+          background: rgba(0, 0, 0, 0.04) !important;
+          border-color: rgba(0, 0, 0, 0.1) !important;
           
           &:hover {
-            background-color: rgba(25, 118, 210, 0.04);
+            transform: none !important;
+            box-shadow: none !important;
           }
+        }
+      }
+
+      /* Legacy support for regular buttons */
+      button:not(.mat-mdc-icon-button) {
+        background: rgba(108, 99, 255, 0.05);
+        color: var(--primary-color);
+        border: 1px solid rgba(108, 99, 255, 0.1);
+        border-radius: 6px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        &:hover {
+          background: rgba(108, 99, 255, 0.15);
+          border-color: var(--primary-color);
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(108, 99, 255, 0.2);
         }
         
         &[disabled] {
           color: rgba(0, 0, 0, 0.26);
+          background: rgba(0, 0, 0, 0.04);
+          border-color: rgba(0, 0, 0, 0.1);
         }
       }
     }
-  }
-  .nodes-list-panel {
+  }  .nodes-list-panel {
     position: absolute;
-    top: 48px;
+    top: 2.5rem;
     left: 0;
     width: 320px;
-    height: calc(100vh - 48px);
+    height: calc(100vh - 2.5rem);
     background: white;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
@@ -60,7 +171,61 @@
     &.collapsed {
       transform: translateX(-320px);
     }    
-    button {
+    
+    /* Fix toggle button for nodes panel */
+    .mat-mdc-icon-button {
+      position: absolute !important;
+      top: 50% !important;
+      right: -32px !important;
+      transform: translateY(-50%) !important;
+      background: white !important;
+      border-radius: 50% !important;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1) !important;
+      z-index: 101 !important;
+      width: 32px !important;
+      height: 32px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      border: none !important;
+      outline: none !important;
+      color: var(--primary-color) !important;
+      
+      /* Disable Material Design ripple effect */
+      .mat-mdc-button-ripple,
+      .mat-ripple,
+      .mdc-button__ripple {
+        display: none !important;
+      }
+      
+      /* Override Material Design hover state layer */
+      &::before,
+      &::after,
+      .mdc-button__ripple::before,
+      .mdc-button__ripple::after {
+        display: none !important;
+      }
+
+      mat-icon {
+        width: 20px !important;
+        height: 20px !important;
+        font-size: 20px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+      }
+      
+      &:hover {
+        background: rgba(108, 99, 255, 0.1) !important;
+        transform: translateY(-50%) scale(1.05) !important;
+        box-shadow: 2px 0 8px rgba(108, 99, 255, 0.2) !important;
+      }
+    }
+    
+    /* Legacy support for regular buttons */
+    button:not(.mat-mdc-icon-button) {
       position: absolute;
       top: 50%;
       right: -32px;
@@ -77,21 +242,27 @@
       cursor: pointer;
       border: none;
       outline: none;
+      color: var(--primary-color);
 
-      .mat-icon {
-        width: 28px;
-        height: 28px;
-        font-size: 28px;
-        display: flex;
+      mat-icon {
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
       }
+      
+      &:hover {
+        background: rgba(108, 99, 255, 0.1);
+        transform: translateY(-50%) scale(1.05);
+        box-shadow: 2px 0 8px rgba(108, 99, 255, 0.2);
+      }
     }
-  }
-  .canvas-content {
+  }  .canvas-content {
     flex: 1;
     overflow: auto;
-    padding-top: 48px;
+    padding-top: 2.5rem;
     margin-left: 0;
     transition: margin-left 0.3s ease;
 
@@ -159,22 +330,96 @@
     text-overflow: ellipsis;
     width: 100%;
   }
-  
-  .canvas-header {
+    .canvas-header {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: 64px;
-    background: #fff;
+    height: 2.5rem;
+    min-height: 2.5rem;
+    background: #ffffff;
+    color: var(--text-primary);
+    border-bottom: 1px solid rgba(108, 99, 255, 0.1);
+    box-shadow: 0 2px 12px rgba(108, 99, 255, 0.15), 
+                0 1px 3px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 16px;
-    border-bottom: 1px solid #ddd;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(108, 99, 255, 0.02) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 1;
+      position: relative;
+
+      mat-icon {
+        color: var(--primary-color);
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .version-name {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+        color: var(--text-primary);
+      }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 1;
+      position: relative;
+
+      button {
+        background: rgba(108, 99, 255, 0.05);
+        color: var(--primary-color);
+        border: 1px solid rgba(108, 99, 255, 0.1);
+        border-radius: 6px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+        
+        &:hover {
+          background: rgba(108, 99, 255, 0.15);
+          border-color: var(--primary-color);
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(108, 99, 255, 0.2);
+        }
+        
+        &[disabled] {
+          color: rgba(0, 0, 0, 0.26);
+          background: rgba(0, 0, 0, 0.04);
+          border-color: rgba(0, 0, 0, 0.1);
+        }
+      }
+    }  }
   
   .version-name {
     font-size: 18px;
@@ -191,7 +436,7 @@
   .canvas-content {
     flex: 1;
     overflow: auto;
-    padding-top: 64px; // Match header height
+    padding-top: 2.5rem; // Match header height
   }
   
   /* Scrollable canvas container */

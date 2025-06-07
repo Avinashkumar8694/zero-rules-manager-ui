@@ -42,18 +42,12 @@ export interface VersionTypeDialogData {
     styles: [`
     .dialog-container {
       min-width: 600px;
-    }
-
-    .dialog-header {
-      padding: 20px 24px;
-      border-bottom: 1px solid #eee;
+    }    .dialog-header {
+      /* Enhanced header styling applied globally via styles.scss */
     }
 
     .dialog-header h2 {
       margin: 0;
-      font-size: 20px;
-      font-weight: 500;
-      color: #333;
     }
 
     .dialog-content {

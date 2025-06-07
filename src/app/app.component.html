@@ -1,16 +1,12 @@
-<mat-toolbar color="primary">
-  <button mat-icon-button (click)="toggleSidenav()">
-    <fa-icon [icon]="['fas', 'bars']"></fa-icon>
-  </button>
-  <span>Zero Rules Manager</span>
-  <span class="spacer"></span>
-  <button mat-icon-button>
-    <fa-icon [icon]="['fas', 'user']"></fa-icon>
-  </button>
-</mat-toolbar>
-
-<mat-sidenav-container>
-  <mat-sidenav #sidenav mode="side" [opened]="true" [class.expanded]="sidenavExpanded">
+<mat-sidenav-container class="full-height">
+  <mat-sidenav #sidenav mode="side" [opened]="true" [class.expanded]="sidenavExpanded" class="full-height-sidenav">
+    <!-- Hamburger button inside sidenav -->
+    <div class="sidenav-header">
+      <button mat-icon-button (click)="toggleSidenav()" class="hamburger-btn">
+        <fa-icon [icon]="['fas', 'bars']"></fa-icon>
+      </button>
+    </div>
+    
     <mat-nav-list>
       <a mat-list-item routerLink="/categories" routerLinkActive="active">
         <fa-icon [icon]="['fas', 'scroll']"></fa-icon>
@@ -31,7 +27,18 @@
     </mat-nav-list>
   </mat-sidenav>
   
-  <mat-sidenav-content>
-    <router-outlet></router-outlet>
+  <mat-sidenav-content class="main-content">
+    <!-- Header/toolbar positioned in the content area -->
+    <mat-toolbar color="primary" class="app-header">
+      <span>Zero Rules Manager</span>
+      <span class="spacer"></span>
+      <button mat-icon-button>
+        <fa-icon [icon]="['fas', 'user']"></fa-icon>
+      </button>
+    </mat-toolbar>
+    
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

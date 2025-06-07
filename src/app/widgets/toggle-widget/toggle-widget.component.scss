@@ -11,10 +11,34 @@
       width: 16px;
       height: 16px;
       cursor: pointer;
+      accent-color: var(--primary-color, #6c63ff);
+      
+      /* Enhanced styling for toggle states */
+      &:checked {
+        background-color: var(--primary-color, #6c63ff);
+        border-color: var(--primary-color, #6c63ff);
+      }
+      
+      &:focus {
+        outline: 2px solid rgba(108, 99, 255, 0.3);
+        outline-offset: 2px;
+      }
+      
+      &:hover:not(:disabled) {
+        transform: scale(1.05);
+        transition: transform 0.1s ease;
+      }
     }
 
     input[type="checkbox"][disabled] {
       cursor: not-allowed;
+      opacity: 0.6;
+    }
+    
+    /* Label text styling */
+    span {
+      color: var(--text-primary, #333);
+      user-select: none;
     }
   }
 }

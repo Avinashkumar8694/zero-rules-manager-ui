@@ -31,46 +31,72 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
       box-shadow: 0 4px 16px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
-    }
-
-    .header {
+    }    .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 48px;
-      background: linear-gradient(135deg, #f8fafd 0%, #edf1f7 100%);
-      border-bottom: 1px solid #e0e4e8;
-      // border-radius: 12px;
+      height: 2.5rem;
+      min-height: 2.5rem;
+      background: #ffffff;
+      color: var(--text-primary);
+      padding: 0 16px;
+      border-bottom: 1px solid rgba(108, 99, 255, 0.1);
+      border-radius: 8px 8px 0 0;
+      box-shadow: 0 2px 12px rgba(108, 99, 255, 0.15), 
+                  0 1px 3px rgba(0, 0, 0, 0.1);
       position: sticky;
       top: 0;
       z-index: 10;
-    }
-
-    .header h3 {
+      overflow: hidden;
+    }.header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(108, 99, 255, 0.02) 0%, transparent 100%);
+      pointer-events: none;
+    }    .header h3 {
       margin: 0;
-      font-size: 1.25rem;
+      font-size: 1rem;
       font-weight: 600;
-      color: #2a3b4d;
-    }    .header-icons {
+      color: var(--text-primary);
+      z-index: 1;
+      position: relative;
+    }.header-icons {
       display: flex;
       gap: 0.5rem;
+      z-index: 2;
+      position: relative;
+      align-items: center;
       
       ::ng-deep {
         .mat-icon {
-          font-size: 20px;
-          width: 20px;
-          height: 20px;
-          line-height: 20px;
-          color: #5f6368;
+          font-size: 18px !important;
+          width: 18px !important;
+          height: 18px !important;
+          line-height: 18px;
+          color: var(--primary-color) !important;
+          display: inline-flex !important;
+          align-items: center;
+          justify-content: center;
         }
 
         .mat-icon-button {
-          width: 36px;
-          height: 36px;
-          line-height: 36px;
+          width: 32px !important;
+          height: 32px !important;
+          line-height: 32px;
+          color: var(--primary-color) !important;
+          background: rgba(108, 99, 255, 0.05);
+          border: 1px solid rgba(108, 99, 255, 0.1);
+          border-radius: 6px;
           
           &:hover {
-            background-color: rgba(0, 0, 0, 0.04);
+            background-color: rgba(108, 99, 255, 0.15) !important;
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(108, 99, 255, 0.2);
           }
         }
       }

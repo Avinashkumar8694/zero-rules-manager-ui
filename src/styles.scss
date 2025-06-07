@@ -4,31 +4,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Icons+Outlined&display=swap');
 :root {
   /* Colors */
-  --primary-color: #0066cc;
-  --primary-light: #0066cc40;
+  --primary-color: #6c63ff;
+  --primary-light: #6c63ff40;
+  --accent-color: #ff6584;
   --error-color: #d93025;
   --error-light: #fce8e6;
-  --text-primary: #1d1d1f;
+  --text-primary: #2a3b4d;
   --text-secondary: #86868b;
+  --text-light: #b8bcc8;
   --background-primary: #ffffff;
-  --background-secondary: #f5f5f7;
+  --background-secondary: #f8fafd;
+  --surface-dark: #2d2d3a;
   --border-color: rgba(0, 0, 0, 0.1);
-  --shadow-color: rgba(0, 0, 0, 0.06);
 
   /* Typography */
   --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
   --font-size-sm: 10px;
-  --font-size-base: 12px;
-  --font-size-lg: 14px;
-  --font-size-xl: 16px;
-  --font-size-xxl: 20px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 24px;
 
   /* Spacing */
   --spacing-xs: 3px;
-  --spacing-sm: 6px;
-  --spacing-md: 12px;
-  --spacing-lg: 18px;
-  --spacing-xl: 24px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
 
   /* Border Radius */
   --border-radius-sm: 4px;
@@ -39,6 +41,9 @@
   /* Transitions */
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
+
+  /* Shadows */
+  --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 /* Global styles */
@@ -46,7 +51,7 @@ body {
   font-family: var(--font-family);
   font-size: var(--font-size-base);
   color: var(--text-primary);
-  line-height: 1.5;
+  background-color: var(--background-primary);
   margin: 0;
   padding: 0;
 }
@@ -58,20 +63,20 @@ select {
   font-family: var(--font-family);
   font-size: var(--font-size-base);
   color: var(--text-primary);
-  background-color: var(--background-primary);
+  background-color: var(--secondary-color);
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm);
   transition: var(--transition-fast);
   width: 100%;
   box-sizing: border-box;
   min-height: 40px;
+  box-shadow: var(--box-shadow);
 
   &:focus {
     outline: none;
-    background-color: var(--background-primary);
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px var(--primary-light);
+    box-shadow: 0 0 0 2px var(--primary-color);
   }
 
   &::placeholder {
@@ -130,6 +135,33 @@ select {
   border-radius: var(--border-radius-md) !important;
   min-height: 36px;
   transition: var(--transition-fast) !important;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+  }
+
+  &:hover::before {
+    width: 300%;
+    height: 300%;
+  }
 
   &:not(:disabled) {
     &:hover {
@@ -144,7 +176,7 @@ select {
 
   &.mat-primary {
     background-color: var(--primary-color);
-    color: white;
+    color: var(--background-color);
   }
 
   &.mat-stroked-button {
@@ -154,6 +186,42 @@ select {
     &:not(:disabled):hover {
       border-color: var(--primary-color) !important;
       color: var(--primary-color);
+    }
+  }
+
+  &.primary {
+    background-color: var(--primary-color);
+    color: var(--background-color);
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 4px 8px var(--primary-light);
+      transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+
+  &.secondary {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+
+    &:hover:not(:disabled) {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+  }
+
+  &.icon-button {
+    min-width: 36px;
+    width: 36px;
+    padding: var(--spacing-sm);
+    border-radius: 50%;
+    
+    i {
+      font-size: var(--font-size-lg);
     }
   }
 }
@@ -333,362 +401,344 @@ table {
   text-rendering: optimizeLegibility;
 }
 
-/* Ensure proper icon alignment in tables and buttons */
+/* Enhanced icon centering and sizing for all contexts */
 mat-icon {
   vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  line-height: 1;
+}
+
+/* Icon spacing in buttons */
+button mat-icon {
+  margin-right: 4px;
+  
+  &:only-child {
+    margin-right: 0;
+  }
+}
+
+/* Icon spacing in headers */
+.dialog-header mat-icon,
+.canvas-header mat-icon,
+.nodes-header mat-icon,
+.title-section mat-icon {
   margin-right: 8px;
+  color: var(--primary-color);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Icon spacing in table headers */
+.mat-mdc-header-cell mat-icon {
+  margin-right: 6px;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--primary-color);
+}
+
+/* Icon spacing in table cells */
+.mat-mdc-cell mat-icon {
+  margin-right: 4px;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--text-secondary);
 }
 
 /* Ensure proper icon sizing in different contexts */
 .mat-icon-button mat-icon {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .title-section mat-icon {
-  font-size: 28px;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
 }
 
 .search-box mat-icon {
-  color: rgba(0, 0, 0, 0.54);
+  color: var(--text-secondary);
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .date-cell mat-icon {
   font-size: 16px;
+  width: 16px;
+  height: 16px;
   margin-right: 4px;
 }
 
-// ::ng-deep .cdk-overlay-pane.fullscreen-dialog {
-//   width: 100vw !important;
-//   max-width: 100vw !important;
-//   height: 100vh !important;
-//   max-height: 100vh !important;
-//   overflow: hidden;
-//   top: 0 !important;
-//   left: 0 !important;
-// }
-
-// ::ng-deep .fullscreen-dialog .mat-dialog-container {
-//   width: 100%;
-//   height: 100%;
-//   padding: 0;
-//   box-sizing: border-box;
-//   overflow: hidden;
-//   border-radius: 0;
-// }
-
-// ::ng-deep .mat-dialog-container {
-//   max-width: 100vw !important;
-//   width: 100vw !important;
-//   height: 100vh !important;
-//   overflow: hidden;
-//   padding: 0 !important;
-// }
-
-/* Condition Editor Dialog Styles */
-.condition-editor-dialog {
-  .mat-mdc-dialog-container {
-    padding: 0 !important;
-    border-radius: var(--border-radius-lg) !important;
-    overflow: hidden !important;
-  }
-
-  .dialog-container {
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .dialog-header {
-    background-color: var(--background-secondary);
-    padding: var(--spacing-lg) var(--spacing-xl);
-    border-bottom: 1px solid var(--border-color);
-
-    h2 {
-      margin: 0;
-      font-size: var(--font-size-xl);
-      font-weight: 500;
-      color: var(--text-primary);
-    }
-  }
-
-  .dialog-content {
-    flex: 1;
-    overflow: auto;
-    padding: var(--spacing-xl);
-  }
-
-  .node-info {
-    background-color: var(--background-secondary);
-    border-radius: var(--border-radius-md);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
-  }
-
-  .condition-group {
-    background-color: var(--background-primary);
-    border-radius: var(--border-radius-md);
-    padding: var(--spacing-xl);
-    border: 1px solid var(--border-color);
-    margin-bottom: var(--spacing-xl);
-  }
-
-  .condition-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: var(--spacing-lg);
-    padding: var(--spacing-lg);
-    background-color: var(--background-secondary);
-    border-radius: var(--border-radius-md);
-    align-items: flex-start;
-    margin-bottom: var(--spacing-md);
-
-    &:hover {
-      background-color: var(--background-primary);
-    }
-  }
-
-  .add-condition {
-    display: flex;
-    justify-content: center;
-    padding-top: var(--spacing-lg);
-
-    button {
-      min-width: 160px;
-    }
-  }
-
-  .dialog-actions {
-    padding: var(--spacing-lg) var(--spacing-xl);
-    background-color: var(--background-secondary);
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--spacing-md);
-  }
-}
-
-/* Form Controls */
-.form-control {
-  font-family: var(--font-family);
-  font-size: var(--font-size-base);
+/* Dialog Headers Enhancement */
+.dialog-header,
+.canvas-header,
+.nodes-header,
+.title-section {
+  background: #ffffff;
   color: var(--text-primary);
-  background-color: var(--background-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-sm) var(--spacing-md);
-  transition: var(--transition-fast);
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 40px;
-  position: relative;
-
-  &:focus {
-    outline: none;
-    background-color: var(--background-primary);
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px var(--primary-light);
-  }
-
-  &:hover:not(:disabled) {
-    border-color: var(--primary-color);
-  }
-
-  &:disabled {
-    background-color: var(--background-secondary);
-    color: var(--text-secondary);
-    cursor: not-allowed;
-  }
-
-  &.has-error {
-    border-color: var(--error-color);
-    background-color: var(--error-light);
-    
-    &:focus {
-      box-shadow: 0 0 0 2px rgba(217, 48, 37, 0.2);
-    }
-  }
-}
-
-select.form-control {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%2386868b' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right var(--spacing-sm) center;
-  padding-right: var(--spacing-xl);
-}
-
-.form-error {
-  color: var(--error-color);
-  font-size: var(--font-size-sm);
-  margin-top: var(--spacing-xs);
-  display: block;
-}
-
-/* Custom Buttons */
-.btn {
-  font-family: var(--font-family);
-  font-size: var(--font-size-base);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: var(--spacing-sm) var(--spacing-xl);
-  border-radius: var(--border-radius-md);
-  min-height: 36px;
-  transition: var(--transition-fast);
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
+  padding: 8px 16px;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 2px 12px rgba(108, 99, 255, 0.15), 
+              0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0;
+  border-bottom: 1px solid rgba(108, 99, 255, 0.1);
   position: relative;
   overflow: hidden;
-  
+  min-height: 2rem;
+  height: auto;
+
   &::before {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.6s ease, height 0.6s ease;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(108, 99, 255, 0.02) 0%, transparent 100%);
+    pointer-events: none;
   }
 
-  &:hover::before {
-    width: 300%;
-    height: 300%;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    
-    &::before {
-      display: none;
-    }
-  }
-
-  &.primary {
-    background-color: var(--primary-color);
-    color: white;
-
-    &:hover:not(:disabled) {
-      box-shadow: 0 4px 8px var(--primary-light);
-      transform: translateY(-1px);
-    }
-
-    &:active:not(:disabled) {
-      transform: translateY(0);
-    }
-  }
-
-  &.secondary {
-    background-color: transparent;
-    border: 1px solid var(--border-color);
+  h1, h2, h3, h4, h5, h6 {
     color: var(--text-primary);
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 1;
+    position: relative;
+    font-size: 18px;
 
-    &:hover:not(:disabled) {
-      border-color: var(--primary-color);
+    mat-icon {
       color: var(--primary-color);
     }
   }
+  button {
+    background: rgba(108, 99, 255, 0.1);
+    color: var(--primary-color);
+    border: 1px solid rgba(108, 99, 255, 0.2);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    z-index: 1;
+    position: relative;
+    padding: 8px 12px;
+    font-size: 14px;
 
-  &.icon-button {
-    min-width: 36px;
-    width: 36px;
-    padding: var(--spacing-sm);
-    border-radius: 50%;
-    
-    i {
-      font-size: var(--font-size-lg);
+    &:hover {
+      background: rgba(108, 99, 255, 0.15);
+      border-color: var(--primary-color);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(108, 99, 255, 0.2);
+    }
+
+    mat-icon {
+      color: inherit;
+    }
+  }
+
+  .title-content,
+  .canvas-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 1;
+    position: relative;
+
+    .total-count {
+      background: rgba(108, 99, 255, 0.1);
+      color: var(--primary-color);
+      padding: 3px 10px;
+      border-radius: 16px;
+      font-size: 12px;
+      border: 1px solid rgba(108, 99, 255, 0.2);
+      font-weight: 500;
+    }
+  }
+  .search-box {
+    z-index: 1;
+    position: relative;
+
+    input {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(108, 99, 255, 0.2);
+      color: var(--text-primary);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 14px;
+
+      &::placeholder {
+        color: var(--text-secondary);
+      }
+
+      &:focus {
+        background: #ffffff;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.1);
+      }
+    }
+
+    mat-icon {
+      color: var(--text-secondary);
     }
   }
 }
 
-/* Condition Editor Specific Styles */
-.condition-editor {
-  --node-connection-size: 12px;
-  --node-connection-color: var(--primary-color);
+/* Card Headers Enhancement */
+mat-card-header,
+.mat-mdc-card-header {
+  background: #ffffff;
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: 8px 8px 0 0;
+  margin: -20px -20px 16px -20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(108, 99, 255, 0.1), 
+              0 1px 2px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(108, 99, 255, 0.1);
 
-  .conditions-container {
-    position: relative;
-    padding: var(--spacing-lg);
-    background: var(--background-secondary);
-    border-radius: var(--border-radius-lg);
-    margin: var(--spacing-lg) 0;
-
-    &::before {
-      content: '';
-      position: absolute;
-      left: calc(var(--spacing-lg) + var(--node-connection-size) / 2);
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: var(--node-connection-color);
-      opacity: 0.3;
-    }
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(108, 99, 255, 0.02) 0%, transparent 100%);
+    pointer-events: none;
   }
 
-  .condition-row {
+  .mat-mdc-card-title,
+  mat-card-title {
+    color: var(--text-primary);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    z-index: 1;
     position: relative;
-    display: grid;
-    grid-template-columns: auto 1fr 1fr 1fr auto;
-    gap: var(--spacing-lg);
-    padding: var(--spacing-lg);
-    background: var(--background-primary);
-    border-radius: var(--border-radius-md);
-    margin-bottom: var(--spacing-md);
-    align-items: center;
-    box-shadow: 0 2px 4px var(--shadow-color);
-    transition: var(--transition-fast);
-
-    &::before {
-      content: '';
-      position: absolute;
-      left: calc(-1 * var(--spacing-lg));
-      top: 50%;
-      transform: translateY(-50%);
-      width: var(--node-connection-size);
-      height: var(--node-connection-size);
-      border-radius: 50%;
-      background: var(--node-connection-color);
-      border: 2px solid var(--background-primary);
-      box-shadow: 0 0 0 2px var(--node-connection-color);
-    }
-
-    &:hover {
-      transform: translateX(4px);
-      box-shadow: 0 4px 8px var(--shadow-color);
-    }
-
-    .remove-condition {
-      opacity: 0;
-      transition: var(--transition-fast);
-    }
-
-    &:hover .remove-condition {
-      opacity: 1;
-    }
+    font-size: 16px;
   }
 
-  .add-condition {
+  .mat-mdc-card-subtitle,
+  mat-card-subtitle {
+    color: var(--text-secondary);
+    z-index: 1;
     position: relative;
-    margin-top: var(--spacing-xl);
-    text-align: center;
+  }
+}
 
-    &::before {
-      content: '';
-      position: absolute;
-      left: calc(var(--spacing-lg) + var(--node-connection-size) / 2);
-      top: calc(-1 * var(--spacing-lg));
-      height: calc(var(--spacing-lg) * 2);
-      width: 2px;
-      background: var(--node-connection-color);
-      opacity: 0.3;
+/* Global fix for Material Design button hover circle shade overlapping icons */
+.mat-mdc-icon-button {
+  /* Disable Material Design ripple effects that create circle shade */
+  .mat-mdc-button-ripple,
+  .mat-ripple,
+  .mdc-button__ripple {
+    display: none !important;
+  }
+  
+  /* Override Material Design hover state layer that creates circle background */
+  &::before,
+  &::after,
+  .mdc-button__ripple::before,
+  .mdc-button__ripple::after {
+    display: none !important;
+  }
+  
+  /* Ensure proper icon centering */
+  mat-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+  }
+  
+  /* Custom hover effect without circle shade */
+  &:hover:not([disabled]) {
+    background-color: rgba(108, 99, 255, 0.1) !important;
+    
+    mat-icon {
+      color: var(--primary-color) !important;
     }
   }
+}
+
+/* Fix for all Material Design buttons to ensure proper icon centering */
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button {
+  mat-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+  }
+}
+
+/* Enhanced toggle widget theming */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--primary-color) !important;
+  
+  &:checked {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+  }
+  
+  &:focus {
+    outline: 2px solid rgba(108, 99, 255, 0.3) !important;
+    outline-offset: 2px !important;
+  }
+}
+
+/* Toggle switches (if using mat-slide-toggle) */
+.mat-mdc-slide-toggle {
+  &.mat-checked {
+    .mdc-switch__track {
+      background-color: var(--primary-color) !important;
+    }
+    
+    .mdc-switch__handle {
+      background-color: var(--primary-color) !important;
+    }
+  }
+}
+
+/* Remove border and shadow from main content to match flat look */
+mat-sidenav-content {
+  background: var(--background-secondary);
+  box-shadow: none;
+}
+
+/* Remove border from sidenav */
+mat-sidenav {
+  border-right: none !important;
+}
+
+/* Override Angular Material Sidenav default margins */
+mat-sidenav-container.mat-drawer-container {
+  .mat-drawer-content,
+  .mat-sidenav-content {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Ensure sidenav content fills completely */
+mat-sidenav-content {
+  margin: 0 !important;
+  padding: 0 !important;
 }
