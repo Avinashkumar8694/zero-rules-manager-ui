@@ -7,12 +7,13 @@ interface VersionDialogData {
 }
 
 @Component({
-  selector: 'app-delete-version-dialog',
-  template: `
+  selector: 'app-delete-version-dialog',  template: `
     <div class="dialog-container">
-      <h2>Delete Version</h2>
-      <p>Are you sure you want to delete version "{{ data.name }}"?</p>
-      <p class="warning">This action cannot be undone.</p>
+      <div class="dialog-content">
+        <h2>Delete Version</h2>
+        <p>Are you sure you want to delete version "{{ data.name }}"?</p>
+        <p class="warning">This action cannot be undone.</p>
+      </div>
       
       <div class="dialog-actions">
         <button mat-button (click)="onCancel()">Cancel</button>
@@ -21,11 +22,15 @@ interface VersionDialogData {
         </button>
       </div>
     </div>
-  `,
-  styles: [`
+  `,  styles: [`
     .dialog-container {
-      padding: 24px;
+      /* Use global dialog styles for proper flexbox layout and sticky footer */
       max-width: 400px;
+    }
+
+    .dialog-content {
+      /* Content styling handled by global styles.scss */
+      padding: 24px;
     }
 
     h2 {
@@ -44,9 +49,7 @@ interface VersionDialogData {
     }
 
     .dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
+      /* Dialog actions styling handled by global styles.scss with sticky footer functionality */
       margin-top: 24px;
     }
   `]

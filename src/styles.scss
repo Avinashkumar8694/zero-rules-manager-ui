@@ -227,11 +227,14 @@ select {
 }
 
 /* Dialog styles */
-.mat-dialog-container {
+.mat-dialog-container,
+.mat-mdc-dialog-container {
   border-radius: var(--border-radius-lg) !important;
   padding: 0 !important;
   max-height: 100vh !important;
   overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -252,6 +255,109 @@ select {
   }
 }
 
+/* Global dialog container structure for sticky footer */
+.dialog-container {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 400px;
+  max-height: 90vh;
+  overflow: hidden;
+  background: var(--background-primary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Dialog header styles */
+.dialog-header {
+  height: 3.5rem;
+  min-height: 3.5rem;
+  padding: 0 var(--spacing-lg);
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+
+  h2 {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Dialog content with scroll */
+.dialog-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--spacing-lg);
+  min-width: 0;
+  background: var(--background-primary);
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--background-secondary);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--text-secondary);
+    border-radius: 4px;
+
+    &:hover {
+      background: var(--text-primary);
+    }
+  }
+
+  > * {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  typed-input-mapping-widget,
+  input-mapping-widget,
+  typed-input-widget,
+  input-widget,
+  dropdown-widget,
+  toggle-widget,
+  file-widget {
+    display: block;
+    margin-bottom: var(--spacing-md);
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* Sticky dialog actions footer */
+.dialog-actions {
+  height: 3.5rem;
+  min-height: 3.5rem;
+  padding: 0 var(--spacing-lg);
+  background: var(--background-secondary);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+}
+
 /* Attribute window specific styles */
 .attribute-window-dialog {
   display: flex;
@@ -265,12 +371,15 @@ select {
   .mat-mdc-dialog-surface {
     width: auto !important;
   }
-
   .dialog-header {
-    padding: var(--spacing-lg);
+    height: 3.5rem;
+    min-height: 3.5rem;
+    padding: 0 var(--spacing-lg);
     background: var(--background-secondary);
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
 
     h2 {
       margin: 0;
@@ -329,15 +438,21 @@ select {
       min-width: 0;
     }
   }
-
   .dialog-actions {
-    padding: var(--spacing-md) var(--spacing-lg);
+    height: 3.5rem;
+    min-height: 3.5rem;
+    padding: 0 var(--spacing-lg);
     background: var(--background-secondary);
     border-top: 1px solid var(--border-color);
     display: flex;
+    align-items: center;
     justify-content: flex-end;
     gap: var(--spacing-sm);
     flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
   }
 }
 
@@ -488,7 +603,7 @@ button mat-icon {
 .title-section {
   background: #ffffff;
   color: var(--text-primary);
-  padding: 8px 16px;
+  padding: 0 16px;
   border-radius: 8px 8px 0 0;
   box-shadow: 0 2px 12px rgba(108, 99, 255, 0.15), 
               0 1px 3px rgba(0, 0, 0, 0.1);
@@ -496,8 +611,10 @@ button mat-icon {
   border-bottom: 1px solid rgba(108, 99, 255, 0.1);
   position: relative;
   overflow: hidden;
-  min-height: 2rem;
-  height: auto;
+  height: 3.5rem;
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
 
   &::before {
     content: '';

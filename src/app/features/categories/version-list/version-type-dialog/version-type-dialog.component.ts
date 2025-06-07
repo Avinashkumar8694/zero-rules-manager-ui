@@ -39,19 +39,17 @@ export interface VersionTypeDialogData {
       </div>
     </div>
   `,
-    styles: [`
-    .dialog-container {
+    styles: [`    .dialog-container {
+      /* Use global dialog styles for proper flexbox layout and sticky footer */
       min-width: 600px;
-    }    .dialog-header {
+    }.dialog-header {
       /* Enhanced header styling applied globally via styles.scss */
     }
 
     .dialog-header h2 {
       margin: 0;
-    }
-
-    .dialog-content {
-      padding: 24px;
+    }    .dialog-content {
+      /* Content styling handled by global styles.scss */
     }
 
     .version-type-grid {
@@ -93,13 +91,8 @@ export interface VersionTypeDialogData {
       margin: 0;
       font-size: 14px;
       color: #666;
-    }
-
-    .dialog-actions {
-      padding: 16px 24px;
-      border-top: 1px solid #eee;
-      display: flex;
-      justify-content: flex-end;
+    }    .dialog-actions {
+      /* Sticky footer styling handled by global styles.scss */
     }
   `],
     standalone: false

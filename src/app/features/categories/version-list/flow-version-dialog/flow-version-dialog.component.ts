@@ -43,31 +43,24 @@ interface FlowVersionDialogData {
       </form>
     </div>
   `,
-  styles: [`
-    .dialog-container {
+  styles: [`    .dialog-container {
+      /* Use global dialog styles for proper flexbox layout and sticky footer */
       min-width: 500px;
-    }    .dialog-header {
+    }.dialog-header {
       /* Enhanced header styling applied globally via styles.scss */
     }
 
     .dialog-header h2 {
       margin: 0;
-    }
-
-    .dialog-content {
-      padding: 24px;
+    }    .dialog-content {
+      /* Content styling handled by global styles.scss */
     }
 
     .full-width {
       width: 100%;
       margin-bottom: 16px;
-    }
-
-    .dialog-actions {
-      padding: 8px 24px 24px;
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
+    }    .dialog-actions {
+      /* Sticky footer styling handled by global styles.scss */
     }
 
     mat-spinner {

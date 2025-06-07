@@ -22,22 +22,17 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
       </div>
     </div>
   `,
-  styles: [`
-    .dialog-container {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  styles: [`    .dialog-container {
+      /* Use global dialog styles for proper flexbox layout and sticky footer */
       min-width: 400px;
-    }    .dialog-header {
+    }.dialog-header {
       /* Enhanced header styling applied globally via styles.scss */
     }
 
     .dialog-header h2 {
       margin: 0;
-    }
-
-    .dialog-content {
-      padding: 24px;
+    }    .dialog-content {
+      /* Content styling handled by global styles.scss */
       text-align: center;
     }
 
@@ -51,14 +46,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
       color: #dc3545;
       font-size: 14px;
       margin-top: 8px;
-    }
-
-    .dialog-actions {
-      padding: 16px 24px;
-      border-top: 1px solid #eee;
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
+    }    .dialog-actions {
+      /* Sticky footer styling handled by global styles.scss */
     }
 
     .btn-secondary,
