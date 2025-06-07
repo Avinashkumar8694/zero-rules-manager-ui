@@ -59,17 +59,17 @@ mat-sidenav-container {
 }
 
 mat-sidenav {
-  width: 256px;
-  transition: width 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  width: var(--sidenav-width);
+  transition: width var(--transition-material);
   background-color: var(--surface-dark);
   border-right: none;
-  box-shadow: 0 0 24px 0 rgba(108,99,255,0.08);
+  box-shadow: var(--sidenav-shadow);
   height: 100vh;
   position: relative;
   overflow: hidden;
   
   &:not(.expanded) {
-    width: 80px;
+    width: var(--sidenav-collapsed-width);
     
     .hidden {
       display: none;
@@ -78,18 +78,18 @@ mat-sidenav {
   
   // Smooth transition for all child elements during width change
   * {
-    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: all var(--transition-material);
   }
 }
 
 .sidenav-header {
-  padding: 12px;
+  padding: var(--sidenav-padding);
   display: flex;
   align-items: center;
-  height: 64px;
+  height: var(--header-height);
   box-sizing: border-box;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border-bottom: 1px solid var(--white-alpha-10);
+  transition: all var(--transition-material);
 
   // Center hamburger button when collapsed
   justify-content: center;
@@ -97,8 +97,8 @@ mat-sidenav {
   // Align to left when expanded
   &.expanded {
     justify-content: flex-start;
-    padding: 12px 16px;
-  }    
+    padding: var(--sidenav-padding) var(--sidenav-padding-expanded);
+  }
   .hamburger-btn {
     // background: rgba(255,255,255,0.1);
     color: var(--text-light);

@@ -2,55 +2,9 @@
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Icons+Outlined&display=swap');
-:root {
-  /* Colors */
-  --primary-color: #6c63ff;
-  --primary-light: #6c63ff40;
-  --accent-color: #ff6584;
-  --error-color: #d93025;
-  --error-light: #fce8e6;
-  --text-primary: #2a3b4d;
-  --text-secondary: #86868b;
-  --text-light: #b8bcc8;
-  --background-primary: #ffffff;
-  --background-secondary: #f8fafd;
-  --surface-dark: #2d2d3a;
-  --border-color: rgba(0, 0, 0, 0.1);
 
-  /* Typography */
-  --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
-  --font-size-sm: 10px;
-  --font-size-base: 14px;
-  --font-size-lg: 16px;
-  --font-size-xl: 20px;
-  --font-size-xxl: 24px;
-
-  /* Spacing */
-  --spacing-xs: 3px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-
-  /* Border Radius */
-  --border-radius-sm: 4px;
-  --border-radius-md: 8px;
-  --border-radius-lg: 12px;
-  --border-radius-xl: 16px;
-
-  /* Transitions */
-  --transition-fast: 0.2s ease;
-  --transition-normal: 0.3s ease;
-
-  /* Shadows */
-  --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-
-  /* Focus State System */
-  --focus-border-color: var(--primary-color);
-  --focus-shadow-color: var(--primary-light);
-  --focus-shadow-size: 0 0 0 2px;
-  --focus-outline: none;
-}
+/* Import theme variables */
+@import 'styles/theme';
 
 /* Focus state mixins */
 @mixin focus-state {
@@ -227,8 +181,7 @@ textarea.mat-mdc-input-element {
     top: 50%;
     left: 50%;
     width: 0;
-    height: 0;
-    background: rgba(255, 255, 255, 0.2);
+    height: 0;    background: var(--overlay-light);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     transition: width 0.6s ease, height 0.6s ease;
@@ -776,11 +729,10 @@ button mat-icon {
   background: #ffffff;
   color: var(--text-primary);
   padding: 0 16px;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 2px 12px rgba(108, 99, 255, 0.15), 
-              0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 8px 8px 0 0;  box-shadow: 0 2px 12px var(--primary-alpha-20), 
+              0 1px 3px var(--shadow-color);
   margin-bottom: 0;
-  border-bottom: 1px solid rgba(108, 99, 255, 0.1);
+  border-bottom: 1px solid var(--primary-alpha-10);
   position: relative;
   overflow: hidden;
   height: 3.5rem;
@@ -894,10 +846,9 @@ mat-card-header,
   border-radius: 8px 8px 0 0;
   margin: -20px -20px 16px -20px;
   position: relative;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(108, 99, 255, 0.1), 
-              0 1px 2px rgba(0, 0, 0, 0.05);
-  border-bottom: 1px solid rgba(108, 99, 255, 0.1);
+  overflow: hidden;  box-shadow: 0 2px 8px var(--primary-alpha-10), 
+              0 1px 2px var(--shadow-light);
+  border-bottom: 1px solid var(--primary-alpha-10);
 
   &::before {
     content: '';
@@ -952,12 +903,11 @@ mat-card-header,
       color: var(--primary-color) !important;
     }
   }
-  
-  &[color="warn"] {
-    color: #f44336 !important;
+    &[color="warn"] {
+    color: var(--danger-color) !important;
     
     &:hover:not([disabled]) {
-      color: #d32f2f !important;
+      color: var(--error-color) !important;
     }
   }
   
@@ -1043,8 +993,7 @@ mat-card-header,
     }
   }
   
-  /* Inactive state - unchecked/off state */
-  &.inactive,
+  /* Inactive state - unchecked/off state */  &.inactive,
   &[data-state="inactive"],
   &[aria-pressed="false"] {
     color: var(--text-secondary) !important;
@@ -1054,7 +1003,7 @@ mat-card-header,
     }
     
     &:hover:not([disabled]) {
-      background-color: rgba(0, 0, 0, 0.05) !important;
+      background-color: var(--overlay-dark) !important;
       color: var(--text-primary) !important;
       
       mat-icon {
@@ -1074,22 +1023,22 @@ mat-card-header,
 
 .btn-toggle-success {
   &.active {
-    color: #28a745 !important;
-    background-color: rgba(40, 167, 69, 0.1) !important;
+    color: var(--success-color) !important;
+    background-color: var(--success-light) !important;
   }
 }
 
 .btn-toggle-warning {
   &.active {
-    color: #ffc107 !important;
-    background-color: rgba(255, 193, 7, 0.1) !important;
+    color: var(--warning-color) !important;
+    background-color: var(--warning-light) !important;
   }
 }
 
 .btn-toggle-danger {
   &.active {
-    color: #dc3545 !important;
-    background-color: rgba(220, 53, 69, 0.1) !important;
+    color: var(--danger-color) !important;
+    background-color: var(--danger-light) !important;
   }
 }
 

@@ -10,12 +10,11 @@
     .title-content {
       display: flex;
       align-items: center;
-      gap: var(--spacing-md);
-        h1 {
+      gap: var(--spacing-md);      h1 {
         color: var(--text-primary);
         margin: 0;
-        font-weight: 600;
-        letter-spacing: 0.3px;
+        font-weight: var(--font-weight-semibold);
+        letter-spacing: var(--letter-spacing-sm);
         display: flex;
         align-items: center;
         gap: var(--spacing-sm);
@@ -23,26 +22,26 @@
         
         mat-icon {
           color: var(--primary-color);
-          font-size: 24px;
-          width: 24px;
-          height: 24px;
+          font-size: var(--icon-size-lg);
+          width: var(--icon-size-lg);
+          height: var(--icon-size-lg);
         }
       }
       
       .total-count {
-        background: rgba(108, 99, 255, 0.1);
+        background: var(--primary-alpha-10);
         color: var(--primary-color);
-        padding: 3px 10px;
+        padding: var(--badge-padding);
         border-radius: var(--border-radius-xl);
         font-size: var(--font-size-sm);
-        border: 1px solid rgba(108, 99, 255, 0.2);
-        font-weight: 500;
+        border: var(--border-width) var(--border-style) var(--primary-alpha-20);
+        font-weight: var(--font-weight-medium);
       }
     }      .search-box {
       position: relative;
       display: flex;
       align-items: center;
-      width: 300px;
+      width: var(--search-width);
       z-index: 1;
 
       mat-icon {
