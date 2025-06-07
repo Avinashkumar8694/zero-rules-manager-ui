@@ -819,6 +819,169 @@ input[type="radio"] {
   }
 }
 
+/* Enhanced Material Design toggle button theming */
+.mat-mdc-icon-button {
+  transition: all 0.2s ease !important;
+  
+  /* Primary color toggle buttons */
+  &[color="primary"] {
+    color: var(--primary-color) !important;
+    
+    mat-icon {
+      color: inherit !important;
+    }
+    
+    &:hover:not([disabled]) {
+      background-color: rgba(108, 99, 255, 0.1) !important;
+      transform: scale(1.05) !important;
+    }
+  }
+  
+  /* Warning color toggle buttons */
+  &[color="warn"] {
+    color: #f44336 !important;
+    
+    mat-icon {
+      color: inherit !important;
+    }
+    
+    &:hover:not([disabled]) {
+      background-color: rgba(244, 67, 54, 0.1) !important;
+      transform: scale(1.05) !important;
+    }
+  }
+  
+  /* Default/neutral color toggle buttons */
+  &[color="default"],
+  &:not([color]) {
+    color: var(--text-secondary) !important;
+    
+    mat-icon {
+      color: inherit !important;
+    }
+    
+    &:hover:not([disabled]) {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+      color: var(--text-primary) !important;
+      transform: scale(1.05) !important;
+      
+      mat-icon {
+        color: inherit !important;
+      }
+    }
+  }
+}
+
+/* Generic toggle styling - class-based approach for better control */
+.toggle-button-active,
+.mat-mdc-icon-button.toggle-active {
+  color: var(--primary-color) !important;
+  
+  mat-icon {
+    color: var(--primary-color) !important;
+  }
+  
+  &:hover:not([disabled]) {
+    background-color: rgba(108, 99, 255, 0.1) !important;
+    color: var(--primary-color) !important;
+    transform: scale(1.05) !important;
+    
+    mat-icon {
+      color: var(--primary-color) !important;
+    }
+  }
+}
+
+.toggle-button-inactive,
+.mat-mdc-icon-button.toggle-inactive {
+  color: var(--text-secondary) !important;
+  
+  mat-icon {
+    color: var(--text-secondary) !important;
+  }
+  
+  &:hover:not([disabled]) {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    color: var(--text-primary) !important;
+    transform: scale(1.05) !important;
+    
+    mat-icon {
+      color: var(--text-primary) !important;
+    }
+  }
+}
+
+/* Icon-specific toggle styling using attribute selectors */
+mat-icon {
+  transition: all 0.2s ease !important;
+  
+  /* Style toggle_on icon to always use primary color when visible */
+  &[fontIcon="toggle_on"] {
+    color: var(--primary-color) !important;
+  }
+  
+  /* Style toggle_off icon to use secondary color when visible */
+  &[fontIcon="toggle_off"] {
+    color: var(--text-secondary) !important;
+  }
+  
+  /* Style based on icon content for Material Icons */
+  &:before {
+    transition: color 0.2s ease;
+  }
+}
+
+/* Content-based icon styling for Material Icons font */
+mat-icon:not([fontIcon]) {
+  /* When icon content is toggle_on, apply primary color */
+  &:has-text("toggle_on"),
+  &[data-mat-icon-name="toggle_on"] {
+    color: var(--primary-color) !important;
+  }
+  
+  /* When icon content is toggle_off, apply secondary color */
+  &:has-text("toggle_off"),
+  &[data-mat-icon-name="toggle_off"] {
+    color: var(--text-secondary) !important;
+  }
+}
+
+/* Fallback using CSS custom properties for toggle icons */
+.mat-mdc-icon-button {
+  /* When button contains toggle_on icon */
+  &:has(mat-icon[fontIcon="toggle_on"]),
+  &[data-toggle-state="active"] {
+    color: var(--primary-color) !important;
+    
+    mat-icon {
+      color: var(--primary-color) !important;
+    }
+    
+    &:hover:not([disabled]) {
+      background-color: rgba(108, 99, 255, 0.1) !important;
+    }
+  }
+  
+  /* When button contains toggle_off icon */
+  &:has(mat-icon[fontIcon="toggle_off"]),
+  &[data-toggle-state="inactive"] {
+    color: var(--text-secondary) !important;
+    
+    mat-icon {
+      color: var(--text-secondary) !important;
+    }
+    
+    &:hover:not([disabled]) {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+      color: var(--text-primary) !important;
+      
+      mat-icon {
+        color: var(--text-primary) !important;
+      }
+    }
+  }
+}
+
 /* Toggle switches (if using mat-slide-toggle) */
 .mat-mdc-slide-toggle {
   &.mat-checked {
@@ -859,3 +1022,232 @@ mat-sidenav-content {
   margin: 0 !important;
   padding: 0 !important;
 }
+
+/* Global Search Box Styles */
+.search-box {
+  position: relative;
+  width: 100%;
+  
+  mat-icon,
+  fa-icon {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 14px;
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  input {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px 0 32px;
+    border: none;
+    border-radius: var(--border-radius-md);
+    background-color: #f5f5f7;
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+    transition: var(--transition-fast);
+    box-sizing: border-box;
+    font-family: var(--font-family);
+    
+    &:focus {
+      outline: none;
+      background-color: var(--background-primary);
+      box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.25);
+    }
+    
+    &::placeholder {
+      color: var(--text-secondary);
+      font-size: var(--font-size-base);
+    }
+  }
+  
+  /* Compact variant for smaller spaces */
+  &.compact {
+    input {
+      height: 32px;
+      font-size: 12px;
+      border-radius: 6px;
+      
+      &::placeholder {
+        font-size: 12px;
+      }
+    }
+    
+    mat-icon,
+    fa-icon {
+      font-size: 14px;
+    }
+  }
+  
+  /* Inline variant for right-aligned search */
+  &.inline {
+    width: auto;
+    text-align: right;
+    
+    input {
+      width: 300px;
+      padding-left: 40px;
+    }
+    
+    mat-icon,
+    fa-icon {
+      left: 12px;
+    }
+  }
+}
+
+/* Search section wrapper */
+.search-section {
+  margin-bottom: var(--spacing-md);
+  
+  /* For palette/sidebar contexts */
+  &.palette {
+    margin-bottom: var(--spacing-md);
+  }
+}
+
+/* =================================
+   TOGGLE BUTTON UTILITY CLASSES
+   ================================= */
+
+/* Generic toggle button utility classes for easy application */
+.btn-toggle {
+  transition: all 0.2s ease !important;
+  border-radius: 50% !important;
+  
+  mat-icon {
+    transition: all 0.2s ease !important;
+  }
+  
+  &:hover:not([disabled]) {
+    transform: scale(1.05) !important;
+  }
+  
+  /* Active state - checked/on state */
+  &.active,
+  &[data-state="active"],
+  &[aria-pressed="true"] {
+    color: var(--primary-color) !important;
+    
+    mat-icon {
+      color: var(--primary-color) !important;
+    }
+    
+    &:hover:not([disabled]) {
+      background-color: rgba(108, 99, 255, 0.1) !important;
+    }
+  }
+  
+  /* Inactive state - unchecked/off state */
+  &.inactive,
+  &[data-state="inactive"],
+  &[aria-pressed="false"] {
+    color: var(--text-secondary) !important;
+    
+    mat-icon {
+      color: var(--text-secondary) !important;
+    }
+    
+    &:hover:not([disabled]) {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+      color: var(--text-primary) !important;
+      
+      mat-icon {
+        color: var(--text-primary) !important;
+      }
+    }
+  }
+}
+
+/* Toggle button variants */
+.btn-toggle-primary {
+  &.active {
+    color: var(--primary-color) !important;
+    background-color: rgba(108, 99, 255, 0.1) !important;
+  }
+}
+
+.btn-toggle-success {
+  &.active {
+    color: #28a745 !important;
+    background-color: rgba(40, 167, 69, 0.1) !important;
+  }
+}
+
+.btn-toggle-warning {
+  &.active {
+    color: #ffc107 !important;
+    background-color: rgba(255, 193, 7, 0.1) !important;
+  }
+}
+
+.btn-toggle-danger {
+  &.active {
+    color: #dc3545 !important;
+    background-color: rgba(220, 53, 69, 0.1) !important;
+  }
+}
+
+/* Size variants */
+.btn-toggle-sm {
+  width: 32px !important;
+  height: 32px !important;
+  
+  mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+  }
+}
+
+.btn-toggle-lg {
+  width: 48px !important;
+  height: 48px !important;
+  
+  mat-icon {
+    font-size: 28px !important;
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+/* Icon-based toggle detection (automatic state detection) */
+.mat-mdc-icon-button {
+  /* Automatic detection based on toggle icon content */
+  &:has(mat-icon:contains("toggle_on")) {
+    color: var(--primary-color) !important;
+    
+    mat-icon {
+      color: var(--primary-color) !important;
+    }
+    
+    &:hover:not([disabled]) {
+      background-color: rgba(108, 99, 255, 0.1) !important;
+    }
+  }
+  
+  &:has(mat-icon:contains("toggle_off")) {
+    color: var(--text-secondary) !important;
+    
+    mat-icon {
+      color: var(--text-secondary) !important;
+    }
+    
+    &:hover:not([disabled]) {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+      color: var(--text-primary) !important;
+      
+      mat-icon {
+        color: var(--text-primary) !important;
+      }
+    }
+  }
+}
+
+/* =================================
+   END TOGGLE BUTTON UTILITIES
+   ================================= */

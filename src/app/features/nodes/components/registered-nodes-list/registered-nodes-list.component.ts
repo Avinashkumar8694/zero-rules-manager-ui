@@ -3,9 +3,8 @@ import { NodeRegistrationService } from '../../../../services/node-registration.
 import { CdkDragStart } from '@angular/cdk/drag-drop';
 
 @Component({
-  selector: 'app-registered-nodes-list',  template: `
-    <div class="registered-nodes-container">      <div class="search-section">
-        <div class="search-box">
+  selector: 'app-registered-nodes-list',  template: `    <div class="registered-nodes-container">      <div class="search-section palette">
+        <div class="search-box compact">
           <mat-icon>search</mat-icon>
           <input type="text" 
                  placeholder="Search workflow component" 

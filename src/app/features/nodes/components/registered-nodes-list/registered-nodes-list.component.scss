@@ -9,48 +9,7 @@
   max-width: 220px;
 }
 
-.search-section {
-  margin-bottom: 16px;
-  
-  .search-box {
-    position: relative;
-    width: 100%;
-    
-    mat-icon {
-      position: absolute;
-      left: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #86868b;
-      font-size: 14px;
-      z-index: 1;
-    }
-    
-    input {
-      width: 100%;
-      height: 32px;
-      padding: 0 8px 0 32px;
-      border: none;
-      border-radius: 6px;
-      background-color: #f5f5f7;
-      color: #1d1d1f;
-      font-size: 12px;
-      transition: all 0.2s ease;
-      box-sizing: border-box;
-      
-      &:focus {
-        outline: none;
-        background-color: #fff;
-        box-shadow: 0 0 0 2px #0066cc40;
-      }
-      
-      &::placeholder {
-        color: #86868b;
-        font-size: 12px;
-      }
-    }
-  }
-}
+// Search box styles are now global in styles.scss
 
 .connector-section,
 .nodes-section {

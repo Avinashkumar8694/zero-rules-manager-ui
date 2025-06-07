@@ -170,6 +170,83 @@
 
 .action-cell {
   white-space: nowrap;
+
+  /* Enhanced toggle button styling for theme color application */
+  .mat-mdc-icon-button {
+    transition: all 0.2s ease;
+    
+    &[color="primary"] {
+      color: var(--primary-color) !important;
+      
+      mat-icon {
+        color: inherit !important;
+      }
+      
+      &:hover {
+        background-color: rgba(108, 99, 255, 0.1) !important;
+        transform: scale(1.05);
+      }
+    }
+    
+    &[color="warn"] {
+      color: #f44336 !important;
+      
+      mat-icon {
+        color: inherit !important;
+      }
+      
+      &:hover {
+        background-color: rgba(244, 67, 54, 0.1) !important;
+        transform: scale(1.05);
+      }
+    }
+    
+    /* Toggle button states - active state should use primary color */
+    &.toggle-active {
+      color: var(--primary-color) !important;
+      
+      mat-icon {
+        color: var(--primary-color) !important;
+      }
+      
+      &:hover {
+        background-color: rgba(108, 99, 255, 0.1) !important;
+        transform: scale(1.05);
+      }
+    }
+    
+    /* Toggle button states - inactive state should use secondary color */
+    &.toggle-inactive {
+      color: var(--text-secondary) !important;
+      
+      mat-icon {
+        color: var(--text-secondary) !important;
+      }
+      
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05) !important;
+        color: var(--text-primary) !important;
+        transform: scale(1.05);
+        
+        mat-icon {
+          color: var(--text-primary) !important;
+        }
+      }
+    }
+    
+    /* Specific styling for toggle icons to ensure proper theming */
+    mat-icon {
+      transition: all 0.2s ease;
+      
+      &[fontIcon="toggle_on"] {
+        color: var(--primary-color) !important;
+      }
+      
+      &[fontIcon="toggle_off"] {
+        color: var(--text-secondary) !important;
+      }
+    }
+  }
 }
 
 .no-data {

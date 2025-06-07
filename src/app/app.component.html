@@ -1,7 +1,7 @@
 <mat-sidenav-container class="full-height">
   <mat-sidenav #sidenav mode="side" [opened]="true" [class.expanded]="sidenavExpanded" class="full-height-sidenav">    <!-- Hamburger button inside sidenav -->    <div class="sidenav-header" [class.expanded]="sidenavExpanded">
       <button mat-icon-button (click)="toggleSidenav()" class="hamburger-btn" 
-              [matTooltip]="sidenavExpanded ? 'Collapse sidebar' : 'Expand sidebar'">
+              >
         <fa-icon [icon]="['fas', 'bars']"></fa-icon>
       </button>
     </div><mat-nav-list>
@@ -49,10 +49,11 @@
   </mat-sidenav>
   
   <mat-sidenav-content class="main-content">
-    <!-- Header/toolbar positioned in the content area -->    <mat-toolbar color="primary" class="app-header">
+    <!-- Header/toolbar positioned in the content area -->    
+     <mat-toolbar color="primary" class="app-header">
       <span>Zero Rules Manager</span>
       <span class="spacer"></span>
-      <button mat-icon-button matTooltip="User profile">
+      <button mat-icon-button>
         <fa-icon [icon]="['fas', 'user']"></fa-icon>
       </button>
     </mat-toolbar>
