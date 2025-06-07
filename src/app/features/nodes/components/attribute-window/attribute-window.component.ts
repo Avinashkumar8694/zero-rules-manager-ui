@@ -6,12 +6,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
   selector: 'app-attribute-window',  template: `
     <div class="attribute-window" *ngIf="data.selectedNode">
       <div class="header">
-        <h3>{{ formatHeader(data.selectedNode.type) }}</h3>
-        <div class="header-icons">
-          <button mat-icon-button (click)="onSave()">
+        <h3>{{ formatHeader(data.selectedNode.type) }}</h3>        <div class="header-icons">
+          <button mat-icon-button (click)="onSave()" matTooltip="Save changes">
             <mat-icon>save</mat-icon>
           </button>
-          <button mat-icon-button (click)="onCancel()">
+          <button mat-icon-button (click)="onCancel()" matTooltip="Close">
             <mat-icon>close</mat-icon>
           </button>
         </div>

@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
   categories: Category[] = [];
   loading = false;
   error: string | null = null;
-  sidenavExpanded = true;
+  sidenavExpanded = false; // Changed to collapsed by default
   @ViewChild(MatSidenavContainer) sidenavContainer!: MatSidenavContainer;
   constructor(private http: HttpClient, private router: Router,private nodeRegistrationService: NodeRegistrationService) {}
 

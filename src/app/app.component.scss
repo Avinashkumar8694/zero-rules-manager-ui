@@ -22,38 +22,51 @@ mat-sidenav-container {
   display: flex;
   flex-direction: row;
   height: 100vh;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  // Override Angular Material's default transitions
+  .mat-drawer-transition .mat-drawer {
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+  }
+  
+  .mat-drawer-transition .mat-drawer-content {
+    transition: margin 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+  }
   
   // Remove default Angular Material margins/padding
   .mat-drawer-content {
     margin-left: 0 !important;
     margin-right: 0 !important;
+    transition: margin 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   }
   
   .mat-sidenav-content {
     margin-left: 0 !important;
     margin-right: 0 !important;
+    transition: margin 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   }
   
-  // Ensure no automatic margin adjustments
+  // Ensure no automatic margin adjustments but allow smooth transitions
   &.mat-drawer-container {
     .mat-drawer-content,
     .mat-sidenav-content {
       margin-left: 0 !important;
       margin-right: 0 !important;
       transform: none !important;
-      transition: none !important;
+      transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
     }
   }
 }
 
 mat-sidenav {
   width: 256px;
-  transition: width 0.3s ease;
+  transition: width 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   background-color: var(--surface-dark);
   border-right: none;
   box-shadow: 0 0 24px 0 rgba(108,99,255,0.08);
   height: 100vh;
   position: relative;
+  overflow: hidden;
   
   &:not(.expanded) {
     width: 80px;
@@ -62,78 +75,113 @@ mat-sidenav {
       display: none;
     }
   }
+  
+  // Smooth transition for all child elements during width change
+  * {
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
 }
 
 .sidenav-header {
-  padding: 16px;
+  padding: 12px;
   display: flex;
-  justify-content: flex-start;
   align-items: center;
   height: 64px;
   box-sizing: border-box;
   border-bottom: 1px solid rgba(255,255,255,0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 
+  // Center hamburger button when collapsed
+  justify-content: center;
   
+  // Align to left when expanded
+  &.expanded {
+    justify-content: flex-start;
+    padding: 12px 16px;
+  }    
   .hamburger-btn {
-    background: rgba(255,255,255,0.1);
+    // background: rgba(255,255,255,0.1);
     color: var(--text-light);
     border-radius: 50%;
     width: 40px;
     height: 40px;
-    border: 2px solid rgba(255,255,255,0.2);
+    // border: 2px solid rgba(255,255,255,0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 
     &:hover {
       background: var(--accent-color);
       border-color: var(--accent-color);
-      color: #fff;      transform: scale(1.05);
+      color: #fff;
+      transform: scale(1.05);
     }
     
     fa-icon {
       font-size: 18px;
+      transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
     }
   }
 }
 
 mat-nav-list {
   padding-top: 16px;
-  
-  a {
+    .nav-item {
     display: flex;
     align-items: center;
-    padding: 12px 16px;
     height: 56px;
     color: var(--text-light);
     font-family: var(--font-family);
     font-weight: 500;
     text-decoration: none;
     border-radius: 8px;
-    // margin: 4px 8px;
-    transition: all 0.2s ease;
-    justify-content: center;
-    display: flex;
-    flex-direction: row;
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    position: relative;
+    padding: 0;
     
-    fa-icon {
-      font-size: 20px;
-      width: 24px;
-      height: 24px;
-      // margin-right: 16px;
+    .nav-content {
       display: flex;
       align-items: center;
+      width: 100%;
+      height: 100%;
+      transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+      
+      // Default collapsed state - center the content
       justify-content: center;
-      color: var(--text-light);
-    }
-    
-    span {
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      font-size: var(--font-size-base);
+      
+      // When expanded - align to left
+      &.expanded {
+        justify-content: flex-start;
+        padding: 12px 16px;
+      }
+      
+      .nav-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-light);
+        flex-shrink: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+      }
+      
+      .nav-text {
+        margin-left: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: var(--font-size-base);
+        line-height: 1.2;
+        color: var(--text-light);
+        transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        
+        &.hidden {
+          display: none;
+        }
+      }
     }
     
     &.active {
@@ -141,8 +189,14 @@ mat-nav-list {
       color: #fff;
       box-shadow: 0 4px 12px 0 rgba(255,101,132,0.3);
       
-      fa-icon {
-        color: #fff;
+      .nav-content {
+        .nav-icon {
+          color: #fff;
+        }
+        
+        .nav-text {
+          color: #fff;
+        }
       }
     }
     
@@ -150,8 +204,14 @@ mat-nav-list {
       background-color: rgba(255,255,255,0.05);
       color: #fff;
       
-      fa-icon {
-        color: #fff;
+      .nav-content {
+        .nav-icon {
+          color: #fff;
+        }
+        
+        .nav-text {
+          color: #fff;
+        }
       }
     }
   }
@@ -176,7 +236,7 @@ mat-nav-list {
   font-size: var(--font-size-lg);
   letter-spacing: 0.3px;
   min-height: 2.5rem;
-  height: 2.5rem;
+  height: 3.5rem;
   display: flex;
   align-items: center;
   position: relative;

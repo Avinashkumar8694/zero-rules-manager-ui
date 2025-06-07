@@ -47,13 +47,12 @@
             (cdkDragStarted)="onDragStarted($event, node)"
             (cdkDragEnded)="onDragEnded($event, node)"
             (cdkDragMoved)="onDragMoved($event, node)"
-          >
-            <div class="drag-handle" cdkDragHandle>
+          >            <div class="drag-handle" cdkDragHandle matTooltip="Drag to move node">
               <mat-icon>drag_indicator</mat-icon>
             </div>
             <span>Node {{ node.id }}</span>
-            <div class="node-connection-point input"></div>
-            <div class="node-connection-point output"></div>
+            <div class="node-connection-point input" matTooltip="Input connection point"></div>
+            <div class="node-connection-point output" matTooltip="Output connection point"></div>
           </div>
         </div>
       </div>

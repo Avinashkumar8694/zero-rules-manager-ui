@@ -14,9 +14,8 @@
         <div class="node-info">
           <span class="node-type">{{ node.type }}</span>
           <span class="node-category">{{ node.appearance?.category }}</span>
-        </div>
-        <div class="node-actions">
-          <button mat-icon-button color="accent" (click)="editNode(node)">
+        </div>        <div class="node-actions">
+          <button mat-icon-button color="accent" (click)="editNode(node)" matTooltip="Edit node">
             <mat-icon>edit</mat-icon>
           </button>
         </div>

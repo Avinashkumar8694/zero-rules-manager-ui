@@ -16,14 +16,14 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NodeRegistrationService } from './services/node-registration.service';
 import { WidgetsModule } from './widgets/widgets.module';
 
 @NgModule({
   declarations: [
     AppComponent
-  ],
-  imports: [
+  ],  imports: [
     WidgetsModule,
     BrowserModule,
     BrowserAnimationsModule,
@@ -35,6 +35,7 @@ import { WidgetsModule } from './widgets/widgets.module';
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
     FontAwesomeModule,
   ],
   providers: [NodeRegistrationService],

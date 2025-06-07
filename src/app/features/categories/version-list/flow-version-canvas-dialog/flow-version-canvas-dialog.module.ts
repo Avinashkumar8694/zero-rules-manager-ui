@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ReactiveFormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NodesModule } from '../../../nodes/nodes.module';
@@ -18,8 +19,7 @@ import { ConditionEditorComponent } from './condition-editor/condition-editor.co
   declarations: [
     FlowVersionCanvasDialogComponent,
     ConditionEditorComponent
-  ],
-  imports: [
+  ],  imports: [
     CommonModule,
     MatDialogModule,
     MatButtonModule,
@@ -28,6 +28,7 @@ import { ConditionEditorComponent } from './condition-editor/condition-editor.co
     MatInputModule,
     MatSelectModule,
     MatAutocompleteModule,
+    MatTooltipModule,
     ReactiveFormsModule,
     DragDropModule,
     NodesModule
