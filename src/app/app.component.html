@@ -14,8 +14,7 @@
           <fa-icon [icon]="['fas', 'scroll']" class="nav-icon"></fa-icon>
           <span class="nav-text" [class.hidden]="!sidenavExpanded">Rules</span>
         </div>
-      </a>
-      <a mat-list-item routerLink="/nodes" routerLinkActive="active"
+      </a>      <a mat-list-item routerLink="/nodes" routerLinkActive="active"
          [matTooltip]="sidenavExpanded ? '' : 'Nodes'" 
          [matTooltipDisabled]="sidenavExpanded"
          matTooltipPosition="right"
@@ -23,6 +22,16 @@
         <div class="nav-content" [class.expanded]="sidenavExpanded">
           <fa-icon [icon]="['fas', 'cog']" class="nav-icon"></fa-icon>
           <span class="nav-text" [class.hidden]="!sidenavExpanded">Nodes</span>
+        </div>
+      </a>
+      <a mat-list-item routerLink="/element-showcase" routerLinkActive="active"
+         [matTooltip]="sidenavExpanded ? '' : 'Elements'" 
+         [matTooltipDisabled]="sidenavExpanded"
+         matTooltipPosition="right"
+         class="nav-item">
+        <div class="nav-content" [class.expanded]="sidenavExpanded">
+          <fa-icon [icon]="['fas', 'palette']" class="nav-icon"></fa-icon>
+          <span class="nav-text" [class.hidden]="!sidenavExpanded">Elements</span>
         </div>
       </a>
       <a mat-list-item routerLink="/settings" routerLinkActive="active"

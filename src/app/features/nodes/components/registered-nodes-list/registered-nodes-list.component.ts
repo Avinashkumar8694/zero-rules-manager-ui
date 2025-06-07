@@ -14,7 +14,7 @@ import { CdkDragStart } from '@angular/cdk/drag-drop';
       </div>
       
       <div class="connector-section">
-        <h3>Connector</h3>
+        <!-- <h3>Connector</h3> -->
         <!-- Connector dropdown can be added here later -->
       </div>
       

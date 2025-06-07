@@ -33,11 +33,10 @@ interface FlowVersionDialogData {
             </mat-error>
           </mat-form-field>
         </div>
-        <div class="dialog-actions">
-          <button mat-button type="button" (click)="onCancel()">Cancel</button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="flowVersionForm.invalid || loading">
+        <div class="dialog-actions">          <button mat-button type="button" (click)="onCancel()" class="secondary">Cancel</button>
+          <button mat-button type="submit" [disabled]="flowVersionForm.invalid || loading" class="primary">
             <span *ngIf="!loading">Create</span>
-            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <mat-spinner diameter="20" color="primary" *ngIf="loading"></mat-spinner>
           </button>
         </div>
       </form>

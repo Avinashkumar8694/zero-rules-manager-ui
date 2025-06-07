@@ -35,7 +35,7 @@ export interface VersionTypeDialogData {
         </div>
       </div>
       <div class="dialog-actions">
-        <button mat-button (click)="onCancel()">Cancel</button>
+        <button mat-button (click)="onCancel()" class="secondary">Cancel</button>
       </div>
     </div>
   `,
@@ -48,8 +48,11 @@ export interface VersionTypeDialogData {
 
     .dialog-header h2 {
       margin: 0;
-    }    .dialog-content {
+    }    
+    .dialog-content {
       /* Content styling handled by global styles.scss */
+      display: flex;
+      align-items: center;
     }
 
     .version-type-grid {

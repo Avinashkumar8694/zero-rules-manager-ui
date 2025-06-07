@@ -4,7 +4,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
-import { faBars, faUser, faCog, faDatabase, faScroll } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faUser, faCog, faDatabase, faScroll, faPalette } from '@fortawesome/free-solid-svg-icons';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -41,8 +41,7 @@ import { WidgetsModule } from './widgets/widgets.module';
   providers: [NodeRegistrationService],
   bootstrap: [AppComponent]
 })
-export class AppModule {
-  constructor(library: FaIconLibrary) {
-    library.addIcons(faBars, faUser, faCog, faDatabase, faScroll);
+export class AppModule {  constructor(library: FaIconLibrary) {
+    library.addIcons(faBars, faUser, faCog, faDatabase, faScroll, faPalette);
   }
 }

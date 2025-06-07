@@ -16,131 +16,49 @@ import { environment } from '../../../../../environments/environment';
   template: `
     <div class="dialog-container paper-theme">
       <div class="dialog-header">
-        <h2>{{ data ? 'Edit' : 'Add New' }} Category</h2>
+        <h2><mat-icon>folder</mat-icon> {{ data ? 'Edit' : 'Add New' }} Category</h2>
       </div>
-      <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="dialog-form">
         <div class="dialog-content">
-          <div class="form-field">
-            <label>Name</label>
-            <input type="text" formControlName="name" placeholder="Enter category name">
-            <div class="error-message" *ngIf="categoryForm.get('name')?.errors?.['required'] && categoryForm.get('name')?.touched">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" placeholder="Enter category name">
+            <mat-error *ngIf="categoryForm.get('name')?.errors?.['required'] && categoryForm.get('name')?.touched">
               Name is required
-            </div>
-          </div>
+            </mat-error>
+          </mat-form-field>
 
-          <div class="form-field">
-            <label>Description</label>
-            <textarea formControlName="description" placeholder="Enter category description" rows="3"></textarea>
-            <div class="error-message" *ngIf="categoryForm.get('description')?.errors?.['required'] && categoryForm.get('description')?.touched">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" placeholder="Enter category description" rows="3"></textarea>
+            <mat-error *ngIf="categoryForm.get('description')?.errors?.['required'] && categoryForm.get('description')?.touched">
               Description is required
-            </div>
-          </div>
+            </mat-error>          </mat-form-field>
         </div>
-
         <div class="dialog-actions">
-          <button type="button" class="btn-secondary" (click)="onCancel()">Cancel</button>
-          <button type="submit" class="btn-primary" [disabled]="categoryForm.invalid || loading">
+          <button mat-button type="button" (click)="onCancel()" class="secondary">Cancel</button>
+          <button mat-button type="submit" [disabled]="categoryForm.invalid || loading" class="primary">
             <span *ngIf="!loading">{{ data ? 'Update' : 'Create' }} Category</span>
-            <div *ngIf="loading" class="spinner"></div>
+            <mat-spinner diameter="20" color="primary" *ngIf="loading"></mat-spinner>
           </button>
         </div>
       </form>
     </div>
   `,
-  styles: [`    .dialog-container {
-      /* Use global dialog styles for proper flexbox layout and sticky footer */
-      min-width: 400px;
-    }.dialog-header {
-      /* Enhanced header styling applied globally via styles.scss */
+  styles: [`    .dialog-form {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
     }
 
-    .dialog-header h2 {
-      margin: 0;
-    }    .dialog-content {
-      /* Content styling handled by global styles.scss */
-    }
-
-    .form-field {
-      margin-bottom: 20px;
-    }
-
-    .form-field label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 14px;
-      color: #555;
-    }
-
-    .form-field input,
-    .form-field textarea {
+    .full-width {
       width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 14px;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      margin-bottom: var(--spacing-md);
     }
 
-    .form-field input:focus,
-    .form-field textarea:focus {
-      outline: none;
-      border-color: #4a90e2;
-      box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
-    }
-
-    .error-message {
-      color: #dc3545;
-      font-size: 12px;
-      margin-top: 4px;
-    }    .dialog-actions {
-      /* Sticky footer styling handled by global styles.scss */
-    }
-
-    .btn-primary,
-    .btn-secondary {
-      padding: 8px 16px;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-primary {
-      background: #4a90e2;
-      color: white;
-      border: none;
-    }
-
-    .btn-primary:hover {
-      background: #357abd;
-    }
-
-    .btn-primary:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
-    .btn-secondary {
-      background: white;
-      color: #666;
-      border: 1px solid #ddd;
-    }
-
-    .btn-secondary:hover {
-      background: #f5f5f5;
-    }
-
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 2px solid #ffffff;
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    mat-spinner {
+      margin: 0 var(--spacing-sm);
     }
   `],
   standalone: false

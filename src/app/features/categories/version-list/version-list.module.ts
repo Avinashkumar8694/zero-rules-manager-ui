@@ -29,6 +29,8 @@ import { FlowVersionCanvasDialogComponent } from './flow-version-canvas-dialog/f
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { FlowVersionCanvasDialogModule } from './flow-version-canvas-dialog/flow-version-canvas-dialog.module';
 import { MatMenuModule } from '@angular/material/menu';
+import { DeleteVersionDialogComponent } from './delete-version-dialog/delete-version-dialog.component';
+
 const routes: Routes = [
   { path: '', component: VersionListComponent }
 ];
@@ -40,7 +42,8 @@ const routes: Routes = [
     ExcelVersionDialogComponent,
     CodeVersionDialogComponent,
     AddVersionDialogComponent,
-    FlowVersionDialogComponent
+    FlowVersionDialogComponent,
+    DeleteVersionDialogComponent
   ],
   imports: [
     CommonModule,
