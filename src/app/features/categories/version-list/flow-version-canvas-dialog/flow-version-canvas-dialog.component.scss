@@ -161,7 +161,7 @@
     position: absolute;
     top: 3.6rem;
     left: 0;
-    width: 320px;
+    width: 220px;
     height: calc(100vh - 2.5rem);
     background: white;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
@@ -169,7 +169,7 @@
     z-index: 100;
 
     &.collapsed {
-      transform: translateX(-320px);
+      transform: translateX(-220px);
     }    
     
     /* Fix toggle button for nodes panel */
@@ -267,7 +267,7 @@
     transition: margin-left 0.3s ease;
 
     &.with-palette {
-      margin-left: 320px;
+      margin-left: 220px;
     }
   }
 
