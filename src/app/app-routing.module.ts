@@ -11,6 +11,10 @@ const routes: Routes = [
     loadChildren: () => import('./features/nodes/nodes.module').then(m => m.NodesModule)
   },
   {
+    path: 'element-showcase',
+    loadChildren: () => import('./features/element-showcase/element-showcase.module').then(m => m.ElementShowcaseModule)
+  },
+  {
     path: '',
     redirectTo: 'categories',
     pathMatch: 'full'

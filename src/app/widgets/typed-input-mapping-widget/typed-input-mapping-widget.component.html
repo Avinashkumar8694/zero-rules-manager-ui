@@ -1,0 +1,32 @@
+<div class="typed-input-mapping-widget">
+  <label *ngIf="label">{{ label }}</label>
+  <div class="mapping-container">
+    <div class="input-section source">
+      <label *ngIf="sourceLabel">{{ sourceLabel }}</label>
+      <div class="input-group">
+        <select [(ngModel)]="sourceSelectedType" [disabled]="disabled">
+          <option *ngFor="let option of sourceOptions" [value]="option">{{ option }}</option>
+        </select>
+        <input [type]="'text'" [(ngModel)]="sourceValue" [disabled]="disabled" [placeholder]="'Enter ' + sourceSelectedType" />
+      </div>
+    </div>
+    
+    <div class="arrow-section">
+      <div class="arrow">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="input-section target">
+      <label *ngIf="targetLabel">{{ targetLabel }}</label>
+      <div class="input-group">
+        <select [(ngModel)]="targetSelectedType" [disabled]="disabled">
+          <option *ngFor="let option of targetOptions" [value]="option">{{ option }}</option>
+        </select>
+        <input [type]="'text'" [(ngModel)]="targetValue" [disabled]="disabled" [placeholder]="'Enter ' + targetSelectedType" />
+      </div>
+    </div>
+  </div>
+</div>

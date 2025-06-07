@@ -2,69 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { NodeRegistrationService } from '../../../../services/node-registration.service';
 import { MatDialog } from '@angular/material/dialog';
 import { AttributeWindowComponent } from '../attribute-window/attribute-window.component';
+import { CdkDragStart } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-nodes-list',
-  template: `
-    <div class="nodes-container">
-      <div class="nodes-header">
-        <h2>Available Nodes</h2>
-        <button mat-raised-button color="primary" (click)="loadDefaultNodes()">Load Default Nodes</button>
-      </div>
-      <div class="nodes-list">
-        <div *ngFor="let node of registeredNodes" class="node-item">
-          <div class="node-info">
-            <span class="node-type">{{ node.type }}</span>
-            <span class="node-category">{{ node.appearance?.category }}</span>
-          </div>
-          <button mat-raised-button color="accent" (click)="editNode(node)">Edit</button>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .nodes-container {
-      padding: 1rem;
-    }
-    .nodes-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-    .nodes-list {
-      display: grid;
-      gap: 1rem;
-    }
-    .node-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      background: #f8f9fa;
-      border-radius: 4px;
-      border: 1px solid #dee2e6;
-    }
-    .node-info {
-      display: flex;
-      flex-direction: column;
-    }
-    .node-type {
-      font-weight: bold;
-    }
-    .node-category {
-      font-size: 0.875rem;
-      color: #6c757d;
-    }
-    button {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      background: #007bff;
-      color: white;
-    }
-  `],
+  templateUrl: `./nodes-list.component.html`,
+  styleUrls: ['./nodes-list.component.scss'],
   standalone: false
 })
 export class NodesListComponent implements OnInit {
@@ -79,6 +22,38 @@ export class NodesListComponent implements OnInit {
   ngOnInit() {
     this.updateNodesList();
   }
+
+  onDragStarted(event: CdkDragStart, node: any) {
+    const sourceElement = event.source.element.nativeElement;
+    const previewElement = sourceElement.cloneNode(true) as HTMLElement;
+    
+    // Set preview element styles
+    previewElement.classList.add('cdk-drag-preview');
+    previewElement.style.position = 'fixed';
+    previewElement.style.pointerEvents = 'none';
+    previewElement.style.zIndex = '9999';
+    previewElement.style.width = sourceElement.offsetWidth + 'px';
+    previewElement.style.height = sourceElement.offsetHeight + 'px';
+    previewElement.style.margin = '0';
+    previewElement.style.transform = 'none';
+    
+    // Add preview to body
+    document.body.appendChild(previewElement);
+
+    // Track mouse position for preview
+    const mouseMoveHandler = (moveEvent: MouseEvent) => {
+      previewElement.style.left = `${moveEvent.pageX - sourceElement.offsetWidth / 2}px`;
+      previewElement.style.top = `${moveEvent.pageY - sourceElement.offsetHeight / 2}px`;
+    };
+
+    // Add and remove event listeners
+    document.addEventListener('mousemove', mouseMoveHandler);
+    event.source.ended.subscribe(() => {
+      document.removeEventListener('mousemove', mouseMoveHandler);
+      previewElement.remove();
+    });
+  }
+  
 
   loadDefaultNodes() {
     const defaultNodes = [

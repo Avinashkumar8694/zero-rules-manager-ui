@@ -1,0 +1,6 @@
+<div class="dropdown-widget">
+  <label *ngIf="label">{{ label }}</label>
+  <select [(ngModel)]="selected" [disabled]="disabled">
+    <option *ngFor="let option of options" [value]="option">{{ option }}</option>
+  </select>
+</div>

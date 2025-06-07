@@ -33,47 +33,33 @@ interface FlowVersionDialogData {
             </mat-error>
           </mat-form-field>
         </div>
-        <div class="dialog-actions">
-          <button mat-button type="button" (click)="onCancel()">Cancel</button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="flowVersionForm.invalid || loading">
+        <div class="dialog-actions">          <button mat-button type="button" (click)="onCancel()" class="secondary">Cancel</button>
+          <button mat-button type="submit" [disabled]="flowVersionForm.invalid || loading" class="primary">
             <span *ngIf="!loading">Create</span>
-            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <mat-spinner diameter="20" color="primary" *ngIf="loading"></mat-spinner>
           </button>
         </div>
       </form>
     </div>
   `,
-  styles: [`
-    .dialog-container {
+  styles: [`    .dialog-container {
+      /* Use global dialog styles for proper flexbox layout and sticky footer */
       min-width: 500px;
-    }
-
-    .dialog-header {
-      padding: 20px 24px;
-      border-bottom: 1px solid #eee;
+    }.dialog-header {
+      /* Enhanced header styling applied globally via styles.scss */
     }
 
     .dialog-header h2 {
       margin: 0;
-      font-size: 20px;
-      font-weight: 500;
-      color: #333;
-    }
-
-    .dialog-content {
-      padding: 24px;
+    }    .dialog-content {
+      /* Content styling handled by global styles.scss */
     }
 
     .full-width {
       width: 100%;
       margin-bottom: 16px;
-    }
-
-    .dialog-actions {
-      padding: 8px 24px 24px;
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
+    }    .dialog-actions {
+      /* Sticky footer styling handled by global styles.scss */
     }
 
     mat-spinner {

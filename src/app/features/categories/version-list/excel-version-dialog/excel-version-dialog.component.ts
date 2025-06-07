@@ -64,25 +64,17 @@ export interface ExcelVersionDialogData {
       </form>
     </div>
   `,
-  styles: [`
-    .dialog-container {
+  styles: [`    .dialog-container {
+      /* Use global dialog styles for proper flexbox layout and sticky footer */
       min-width: 500px;
-    }
-
-    .dialog-header {
-      padding: 20px 24px;
-      border-bottom: 1px solid #eee;
+    }.dialog-header {
+      /* Enhanced header styling applied globally via styles.scss */
     }
 
     .dialog-header h2 {
       margin: 0;
-      font-size: 20px;
-      font-weight: 500;
-      color: #333;
-    }
-
-    .dialog-content {
-      padding: 24px;
+    }    .dialog-content {
+      /* Content styling handled by global styles.scss */
     }
 
     .form-field {
@@ -148,14 +140,8 @@ export interface ExcelVersionDialogData {
       color: #dc3545;
       font-size: 12px;
       margin-top: 4px;
-    }
-
-    .dialog-actions {
-      padding: 16px 24px;
-      border-top: 1px solid #eee;
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
+    }    .dialog-actions {
+      /* Dialog actions styling handled by global styles.scss with sticky footer functionality */
     }
 
     .btn-primary,

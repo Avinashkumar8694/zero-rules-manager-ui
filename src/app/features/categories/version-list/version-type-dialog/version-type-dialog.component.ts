@@ -35,29 +35,24 @@ export interface VersionTypeDialogData {
         </div>
       </div>
       <div class="dialog-actions">
-        <button mat-button (click)="onCancel()">Cancel</button>
+        <button mat-button (click)="onCancel()" class="secondary">Cancel</button>
       </div>
     </div>
   `,
-    styles: [`
-    .dialog-container {
+    styles: [`    .dialog-container {
+      /* Use global dialog styles for proper flexbox layout and sticky footer */
       min-width: 600px;
-    }
-
-    .dialog-header {
-      padding: 20px 24px;
-      border-bottom: 1px solid #eee;
+    }.dialog-header {
+      /* Enhanced header styling applied globally via styles.scss */
     }
 
     .dialog-header h2 {
       margin: 0;
-      font-size: 20px;
-      font-weight: 500;
-      color: #333;
-    }
-
+    }    
     .dialog-content {
-      padding: 24px;
+      /* Content styling handled by global styles.scss */
+      display: flex;
+      align-items: center;
     }
 
     .version-type-grid {
@@ -99,13 +94,8 @@ export interface VersionTypeDialogData {
       margin: 0;
       font-size: 14px;
       color: #666;
-    }
-
-    .dialog-actions {
-      padding: 16px 24px;
-      border-top: 1px solid #eee;
-      display: flex;
-      justify-content: flex-end;
+    }    .dialog-actions {
+      /* Sticky footer styling handled by global styles.scss */
     }
   `],
     standalone: false

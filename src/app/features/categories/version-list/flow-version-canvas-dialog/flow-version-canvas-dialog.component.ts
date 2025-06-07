@@ -1,36 +1,44 @@
-import {
-  Component,
+import { Component,
   ElementRef,
   ViewChild,
   Inject,
-  AfterViewInit
+  AfterViewInit,
+  NgZone,
+  ChangeDetectorRef
 } from '@angular/core';
 import { NodeRegistrationService } from '../../../../services/node-registration.service';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { AttributeWindowComponent } from '../../../nodes/components/attribute-window/attribute-window.component';
 import { CdkDragStart, CdkDragMove } from '@angular/cdk/drag-drop';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { take } from 'rxjs/operators';
+import { ConditionEditorComponent } from './condition-editor/condition-editor.component';
 
 @Component({
   selector: 'app-flow-version-canvas-dialog',
   templateUrl: './flow-version-canvas-dialog.component.html',
   styleUrls: ['./flow-version-canvas-dialog.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class FlowVersionCanvasDialogComponent implements AfterViewInit {
   @ViewChild('canvasBoundary', { static: true }) canvasBoundary!: ElementRef;
 
   scale = 1;
   dragOffset = { x: 0, y: 0 };
-  canvasMinWidth = 1000; // default canvas width
-  canvasMinHeight = 1000;
+  canvasMinWidth = 2000; // default canvas width
+  canvasMinHeight = 2000;
+  showNodesList = true; // Initialize to true to show palette by default
+  selectedNodes: Set<string> = new Set(); // Track selected nodes
+  selectedConnections: Set<string> = new Set(); // Track selected connections
 
-  nodes: { [key: string]: any } = {};
-  connections: Array<{
+  nodes: { [key: string]: any } = {};  connections: Array<{
     source: { nodeId: string; outputIndex: number };
     target: { nodeId: string; inputIndex: number };
     path?: string;
     condition?: string;
     name?: string;
+    design?: any;
   }> = [];
 
   // Connection dragging state
@@ -42,19 +50,94 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
   } | null = null;
   previewPath: string = '';
 
+  registeredNodes: any[] = [];
+
+    private pathUpdateScheduled = false;
+  private pathCache = new Map<string, string>();
+
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<FlowVersionCanvasDialogComponent>,
-    private nodeRegistrationService: NodeRegistrationService
+    private nodeRegistrationService: NodeRegistrationService,
+    private dialog: MatDialog,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {
+    const nodes = this.nodeRegistrationService.getAllNodeDefinitions();
+    this.registeredNodes = Array.from(nodes.values());
     this.initializeNodes();
+    this.updateConnectionPaths();
   }
 
-  ngAfterViewInit(): void { }
+  ngAfterViewInit(): void {
+    // Run updateConnectionPaths after Angular has completed initial rendering
+    this.ngZone.onStable.pipe(take(1)).subscribe(() => {
+      setTimeout(() => {
+        // Force position recalculation
+        Object.entries(this.nodes).forEach(([nodeId, node]) => {
+          if (node.position) {
+            // Temporarily offset position to force recalculation
+            const originalPos = { ...node.position };
+            node.position = {
+              x: originalPos.x + 0.1,
+              y: originalPos.y + 0.1
+            };
+            
+            // Schedule revert and path update
+            requestAnimationFrame(() => {
+              this.updateConnectionPaths();
+              node.position = originalPos;
+              this.cdr.detectChanges();
+              
+              // One more update to ensure connections are correct
+              requestAnimationFrame(() => {
+                this.updateConnectionPaths();
+                this.cdr.detectChanges();
+              });
+            });
+          }
+        });
+      }, 100); // Small delay to ensure DOM is ready
+    });
+    this.updateConnectionPaths();
+  }
+  toggleNodesList() {
+    this.showNodesList = !this.showNodesList;
+    // Force layout recalculation
+    this.ngZone.run(() => {
+      setTimeout(() => {
+        this.updateConnectionPaths();
+        this.cdr.detectChanges();
+      });
+    });
+  }
 
-  private pathUpdateScheduled = false;
-  private pathCache = new Map<string, string>();
+  onNodeDrop(event: CdkDragDrop<any, any, any>): void {
+    const canvasRect = this.canvasBoundary.nativeElement.getBoundingClientRect();
+    const scrollContainer = this.canvasBoundary.nativeElement as HTMLElement;
+    const nodeConfig = event.item?.data;
+    
+    if (!nodeConfig) return;
 
+    const nodeId = `node-${Date.now()}`;
+    const position = {
+      x: (event.dropPoint.x - canvasRect.left + scrollContainer.scrollLeft) / this.scale,
+      y: (event.dropPoint.y - canvasRect.top + scrollContainer.scrollTop) / this.scale
+    };
+
+    this.nodes[nodeId] = {
+      id: nodeId,
+      type: nodeConfig.type,
+      position: position,
+      icon: nodeConfig.appearance?.icon,
+      nodeStyle: nodeConfig.appearance?.nodeStyle,
+      name: nodeConfig.label?.call(nodeConfig.defaults) || nodeConfig.type,
+      color: nodeConfig.appearance?.color,
+      config: nodeConfig
+    };
+  }
+  
   private calculateConnectionPath(connection: any): string {
     const cacheKey = `${connection.source.nodeId}-${connection.source.outputIndex}-${connection.target.nodeId}-${connection.target.inputIndex}-${this.scale}`;
     if (this.pathCache.has(cacheKey)) {
@@ -74,47 +157,142 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     const sourceOutputPoint = sourceElement.querySelectorAll('.connection-points.outputs .point');
     const targetInputPoint = targetElement.querySelectorAll('.connection-points.inputs .point');
 
-    if (!sourceOutputPoint || !targetInputPoint) return '';
+    if (!sourceOutputPoint.length || !targetInputPoint.length) return '';
 
     const scrollContainer = this.canvasBoundary.nativeElement as HTMLElement;
     const canvasArea = scrollContainer.querySelector('.canvas-area') as HTMLElement;
     const canvasRect = canvasArea.getBoundingClientRect();
 
-    const sourcePointBoundingRect = sourceOutputPoint[connection.source.outputIndex || 0].getBoundingClientRect();
-    const targetPointBoundingRect = targetInputPoint[connection.target.inputIndex || 0].getBoundingClientRect();
+    try {
+      const sourcePointRect = sourceOutputPoint[connection.source.outputIndex || 0].getBoundingClientRect();
+      const targetPointRect = targetInputPoint[connection.target.inputIndex || 0].getBoundingClientRect();
 
-    // Calculate source and target points with scroll and scale adjustments
-    const sourceX = (sourcePointBoundingRect.x +5 - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
-    const sourceY = (sourcePointBoundingRect.y +5 - canvasRect.top + scrollContainer.scrollTop) / this.scale;
-    const targetX = (targetPointBoundingRect.x +5 - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
-    const targetY = (targetPointBoundingRect.y +5 - canvasRect.top + scrollContainer.scrollTop) / this.scale;
+      // If elements aren't properly sized yet, use node positions as fallback
+      if (sourcePointRect.width === 0 || targetPointRect.width === 0) {
+        const nodeWidth = 280; // Typical node width
+        const nodeHeight = 40;  // Typical point vertical position
 
+        // Calculate approximate connection points based on node positions
+        const sourceX = sourceNode.position.x + nodeWidth;
+        const sourceY = sourceNode.position.y + nodeHeight;
+        const targetX = targetNode.position.x;
+        const targetY = targetNode.position.y + nodeHeight;
+
+        // Generate path
+        return this.createPathFromPoints(sourceX, sourceY, targetX, targetY);
+      }
+
+      // Get center points of the connection points
+      const sourceCenterX = (sourcePointRect.left + sourcePointRect.right) / 2;
+      const sourceCenterY = (sourcePointRect.top + sourcePointRect.bottom) / 2;
+      const targetCenterX = (targetPointRect.left + targetPointRect.right) / 2;
+      const targetCenterY = (targetPointRect.top + targetPointRect.bottom) / 2;
+
+      // Calculate positions relative to canvas
+      const sourceX = (sourceCenterX - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
+      const sourceY = (sourceCenterY - canvasRect.top + scrollContainer.scrollTop) / this.scale;
+      const targetX = (targetCenterX - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
+      const targetY = (targetCenterY - canvasRect.top + scrollContainer.scrollTop) / this.scale;
+
+      if (isNaN(sourceX) || isNaN(sourceY) || isNaN(targetX) || isNaN(targetY)) {
+        return '';
+      }
+
+      const path = this.createPathFromPoints(sourceX, sourceY, targetX, targetY);
+      this.pathCache.set(cacheKey, path);
+      return path;
+    } catch (error) {
+      console.error('Error calculating connection path:', error);
+      return '';
+    }
+  }
+
+  private createPathFromPoints(sourceX: number, sourceY: number, targetX: number, targetY: number): string {
+    const deltaX = targetX - sourceX;
+    const deltaY = targetY - sourceY;
+    
     // Calculate control points for bezier curve
-    const deltaY = Math.abs(targetY - sourceY);
+    const controlPoint1X = sourceX + (deltaX * 0.25);
     const controlPoint1Y = sourceY + (deltaY * 0.5);
-    const controlPoint2Y = targetY - (deltaY * 0.5);
-
-    const path = `M ${sourceX} ${sourceY} C ${sourceX} ${controlPoint1Y}, ${targetX} ${controlPoint2Y}, ${targetX} ${targetY}`;
-    this.pathCache.set(cacheKey, path);
-    return path;
+    const controlPoint2X = sourceX + (deltaX * 0.75);
+    const controlPoint2Y = sourceY + (deltaY * 0.5);
+    
+    return `M ${sourceX} ${sourceY} C ${sourceX} ${controlPoint1Y}, ${targetX} ${controlPoint2Y}, ${targetX} ${targetY}`;
   }
 
   private updateConnectionPaths() {
     if (this.pathUpdateScheduled) return;
     this.pathUpdateScheduled = true;
 
+    // Clear path cache when scale changes to ensure proper recalculation
+    this.pathCache.clear();
+    
     requestAnimationFrame(() => {
-      this.pathCache.clear();
       this.connections.forEach(connection => {
-        connection.path = this.calculateConnectionPath(connection);
+        // Force recalculation of paths when scale changes
+        const path = this.calculateConnectionPath(connection);
+        if (path) {
+          connection.path = path;
+        }
+        this.getConnectionMidpoint(connection);
       });
       this.pathUpdateScheduled = false;
     });
   }
+  
 
   private initializeNodes() {
     if (this.data?.flowConfig) {
-      // Initialize connections from flowConfig
+      // Initialize nodes first with complete configuration
+      if (this.data.flowConfig.nodes) {
+        this.nodes = Object.entries(this.data.flowConfig.nodes).reduce((acc, [nodeId, node]: [string, any]) => {
+          const nodeConfig = this.nodeRegistrationService.getNodeDefinition(node.type);
+          acc[node.id] = {
+            icon: nodeConfig?.appearance?.icon,
+            nodeStyle: nodeConfig?.appearance?.nodeStyle,
+            name: nodeConfig?.label?.call(nodeConfig.defaults) || node.type,
+            color: nodeConfig?.appearance?.color,
+            ...node, // Keep original node data including positions if they exist
+            config: nodeConfig
+          };
+          return acc;
+        }, {} as any);
+
+        // Calculate positions only for nodes without positions
+        const nodesWithoutPosition = Object.entries(this.nodes).filter(([_, node]) => !node.position);
+        
+        if (nodesWithoutPosition.length > 0) {
+          const nodeSpacing = { x: 300, y: 150 };
+          const startPosition = { x: 100, y: 100 };
+          const maxNodesPerRow = 2;
+
+          const nodesByLevel: { [key: string]: any[] } = {};
+          let currentLevel = 0;
+          let currentNodes = nodesWithoutPosition;
+
+          while (currentNodes.length > 0) {
+            nodesByLevel[currentLevel] = currentNodes.slice(0, maxNodesPerRow);
+            currentNodes = currentNodes.slice(maxNodesPerRow);
+            currentLevel++;
+          }
+
+          Object.entries(nodesByLevel).forEach(([level, nodes]) => {
+            const levelY = startPosition.y + (parseInt(level) * nodeSpacing.y);
+            const totalWidth = (nodes.length - 1) * nodeSpacing.x;
+            const startX = startPosition.x + (1000 - totalWidth) / 2;
+
+            nodes.forEach(([nodeId, node], index) => {
+              const xPos = startX + (index * nodeSpacing.x);
+              this.nodes[nodeId].position = { x: xPos, y: levelY };
+            });
+          });
+
+          const maxY = startPosition.y + (currentLevel * nodeSpacing.y) + nodeSpacing.y;
+          this.canvasMinHeight = Math.max(this.canvasMinHeight, maxY);
+        }
+      }
+
+      // Initialize connections after nodes are fully set up
       if (this.data.flowConfig.connections) {
         this.connections = this.data.flowConfig.connections.map((conn: any) => ({
           source: { nodeId: conn.from.node, outputIndex: conn?.from?.port || 0 },
@@ -123,65 +301,11 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
           name: conn.name
         }));
       }
-
-      // Initialize nodes
-      if (this.data.flowConfig.nodes) {
-        // Apply node configurations from registration service
-        this.nodes = Object.entries(this.data.flowConfig.nodes).reduce((acc, [nodeId, node]: [string, any]) => {
-          const nodeConfig = this.nodeRegistrationService.getNodeDefinition(node.type);
-          acc[node.id] = {
-            icon: nodeConfig?.appearance?.icon,
-            nodeStyle: nodeConfig?.appearance?.nodeStyle,
-            name: nodeConfig?.label?.call(nodeConfig.defaults) || node.type,
-            color: nodeConfig?.appearance?.color,
-            ...node,
-            config: nodeConfig
-          };
-          return acc;
-        }, {} as any);
-
-        // Calculate positions for nodes without positions
-        const nodeSpacing = { x: 300, y: 150 }; // Spacing between nodes
-        const startPosition = { x: 100, y: 100 }; // Initial position for first node
-        const maxNodesPerRow = 2; // Maximum nodes in a row
-
-        // Group nodes by their vertical level
-        const nodesByLevel: { [key: string]: any[] } = {};
-        let currentLevel = 0;
-
-        // First pass: Collect nodes with existing positions
-        const nodesWithPosition = Object.entries(this.nodes).filter(([_, node]) => node.position);
-        const nodesWithoutPosition = Object.entries(this.nodes).filter(([_, node]) => !node.position);
-
-        // Sort nodes without position into levels
-        let currentNodes = nodesWithoutPosition;
-        while (currentNodes.length > 0) {
-          nodesByLevel[currentLevel] = currentNodes.slice(0, maxNodesPerRow);
-          currentNodes = currentNodes.slice(maxNodesPerRow);
-          currentLevel++;
-        }
-
-        // Position nodes level by level
-        Object.entries(nodesByLevel).forEach(([level, nodes]) => {
-          const levelY = startPosition.y + (parseInt(level) * nodeSpacing.y);
-          const totalWidth = (nodes.length - 1) * nodeSpacing.x;
-          const startX = startPosition.x + (1000 - totalWidth) / 2; // Center nodes horizontally
-
-          nodes.forEach(([nodeId, node], index) => {
-            const xPos = startX + (index * nodeSpacing.x);
-            node.position = { x: xPos, y: levelY };
-          });
-        });
-
-        // Update canvas dimensions
-        const maxY = startPosition.y + (currentLevel * nodeSpacing.y) + nodeSpacing.y;
-        this.canvasMinHeight = Math.max(this.canvasMinHeight, maxY);
-      }
     }
   }
 
   zoomIn() {
-    this.scale = Math.min(2, this.scale + 0.1);
+    this.scale = Math.min(1, this.scale + 0.1);
   }
 
   zoomOut() {
@@ -190,21 +314,24 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
 
   getConnectionMidpoint(connection: any) {
     if (!connection.path) return null;
+    const scrollContainer = this.canvasBoundary.nativeElement as HTMLElement;
+      const canvasArea = scrollContainer.querySelector('.canvas-area') as HTMLElement;
+      const canvasRect = canvasArea.getBoundingClientRect();
     
     // Parse the SVG path to get coordinates
     const pathCommands = connection.path.split(' ');
     if (pathCommands.length < 8) return null;
     
     // Get source and target points
-    const sourceX = parseFloat(pathCommands[1]);
-    const sourceY = parseFloat(pathCommands[2]);
-    const targetX = parseFloat(pathCommands[pathCommands.length - 2]);
-    const targetY = parseFloat(pathCommands[pathCommands.length - 1]);
+    const sourceX = (parseFloat(pathCommands[1]) );
+    const sourceY = (parseFloat(pathCommands[2]) );
+    const targetX = (parseFloat(pathCommands[pathCommands.length - 2]));
+    const targetY = (parseFloat(pathCommands[pathCommands.length - 1]));
     
     // Calculate midpoint
     return {
-      x: (sourceX + targetX) / 2,
-      y: (sourceY + targetY) / 2
+      x: ((sourceX + targetX) / 2) / this.scale,
+      y: ((sourceY + targetY) / 2) / this.scale
     };
   }
 
@@ -234,8 +361,8 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
 
     
 
-    const buffer = 300;
-    const nodeRight = localX + 120;
+    const buffer = 500;
+    const nodeRight = localX + 300;
     const nodeBottom = localY + 80;
 
     // Dynamically increase minWidth and minHeight tracked by variables
@@ -275,14 +402,16 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
       const canvasArea = scrollContainer.querySelector('.canvas-area') as HTMLElement;
       const canvasRect = canvasArea.getBoundingClientRect();
 
-      const sourceX = (rect.x + 5 - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
-      const sourceY = (rect.y + 5 - canvasRect.top + scrollContainer.scrollTop) / this.scale;
+      const sourceX = (rect.x - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
+      const sourceY = (rect.y - canvasRect.top + scrollContainer.scrollTop) / this.scale;
 
       this.draggedConnection = {
         source: { nodeId, outputIndex: index },
-        sourcePoint: { x: sourceX, y: sourceY },
+        sourcePoint: { x: rect.x +5 , y: rect.y +5},
         currentPoint: { x: sourceX, y: sourceY }
       };
+
+      console.log('dragging connection', this.draggedConnection, point);
 
       // Add mousemove and mouseup listeners to the document
       document.addEventListener('mousemove', this.onMouseMove);
@@ -351,14 +480,23 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
 
       this.draggedConnection.currentPoint = { x: currentX, y: currentY };
 
-      // Calculate preview path
-      const sourceX = this.draggedConnection.sourcePoint.x;
-      const sourceY = this.draggedConnection.sourcePoint.y;
-      const deltaY = Math.abs(currentY - sourceY);
+      // Calculate preview path using the same logic as calculateConnectionPath
+      const sourceX = (this.draggedConnection.sourcePoint.x - canvasRect.left + scrollContainer.scrollLeft) / this.scale;
+      const sourceY = (this.draggedConnection.sourcePoint.y - canvasRect.top + scrollContainer.scrollTop) / this.scale;
+      const deltaX = currentX - sourceX;
+      const deltaY = currentY - sourceY;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      
+      // Adjust control point distances based on the connection length
+      const controlPointOffset = Math.min(distance * 0.5, 100);
+      
+      // Calculate control points maintaining curve shape across different scales
+      const controlPoint1X = sourceX + (deltaX * 0.25);
       const controlPoint1Y = sourceY + (deltaY * 0.5);
-      const controlPoint2Y = currentY - (deltaY * 0.5);
+      const controlPoint2X = sourceX + (deltaX * 0.75);
+      const controlPoint2Y = sourceY + (deltaY * 0.5);
 
-      this.previewPath = `M ${sourceX} ${sourceY} C ${sourceX} ${controlPoint1Y}, ${currentX} ${controlPoint2Y}, ${currentX} ${currentY}`;
+      this.previewPath = `M ${sourceX} ${sourceY} C ${controlPoint1X} ${controlPoint1Y}, ${controlPoint2X} ${controlPoint2Y}, ${currentX} ${currentY}`;
     }
   }
 
@@ -372,11 +510,310 @@ export class FlowVersionCanvasDialogComponent implements AfterViewInit {
     document.removeEventListener('mouseup', this.onMouseUp);
   }
 
+  onNodeRightClick(event: MouseEvent, node: any) {
+    event.preventDefault();
+    const nodeConfig = this.nodeRegistrationService.getNodeDefinition(node.type);
+    if (nodeConfig) {
+      const dialogRef = this.dialog.open(AttributeWindowComponent, {
+        width: '400px',
+        height: '100vh',
+        position: { right: '0' },
+        data: { selectedNode: node },
+        panelClass: 'resizable-dialog'
+      });
+
+      // Add resize logic
+      dialogRef.afterOpened().subscribe(() => {
+        const dialogElement = document.querySelector('.resizable-dialog') as HTMLElement;
+        if (dialogElement) {
+          const resizeHandle = document.createElement('div');
+          resizeHandle.style.width = '1px';
+          resizeHandle.style.height = '100%';
+          resizeHandle.style.position = 'absolute';
+          resizeHandle.style.left = '0';
+          resizeHandle.style.top = '0';
+          resizeHandle.style.cursor = 'ew-resize';
+          resizeHandle.style.backgroundColor = 'rgba(0, 0, 0, 0.1)'; // Add visibility
+          resizeHandle.style.zIndex = '1000';
+          dialogElement.style.position = 'relative'; // Ensure parent is positioned
+          dialogElement.appendChild(resizeHandle);
+
+          let isResizing = false;
+          let startX = 0;
+          let startWidth = 0;
+
+          const onMouseMove = (moveEvent: MouseEvent) => {
+            if (isResizing) {
+              const newWidth = Math.max(200, startWidth - (moveEvent.clientX - startX)); // Minimum width
+              dialogElement.style.width = `${newWidth}px`;
+            }
+          };
+
+          const onMouseUp = () => {
+            isResizing = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+          };
+
+          resizeHandle.addEventListener('mousedown', (downEvent: MouseEvent) => {
+            isResizing = true;
+            startX = downEvent.clientX;
+            startWidth = dialogElement.offsetWidth;
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+          });
+        }
+      });
+    }
+  }
+  onConnectionRightClick(event: MouseEvent, connection: any) {
+    event.preventDefault();
+    // When right-clicking on connection or condition chip, open the condition editor
+    this.openConditionEditor(connection);
+  }
   saveCanvas() {
-    console.log('Saving canvas...', this.nodes);
+    const flowConfig = {
+      nodes: this.nodes,
+      connections: this.connections.map(conn => ({
+        from: {
+          node: conn.source.nodeId,
+          port: conn.source.outputIndex
+        },
+        to: {
+          node: conn.target.nodeId,
+          port: conn.target.inputIndex
+        },
+        condition: conn.condition,
+        name: conn.name,
+        design: conn.design // Save design data
+      }))
+    };
+
+    console.log('Saving flow config:', flowConfig);
+    // Close dialog with the updated config
+    this.dialogRef.close({ flowConfig });
   }
 
   onClose() {
     this.dialogRef.close();
   }
+
+  refreshCanvas(): void {
+    // Logic to refresh the canvas
+    this.nodes = {}; // Clear all nodes
+    this.connections = []; // Clear all connections
+    this.updateConnectionPaths(); // Recalculate paths
+    console.log('Canvas refreshed');
+  }
+
+  toggleFullScreen(): void {
+    const elem = document.documentElement;
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen().catch(err => {
+        console.error(`Error attempting to exit full-screen mode: ${err.message}`);
+      });
+    }
+  }
+
+  openSettings(): void {
+    // Logic to open settings dialog
+    console.log('Settings dialog opened');
+  }
+  selectNode(event: MouseEvent, nodeId: string) {
+    event.stopPropagation();
+    if (!event.ctrlKey && !event.metaKey) {
+      // If not using Ctrl/Cmd, clear other selections and select just this node
+      this.selectedNodes.clear();
+      this.selectedNodes.add(nodeId);
+    } else {
+      // Toggle selection when using Ctrl/Cmd
+      if (this.selectedNodes.has(nodeId)) {
+        this.selectedNodes.delete(nodeId);
+      } else {
+        this.selectedNodes.add(nodeId);
+      }
+    }
+    this.cdr.detectChanges();
+  }
+
+  clearSelection() {
+    this.selectedNodes.clear();
+    this.cdr.detectChanges();
+  }
+  deleteSelectedNodes() {
+    // Clear path cache before deletion
+    this.pathCache.clear();
+
+    // Remove associated connections first
+    this.connections = this.connections.filter(conn => 
+      !this.selectedNodes.has(conn.source.nodeId) && !this.selectedNodes.has(conn.target.nodeId)
+    );
+
+    // Remove selected nodes
+    this.selectedNodes.forEach(nodeId => {
+      delete this.nodes[nodeId];
+    });
+
+    this.selectedNodes.clear();
+
+    // Force a recalculation of all connection paths
+    this.ngZone.run(() => {
+      requestAnimationFrame(() => {
+        this.connections.forEach(connection => {
+          const path = this.calculateConnectionPath(connection);
+          if (path) {
+            connection.path = path;
+          }
+        });
+        this.cdr.detectChanges();
+
+        // Double check paths after a short delay to ensure DOM is updated
+        setTimeout(() => {
+          this.updateConnectionPaths();
+          this.cdr.detectChanges();
+        }, 50);
+      });
+    });
+  }
+  selectConnection(event: MouseEvent, connection: any) {
+    event.stopPropagation();
+    const connectionId = `${connection.source.nodeId}-${connection.target.nodeId}`;
+    
+    if (!event.ctrlKey && !event.metaKey) {
+      // Clear all selections if not using Ctrl/Cmd
+      this.selectedNodes.clear();
+      this.selectedConnections.clear();
+    }
+
+    // Toggle connection selection
+    if (this.selectedConnections.has(connectionId)) {
+      this.selectedConnections.delete(connectionId);
+    } else {
+      this.selectedConnections.add(connectionId);
+    }
+    
+    this.cdr.detectChanges();
+  }
+
+  clearAllSelections() {
+    this.selectedNodes.clear();
+    this.selectedConnections.clear();
+    this.cdr.detectChanges();
+  }
+
+  deleteSelectedItems() {
+    // Clear path cache before deletion
+    this.pathCache.clear();
+
+    // Remove selected connections
+    if (this.selectedConnections.size > 0) {
+      this.connections = this.connections.filter(conn => {
+        const connectionId = `${conn.source.nodeId}-${conn.target.nodeId}`;
+        return !this.selectedConnections.has(connectionId);
+      });
+    }
+
+    // Remove connections connected to selected nodes
+    this.connections = this.connections.filter(conn => 
+      !this.selectedNodes.has(conn.source.nodeId) && !this.selectedNodes.has(conn.target.nodeId)
+    );
+
+    // Remove selected nodes
+    this.selectedNodes.forEach(nodeId => {
+      delete this.nodes[nodeId];
+    });
+
+    // Clear selections
+    this.selectedNodes.clear();
+    this.selectedConnections.clear();
+
+    // Force a recalculation of all connection paths
+    this.ngZone.run(() => {
+      requestAnimationFrame(() => {
+        this.connections.forEach(connection => {
+          const path = this.calculateConnectionPath(connection);
+          if (path) {
+            connection.path = path;
+          }
+        });
+        this.cdr.detectChanges();
+
+        // Double check paths after a short delay to ensure DOM is updated
+        setTimeout(() => {
+          this.updateConnectionPaths();
+          this.cdr.detectChanges();
+        }, 50);
+      });
+    });
+  }
+
+  getNodeColor(nodeId: string): string {
+    return this.nodes[nodeId]?.color || '#1976d2';
+  }  openConditionEditor(connection: any) {
+    // Validate that connection and required nodes exist
+    if (!connection || !connection.source?.nodeId || !connection.target?.nodeId) {
+      console.warn('Invalid connection data for condition editor');
+      return;
+    }
+
+    const sourceNode = this.nodes[connection.source.nodeId];
+    const targetNode = this.nodes[connection.target.nodeId];
+
+    if (!sourceNode || !targetNode) {
+      console.warn('Source or target node not found for condition editor');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ConditionEditorComponent, {
+      width: 'auto',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      data: {
+        sourceNodeId: connection.source.nodeId,
+        targetNodeId: connection.target.nodeId,
+        condition: connection.condition || '',
+        name: connection.name || '',
+        sourceNode: sourceNode,
+        targetNode: targetNode,
+        design: connection.design // Pass the saved design to the condition editor
+      },
+      panelClass: 'condition-editor-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe((result?: {condition: string, name: string, design: any}) => {
+      if (result) {
+        const connectionId = `${connection.source.nodeId}-${connection.target.nodeId}`;
+        
+        // Update connection properties including the design
+        connection.condition = result.condition;
+        connection.name = result.name;
+        connection.design = result.design;
+
+        // Add visual feedback by briefly highlighting the connection
+        if (this.selectedConnections.has(connectionId)) {
+          this.selectedConnections.delete(connectionId);
+          setTimeout(() => {
+            this.selectedConnections.add(connectionId);
+            this.cdr.detectChanges();
+            // Remove highlight after animation
+            setTimeout(() => {
+              this.selectedConnections.delete(connectionId);
+              this.cdr.detectChanges();
+            }, 1000);
+          }, 100);
+        }
+
+        // Force update of connection paths
+        this.updateConnectionPaths();
+
+        // Debug log to verify design is saved
+        console.log('Updated connection with design:', connection);
+      }
+    });
+  }
+
 }

@@ -13,151 +13,148 @@ import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-add-category-dialog',
-  template: `
-    <div class="dialog-container paper-theme">
+  template: `    <div class="dialog-container">
       <div class="dialog-header">
-        <h2>{{ data ? 'Edit' : 'Add New' }} Category</h2>
+        <h2><mat-icon>folder</mat-icon> {{ data ? 'Edit' : 'Add New' }} Category</h2>
       </div>
-      <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
-        <div class="dialog-content">
+      <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">        <div class="dialog-content">
           <div class="form-field">
-            <label>Name</label>
-            <input type="text" formControlName="name" placeholder="Enter category name">
+            <label for="name">Name</label>
+            <input id="name"
+                   type="text"
+                   class="mat-mdc-input-element"
+                   formControlName="name"
+                   placeholder="Enter category name">
             <div class="error-message" *ngIf="categoryForm.get('name')?.errors?.['required'] && categoryForm.get('name')?.touched">
               Name is required
             </div>
           </div>
 
           <div class="form-field">
-            <label>Description</label>
-            <textarea formControlName="description" placeholder="Enter category description" rows="3"></textarea>
+            <label for="description">Description</label>
+            <textarea id="description"
+                      class="mat-mdc-input-element"
+                      formControlName="description"
+                      placeholder="Enter category description"
+                      rows="3"></textarea>
             <div class="error-message" *ngIf="categoryForm.get('description')?.errors?.['required'] && categoryForm.get('description')?.touched">
               Description is required
             </div>
           </div>
         </div>
-
-        <div class="dialog-actions">
-          <button type="button" class="btn-secondary" (click)="onCancel()">Cancel</button>
-          <button type="submit" class="btn-primary" [disabled]="categoryForm.invalid || loading">
+        <div class="dialog-actions">          <button mat-button (click)="onCancel()" class="secondary-button">Cancel</button>
+          <button mat-flat-button color="primary" type="submit" [disabled]="categoryForm.invalid || loading" class="primary-button">
             <span *ngIf="!loading">{{ data ? 'Update' : 'Create' }} Category</span>
-            <div *ngIf="loading" class="spinner"></div>
+            <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
           </button>
         </div>
       </form>
     </div>
-  `,
-  styles: [`
+  `,  styles: [`
     .dialog-container {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      min-width: 400px;
-    }
-
-    .dialog-header {
-      padding: 20px 24px;
-      border-bottom: 1px solid #eee;
+      display: flex;
+      flex-direction: column;
+      min-width: 500px;
+      max-width: 600px;
+      width: 100%;
+    }    .dialog-header {
+      width: 100%;
+      height: 3.5rem;
+      padding: 0 24px;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      align-items: center;
     }
 
     .dialog-header h2 {
       margin: 0;
-      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
       font-weight: 500;
       color: #333;
     }
 
     .dialog-content {
+      width: 100%;
       padding: 24px;
+      box-sizing: border-box;
     }
 
     .form-field {
+      width: 100%;
       margin-bottom: 20px;
+    }
+
+    .form-field:last-child {
+      margin-bottom: 0;
     }
 
     .form-field label {
       display: block;
       margin-bottom: 8px;
-      font-size: 14px;
+      font-weight: 500;
       color: #555;
     }
 
     .form-field input,
     .form-field textarea {
       width: 100%;
-      padding: 8px 12px;
+      padding: 10px 12px;
       border: 1px solid #ddd;
       border-radius: 4px;
       font-size: 14px;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
     }
 
     .form-field input:focus,
     .form-field textarea:focus {
       outline: none;
-      border-color: #4a90e2;
-      box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+      border-color: #1976d2;
+      box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
     }
 
     .error-message {
-      color: #dc3545;
+      color: var(--error-color);
       font-size: 12px;
       margin-top: 4px;
-    }
-
-    .dialog-actions {
-      padding: 16px 24px;
-      border-top: 1px solid #eee;
+    }    .dialog-actions {
+      width: 100%;
+      height: 3.5rem;
+      padding: 0 24px;
+      background-color: #f8f9fa;
+      border-top: 1px solid #e9ecef;
       display: flex;
+      align-items: center;
       justify-content: flex-end;
       gap: 12px;
+      box-sizing: border-box;
     }
 
-    .btn-primary,
-    .btn-secondary {
-      padding: 8px 16px;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
+    .dialog-actions button {
+      min-width: 100px;
+      height: 36px;
     }
 
-    .btn-primary {
-      background: #4a90e2;
-      color: white;
-      border: none;
-    }
-
-    .btn-primary:hover {
-      background: #357abd;
-    }
-
-    .btn-primary:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
-    .btn-secondary {
-      background: white;
+    .dialog-actions button.mat-mdc-button {
       color: #666;
-      border: 1px solid #ddd;
     }
 
-    .btn-secondary:hover {
-      background: #f5f5f5;
+    .dialog-actions button.mat-mdc-flat-button {
+      background-color: var(--primary-color, #1976d2);
+      color: white;
     }
 
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 2px solid #ffffff;
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    .mat-mdc-input-element {
+      background-color: #fff;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    mat-spinner {
+      display: inline-block;
+      margin-left: 8px;
     }
   `],
   standalone: false

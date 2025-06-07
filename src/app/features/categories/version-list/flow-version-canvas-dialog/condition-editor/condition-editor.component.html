@@ -1,0 +1,345 @@
+<div class="dialog-container">
+  <div class="dialog-header enhanced-header">
+    <mat-icon class="header-icon">tune</mat-icon>
+    <h2>Configure Connection Conditions</h2>
+  </div>
+  
+  <form [formGroup]="conditionForm" (ngSubmit)="save()">
+    <div class="dialog-content">
+      <!-- Node Connection Visualization -->
+      <div class="node-connection">
+        <div class="node-item source">
+          <div class="node-icon" [style.background]="data.sourceNode.color || '#1976d2'">
+            <span class="icon">→</span>
+          </div>
+          <div class="node-info">
+            <div class="node-type">{{ data.sourceNode.type }}</div>
+            <div class="node-name">{{ data.sourceNode.name }}</div>
+          </div>
+        </div>
+        
+        <div class="connection-line">
+          <div class="line"></div>
+          <div class="condition-badge">
+            <span class="icon">⚡</span>
+          </div>
+        </div>
+        
+        <div class="node-item target">
+          <div class="node-icon" [style.background]="data.targetNode.color || '#1976d2'">
+            <span class="icon">←</span>
+          </div>
+          <div class="node-info">
+            <div class="node-type">{{ data.targetNode.type }}</div>
+            <div class="node-name">{{ data.targetNode.name }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connection Name -->
+      <div class="form-group">
+        <label for="connection-name">Connection Name</label>
+        <input type="text" id="connection-name" class="form-control" formControlName="name" 
+               placeholder="Enter a name for this connection">
+        <div class="error-message" *ngIf="conditionForm.get('name')?.errors?.['maxlength']">
+          Name cannot exceed 50 characters
+        </div>
+      </div>
+
+      <!-- Conditions Builder -->
+      <div class="conditions-builder">
+        <div class="conditions-header">
+          <h3>Flow Conditions</h3>
+          <div class="info-box">
+            <span class="info-icon">ℹ️</span>
+            <span>Use $.flow.variable_name to reference flow variables</span>
+          </div>
+        </div>
+
+        <div class="conditions-container" formArrayName="conditions" cdkDropList (cdkDropListDropped)="drop($event)">
+          <!-- Condition Groups -->
+          <div *ngFor="let group of getConditionGroups(); let i = index" [formGroupName]="i" 
+               class="condition-group" cdkDrag [attr.data-level]="0">
+            <div class="group-header">
+              <div class="operator-select">
+                <select [formControlName]="'operator'" class="form-control">
+                  <option value="AND">AND</option>
+                  <option value="OR">OR</option>
+                </select>
+              </div>
+              
+              <div class="group-actions">
+                <button type="button" class="btn icon-btn" (click)="addRule(i)" title="Add rule">
+                  <span class="icon">+</span>
+                </button>
+                <button type="button" class="btn icon-btn" (click)="addNestedGroup(i)" title="Add nested group">
+                  <span class="icon">📁</span>
+                </button>
+                <button type="button" class="btn icon-btn danger" 
+                        (click)="removeGroup(i)"
+                        [style.visibility]="conditions.length === 1 ? 'hidden' : 'visible'"
+                        title="Remove group">
+                  <span class="icon">×</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Rules Container -->
+            <div class="rules" formArrayName="rules" cdkDropList (cdkDropListDropped)="dropRule($event, i)">
+              <div *ngFor="let rule of getRulesControls(group); let j = index" [formGroupName]="j" 
+                   class="rule" cdkDrag [class.flow-variable]="isFlowVariable(rule.get('field')?.value)">
+                <div class="rule-content">
+                  <!-- Field Selection -->
+                  <div class="field-select">
+                    <input [formControlName]="'field'" class="form-control" 
+                           placeholder="Enter flow variable (e.g. $.flow.variable_name)"
+                           (change)="updateValueType(rule)">
+                    <div class="error-message" *ngIf="rule.get('field')?.errors?.['invalidFlowVariable']">
+                      Flow variable must start with $.flow. and contain only letters, numbers, and underscores
+                    </div>
+                    <div class="error-message" *ngIf="rule.get('field')?.errors?.['required']">
+                      Flow variable is required
+                    </div>
+                  </div>
+                  
+                  <!-- Comparison Selection -->
+                  <div class="comparison-select">
+                    <select [formControlName]="'comparison'" class="form-control">
+                      <option *ngFor="let comp of comparisons" [value]="comp.value">
+                        {{comp.label}}
+                      </option>
+                    </select>
+                  </div>
+                  
+                  <!-- Value Type Selector and Value Input for Top-level Rules -->
+                  <ng-container *ngIf="shouldShowValue(rule.get('comparison')?.value)">
+                    <div class="value-type-value-combo">
+                      <select [formControlName]="'valueType'" class="form-control value-type-select" (change)="updateValueType(rule, true)">
+                        <option value="any">Any</option>
+                        <option value="string">String</option>
+                        <option value="number">Number</option>
+                        <option value="boolean">Boolean</option>
+                        <option value="flowvariable">Flow Variable</option>
+                      </select>
+                      <ng-container [ngSwitch]="rule.get('valueType')?.value">
+                        <select *ngSwitchCase="'boolean'" [formControlName]="'value'" class="form-control value-input">
+                          <option [ngValue]="true">true</option>
+                          <option [ngValue]="false">false</option>
+                        </select>
+                        <input *ngSwitchCase="'number'" [formControlName]="'value'" class="form-control value-input" type="number" [placeholder]="'Enter number'">
+                        <input *ngSwitchCase="'string'" [formControlName]="'value'" class="form-control value-input" type="text" [placeholder]="'Enter string'">
+                        <input *ngSwitchCase="'flowvariable'" [formControlName]="'value'" class="form-control value-input" type="text" [placeholder]="'Enter flow variable name'">
+                        <input *ngSwitchDefault [formControlName]="'value'" class="form-control value-input" type="text" [placeholder]="'Enter value'">
+                      </ng-container>
+                    </div>
+                    <div class="hint" *ngIf="rule.get('comparison')?.value === 'in'">
+                      Enter array as JSON: ["value1", "value2"]
+                    </div>
+                    <div class="error-message" *ngIf="rule.get('value')?.errors">
+                      Invalid value format
+                    </div>
+                  </ng-container>
+                </div>
+                
+                <!-- Rule Actions -->
+                <button type="button" class="btn icon-btn danger"
+                        (click)="removeRule(i, j)"
+                        [style.visibility]="getRulesControls(group).length === 1 ? 'hidden' : 'visible'"
+                        title="Remove rule">
+                  <span class="icon">×</span>
+                </button>
+              </div>
+            </div>            <!-- Nested Groups Container -->
+            <div class="nested-groups" formArrayName="nestedGroups" cdkDropList (cdkDropListDropped)="dropNestedGroup($event, i)">
+              <div *ngFor="let nestedGroup of getNestedGroupsControls(group); let k = index">
+                <div [formGroupName]="k" class="nested-group" cdkDrag [attr.data-level]="1">
+                  <div class="group-header">
+                    <div class="operator-select">
+                      <select formControlName="operator" class="form-control">
+                        <option value="AND">AND</option>
+                        <option value="OR">OR</option>
+                      </select>
+                    </div>
+                    
+                    <div class="group-actions">
+                      <button type="button" class="btn icon-btn" 
+                              (click)="addRule(i, [k])" 
+                              title="Add rule">
+                        <span class="icon">+</span>
+                      </button>
+                      <button type="button" class="btn icon-btn danger"
+                              (click)="removeNestedGroup(i, k)"
+                              title="Remove group">
+                        <span class="icon">×</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="rules" formArrayName="rules" cdkDropList (cdkDropListDropped)="dropRule($event, i, [k])">
+                    <div *ngFor="let rule of getRulesControls(nestedGroup); let m = index" 
+                         [formGroupName]="m" class="rule" cdkDrag>
+                      <div class="rule-content">
+                        <div class="field-select">
+                          <input formControlName="field" class="form-control" 
+                                placeholder="Enter flow variable (e.g. $.flow.variable_name)"
+                                (change)="updateValueType(rule)">
+                        </div>
+                        
+                        <div class="comparison-select">
+                          <select formControlName="comparison" class="form-control">
+                            <option *ngFor="let comp of comparisons" [value]="comp.value">
+                              {{comp.label}}
+                            </option>
+                          </select>
+                        </div>
+                        
+                        <!-- Value Type Selector and Value Input for Nested Rules -->
+                        <ng-container *ngIf="shouldShowValue(rule.get('comparison')?.value)">
+                          <div class="value-type-value-combo">
+                            <select formControlName="valueType" class="form-control value-type-select" (change)="updateValueType(rule, true)">
+                              <option value="any">Any</option>
+                              <option value="string">String</option>
+                              <option value="number">Number</option>
+                              <option value="boolean">Boolean</option>
+                              <option value="flowvariable">Flow Variable</option>
+                            </select>
+                            <ng-container [ngSwitch]="rule.get('valueType')?.value">
+                              <select *ngSwitchCase="'boolean'" formControlName="value" class="form-control value-input">
+                                <option [ngValue]="true">true</option>
+                                <option [ngValue]="false">false</option>
+                              </select>
+                              <input *ngSwitchCase="'number'" formControlName="value" class="form-control value-input" type="number" [placeholder]="'Enter number'">
+                              <input *ngSwitchCase="'string'" formControlName="value" class="form-control value-input" type="text" [placeholder]="'Enter string'">
+                              <input *ngSwitchCase="'flowvariable'" formControlName="value" class="form-control value-input" type="text" [placeholder]="'Enter flow variable name'">
+                              <input *ngSwitchDefault formControlName="value" class="form-control value-input" type="text" [placeholder]="'Enter value'">
+                            </ng-container>
+                          </div>
+                        </ng-container>
+                      </div>
+                      
+                      <button type="button" class="btn icon-btn danger"
+                              (click)="removeRule(i, m, [k])"
+                              [style.visibility]="getRulesControls(nestedGroup).length === 1 ? 'hidden' : 'visible'"
+                              title="Remove rule">
+                        <span class="icon">×</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- </div> -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="condition-actions">
+        <button type="button" class="btn secondary" (click)="addConditionGroup()">
+          <span class="icon">+</span> Add Group
+        </button>
+        <div class="spacer"></div>
+        <button type="button" class="btn" (click)="cancel()">Cancel</button>
+        <button type="submit" class="btn primary" [disabled]="!conditionForm.valid">Save</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Nested Group Template -->
+<ng-template #nestedGroupTemplate let-nestedGroup let-parentIndex="parentIndex" let-path="path">
+  <div [formGroupName]="path[path.length - 1]" class="nested-group" cdkDrag
+       [attr.data-level]="path.length">
+    <div class="group-header">
+      <div class="operator-select">
+        <select [formControlName]="'operator'" class="form-control">
+          <option value="AND">AND</option>
+          <option value="OR">OR</option>
+        </select>
+      </div>
+      
+      <div class="group-actions">
+        <button type="button" class="btn icon-btn" 
+                (click)="addRule(parentIndex, path)" 
+                title="Add rule">
+          <span class="icon">+</span>
+        </button>
+        <button type="button" class="btn icon-btn" 
+                (click)="addNestedGroup(parentIndex, path)" 
+                title="Add nested group">
+          <span class="icon">📁</span>
+        </button>
+        <button type="button" class="btn icon-btn danger" 
+                (click)="removeGroup(parentIndex, path)"
+                title="Remove group">
+          <span class="icon">×</span>
+        </button>
+      </div>
+    </div>    <div class="rules" [formArrayName]="'rules'" cdkDropList (cdkDropListDropped)="dropRule($event, parentIndex, path)">
+      <div *ngFor="let rule of getRulesControls(nestedGroup); let m = index" [formGroupName]="m" class="rule" cdkDrag>
+        <div class="rule-content">
+          <!-- Field Selection -->
+          <div class="field-select">
+            <input [formControlName]="'field'" class="form-control" 
+                   placeholder="Enter flow variable (e.g. $.flow.variable_name)"
+                   (change)="updateValueType(rule)">
+            <div class="error-message" *ngIf="rule.get('field')?.errors?.['invalidFlowVariable']">
+              Flow variable must start with $.flow. and contain only letters, numbers, and underscores
+            </div>
+            <div class="error-message" *ngIf="rule.get('field')?.errors?.['required']">
+              Flow variable is required
+            </div>
+          </div>
+          
+          <!-- Comparison Selection -->
+          <div class="comparison-select">
+            <select [formControlName]="'comparison'" class="form-control">
+              <option *ngFor="let comp of comparisons" [value]="comp.value">
+                {{comp.label}}
+              </option>
+            </select>
+          </div>
+          
+          <!-- Value Type Selector and Value Input for Nested Rules -->
+          <ng-container *ngIf="shouldShowValue(rule.get('comparison')?.value)">
+            <div class="value-type-value-combo">
+              <select formControlName="valueType" class="form-control value-type-select" (change)="updateValueType(rule, true)">
+                <option value="any">Any</option>
+                <option value="string">String</option>
+                <option value="number">Number</option>
+                <option value="boolean">Boolean</option>
+                <option value="flowvariable">Flow Variable</option>
+              </select>
+              <ng-container [ngSwitch]="rule.get('valueType')?.value">
+                <select *ngSwitchCase="'boolean'" formControlName="value" class="form-control value-input">
+                  <option [ngValue]="true">true</option>
+                  <option [ngValue]="false">false</option>
+                </select>
+                <input *ngSwitchCase="'number'" formControlName="value" class="form-control value-input" type="number" [placeholder]="'Enter number'">
+                <input *ngSwitchCase="'string'" formControlName="value" class="form-control value-input" type="text" [placeholder]="'Enter string'">
+                <input *ngSwitchCase="'flowvariable'" formControlName="value" class="form-control value-input" type="text" [placeholder]="'Enter flow variable name'">
+                <input *ngSwitchDefault formControlName="value" class="form-control value-input" type="text" [placeholder]="'Enter value'">
+              </ng-container>
+            </div>
+          </ng-container>
+        </div>
+        
+        <!-- Rule Actions -->
+        <button type="button" class="btn icon-btn danger"
+                (click)="removeRule(parentIndex, m, path)"
+                [style.visibility]="getRulesControls(nestedGroup).length === 1 ? 'hidden' : 'visible'"
+                title="Remove rule">
+          <span class="icon">×</span>
+        </button>
+      </div>
+    </div>    <!-- Nested Groups Container -->    <div class="nested-groups" formArrayName="nestedGroups" cdkDropList (cdkDropListDropped)="dropNestedGroup($event, parentIndex, path)">
+      <div *ngFor="let furtherNestedGroup of getNestedGroupsControls(nestedGroup); let n = index">
+        <div class="nested-group-item">
+          <ng-container *ngTemplateOutlet="nestedGroupTemplate; 
+                                    context: { $implicit: furtherNestedGroup, parentIndex: parentIndex, path: getExtendedPath(path, n) }">
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

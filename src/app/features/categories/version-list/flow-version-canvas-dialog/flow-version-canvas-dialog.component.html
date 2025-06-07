@@ -1,117 +1,150 @@
 <div class="canvas-dialog-container">
-    <!-- Fixed Header -->
-    <div class="canvas-header">
+  <!-- Updated Header -->
+  <div class="canvas-header">
+    <div class="header-left">
+      <mat-icon>menu</mat-icon>
       <div class="version-name">{{ data.name }}</div>
-      <div class="canvas-controls">
-        <button mat-icon-button (click)="zoomIn()">
-          <mat-icon>zoom_in</mat-icon>
-        </button>
-        <button mat-icon-button (click)="zoomOut()">
-          <mat-icon>zoom_out</mat-icon>
-        </button>
-        <span class="zoom-percentage">{{ scale | percent }}</span>
-        <button mat-icon-button (click)="saveCanvas()">
-          <mat-icon>save</mat-icon>
-        </button>
-        <button mat-icon-button (click)="onClose()">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
+    </div>    <div class="header-right">
+      <button mat-icon-button 
+              [disabled]="selectedNodes.size === 0 && selectedConnections.size === 0"
+              (click)="deleteSelectedItems()"
+              matTooltip="Delete selected items">
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button mat-icon-button 
+              (click)="saveCanvas()"
+              matTooltip="Save changes">
+        <mat-icon>save</mat-icon>
+      </button>
+      <button mat-icon-button 
+              (click)="onClose()"
+              matTooltip="Close">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
-  
-    <!-- Scrollable Content -->
-    <div class="canvas-content">
-      <div #canvasBoundary
-           class="canvas-container"
+  </div>
+  <!-- Collapsible Palette List -->
+  <div class="nodes-list-panel" [class.collapsed]="!showNodesList">
+    <button mat-icon-button (click)="toggleNodesList()" 
+            [matTooltip]="showNodesList ? 'Hide node palette' : 'Show node palette'">
+      <mat-icon>{{ showNodesList ? 'chevron_left' : 'chevron_right' }}</mat-icon>
+    </button>
+    <app-registered-nodes-list cdkDropList (cdkDropListDropped)="onNodeDrop($event)"></app-registered-nodes-list>
+  </div>
+  <!-- Scrollable Content -->
+  <div class="canvas-content" [class.with-palette]="showNodesList">
+    <div #canvasBoundary
+         class="canvas-container"
+         [style.minWidth.px]="canvasMinWidth"
+         [style.minHeight.px]="canvasMinHeight">      <div class="canvas-area"
+           [ngStyle]="{ transform: 'scale(' + scale + ')' }"
            [style.minWidth.px]="canvasMinWidth"
-           [style.minHeight.px]="canvasMinHeight">
-        <div class="canvas-area"
-             [ngStyle]="{ transform: 'scale(' + scale + ')' }"
-             [style.minWidth.px]="canvasMinWidth"
-             [style.minHeight.px]="canvasMinHeight"
-             style="transform-origin: top left; position: relative;">
-             <!-- SVG container for connections -->
-             <svg class="connections-layer" [attr.width]="canvasMinWidth" [attr.height]="canvasMinHeight">
-               <g *ngFor="let connection of connections">
-                 <path [attr.d]="connection.path"
-                       fill="none"
-                       stroke="#666"
-                       stroke-width="2"
-                       [style.transform]="'scale(' + scale + ')'"
-                       style="pointer-events: none;"
-                 />
-                 <foreignObject *ngIf="connection.name || connection.condition"
-                               x="0"
-                               y="0"
-                               width="100%"
-                               [attr.x]="getConnectionMidpoint(connection)?.x"
-                               [attr.y]="getConnectionMidpoint(connection)?.y"
-                               width="150"
-                               height="30"
-                               [style.transform]="'translate(-75px, -15px) scale(' + scale + ')'">
-                   <div class="condition-chip">
-                     {{ connection.name || connection.condition  }}
-                   </div>
-                 </foreignObject>
-               </g>
-               <!-- Preview path during dragging -->
-               <path *ngIf="isDraggingConnection && previewPath"
-                     [attr.d]="previewPath"
-                     fill="none"
-                     stroke="#666"
-                     stroke-width="2"
-                     stroke-dasharray="5,5"
-                     [style.transform]="'scale(' + scale + ')'"
-                     style="pointer-events: none;"
-               />
-             </svg>
+           [style.minHeight.px]="canvasMinHeight"
+           style="transform-origin: top left; position: relative;"           (click)="clearAllSelections()">
+        <!-- SVG container for connections -->
+        <svg class="connections-layer" [attr.width]="canvasMinWidth" [attr.height]="canvasMinHeight">
+          <g *ngFor="let connection of connections">
+            <path [attr.d]="connection.path"
+                  fill="none"
+                  [attr.stroke]="selectedConnections.has(connection.source.nodeId + '-' + connection.target.nodeId) ? getNodeColor(connection.source.nodeId) : 'rgba(0, 0, 0, 0.4)'"
+                  [attr.stroke-width]="selectedConnections.has(connection.source.nodeId + '-' + connection.target.nodeId) ? '3' : '2'"
+                  [attr.stroke-opacity]="selectedConnections.has(connection.source.nodeId + '-' + connection.target.nodeId) ? '1' : '0.6'"
+                  (click)="selectConnection($event, connection)"
+                  style="pointer-events: all;"
+                  (contextmenu)="onConnectionRightClick($event, connection)"
+            />
+            <foreignObject *ngIf="connection.name || connection.condition"
+                           x="0"
+                           y="0"
+                           width="100%"
+                           [attr.x]="getConnectionMidpoint(connection)?.x"
+                           [attr.y]="getConnectionMidpoint(connection)?.y"
+                           width="150"
+                           height="30"
+                           [style.transform]="'translate(-75px, -15px) scale(' + scale + ')'">
+              <div class="condition-chip"
+                   [style.--chip-color]="getNodeColor(connection.source.nodeId)"
+                   [class.selected]="selectedConnections.has(connection.source.nodeId + '-' + connection.target.nodeId)"
+                   (click)="selectConnection($event, connection)"
+                   (contextmenu)="onConnectionRightClick($event, connection)">
+                {{ connection.name || connection.condition }}
+              </div>
+            </foreignObject>
+          </g>
+          <!-- Preview path during dragging -->
+          <path *ngIf="isDraggingConnection && previewPath"
+                [attr.d]="previewPath"
+                fill="none"
+                stroke="#666"
+                stroke-width="2"
+                stroke-dasharray="5,5"
+                style="pointer-events: none;"
+          />
+        </svg>
 
-             <ng-container *ngFor="let entry of nodes | keyvalue">
-                <div
-                  class="node-card"
-                  [ngClass]="entry.value.nodeStyle || 'rectangle'"
-                  [style.--node-shadow-color]="entry.value.color || 'rgba(0, 0, 0, 0.15)'"
-                  cdkDrag
-                  [cdkDragBoundary]="canvasBoundary"
-                  [cdkDragFreeDragPosition]="entry.value.position"
-                  (cdkDragStarted)="onDragStart($event, entry.key)"
-                  (cdkDragMoved)="onNodeMoved($event, entry.key)"
-                  id="{{ entry.value.id }}"
-                >
-                  <div class="connection-points inputs" *ngIf="entry.value.config?.io?.inputs">
-                    <div class="point" *ngFor="let input of [].constructor(entry.value.config.io.inputs); let i = index"
-                         (mouseup)="onConnectionPointMouseUp($event, entry.key, i, 'input')"></div>
-                  </div>
-                  <div class="connection-points outputs" *ngIf="entry.value.config?.io?.outputs">
-                    <div class="point" *ngFor="let output of [].constructor(entry.value.config.io.outputs); let i = index"
-                         (mousedown)="onConnectionPointMouseDown($event, entry.key, i, 'output')"
-                         (mouseup)="onConnectionPointMouseUp($event, entry.key, i, 'output')"></div>
-                  </div>
-                  <div class="node-header">
-                    <img
-                      *ngIf="entry.value.icon"
-                      [src]="entry.value.icon"
-                      alt="icon"
-                      class="node-icon"
-                    />
-                    <span class="node-title">{{ entry.value.type | titlecase}}</span>
-                  </div>
-                  <div class="node-divider"></div>
-                  <div class="node-info">
-                    <div class="info-row">
-                      <span class="info-label">Name</span>
-                      <span class="info-value">{{ entry.value.name }}</span>
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">Description:</span>
-                      <span class="info-value">{{ entry.value?.config?.metadata?.description }}</span>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-              
-        </div>
+        <ng-container *ngFor="let entry of nodes | keyvalue">
+          <div
+            class="node-card"
+            [ngClass]="entry.value.nodeStyle || 'rectangle'"
+            [style.--node-shadow-color]="entry.value.color || 'rgba(0, 0, 0, 0.15)'"
+            [style.--node-color]="entry.value.color || '#1976d2'"            cdkDrag
+            [cdkDragBoundary]="canvasBoundary"
+            [cdkDragFreeDragPosition]="entry.value.position"
+            (cdkDragStarted)="onDragStart($event, entry.key)"            (cdkDragMoved)="onNodeMoved($event, entry.key)"
+            (click)="selectNode($event, entry.key)"
+            (contextmenu)="onNodeRightClick($event, entry.value)"
+            [class.selected]="selectedNodes.has(entry.key)"
+            id="{{ entry.value.id }}"
+          >            <div class="connection-points inputs" *ngIf="entry.value.config?.io?.inputs">
+              <div class="point" *ngFor="let input of [].constructor(entry.value.config.io.inputs); let i = index"
+                   (mouseup)="onConnectionPointMouseUp($event, entry.key, i, 'input')"
+                   [matTooltip]="'Input connection point ' + (i + 1)"></div>
+            </div>
+            <div class="connection-points outputs" *ngIf="entry.value.config?.io?.outputs">
+              <div class="point" *ngFor="let output of [].constructor(entry.value.config.io.outputs); let i = index"
+                   (mousedown)="onConnectionPointMouseDown($event, entry.key, i, 'output')"
+                   (mouseup)="onConnectionPointMouseUp($event, entry.key, i, 'output')"
+                   [matTooltip]="'Output connection point ' + (i + 1)"></div>
+            </div>
+            <div class="node-header">
+              <img
+                *ngIf="entry.value.icon"
+                [src]="entry.value.icon"
+                alt="icon"
+                class="node-icon"
+              />
+              <span class="node-title">{{ entry.value.type | titlecase}}</span>
+            </div>
+            <div class="node-divider"></div>
+            <div class="node-info">
+              <div class="info-row">
+                <span class="info-label">Name</span>
+                <span class="info-value">{{ entry.value.name }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Description:</span>
+                <span class="info-value">{{ entry.value?.config?.metadata?.description }}</span>
+              </div>
+            </div>
+          </div>
+        </ng-container>
       </div>
     </div>
   </div>
-  
+  <!-- Updated Zoom Controller -->
+  <div class="zoom-controller">
+    <button mat-icon-button (click)="zoomIn()" matTooltip="Zoom in">
+      <mat-icon>zoom_in</mat-icon>
+    </button>
+    <button mat-icon-button (click)="zoomOut()" matTooltip="Zoom out">
+      <mat-icon>zoom_out</mat-icon>
+    </button>
+    <button mat-icon-button (click)="refreshCanvas()" matTooltip="Refresh canvas">
+      <mat-icon>refresh</mat-icon>
+    </button>
+    <button mat-icon-button (click)="toggleFullScreen()" matTooltip="Toggle fullscreen">
+      <mat-icon>fullscreen</mat-icon>
+    </button>
+    <span class="zoom-percentage">{{ scale | percent }}</span>
+  </div>
+</div>

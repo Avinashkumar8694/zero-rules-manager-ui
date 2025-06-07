@@ -111,6 +111,15 @@ export class CategoryListComponent implements OnInit {
       }
     });
   }
+  onCopyId(category: Category, event: Event) {
+    event.stopPropagation();
+    navigator.clipboard.writeText(category.id).then(() => {
+      // Optional: Show a temporary tooltip or snackbar to indicate successful copy
+      console.log('Category ID copied to clipboard');
+    }).catch(err => {
+      console.error('Failed to copy ID:', err);
+    });
+  }
 
   private fetchCategories() {
     this.loading = true;

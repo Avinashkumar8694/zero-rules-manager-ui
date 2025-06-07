@@ -1,0 +1,99 @@
+
+.registered-nodes-container {
+  padding: 12px;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #f8f9fa;
+  width: 220px; // Reduced palette width
+  min-width: 220px;
+  max-width: 220px;
+}
+
+// Search box styles are now global in styles.scss
+
+.connector-section,
+.nodes-section {
+  margin-bottom: 16px;
+  
+  h3 {
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #4a5568;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.nodes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.node-card {
+  background: white;
+  border-radius: 6px;
+  padding: 8px 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: move;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.2s ease;
+  border: 1px solid #e2e8f0;
+  min-height: 60px; // Reduced from 80px
+  user-select: none;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    border-color: #3b82f6;
+  }
+
+  &.cdk-drag-preview {
+    position: fixed !important;
+    background: white;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transform: scale(1.02);
+    z-index: 9999;
+    pointer-events: none;
+    margin: 0;
+  }
+
+  &.cdk-drag-placeholder {
+    opacity: 0.4;
+    background: #f0f0f0;
+    border: 2px dashed #ccc;
+  }
+}
+
+.node-icon {
+  margin-bottom: 4px;
+
+  mat-icon {
+    color: #6b7280;
+    font-size: 24px; // Reduced from 32px
+    width: 24px;     // Reduced from 32px
+    height: 24px;    // Reduced from 32px
+    transition: color 0.2s ease;
+  }
+}
+
+.node-card:hover .node-icon mat-icon {
+  color: #3b82f6;
+}
+
+.node-label {
+  font-size: 10px; // Reduced from 12px
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}

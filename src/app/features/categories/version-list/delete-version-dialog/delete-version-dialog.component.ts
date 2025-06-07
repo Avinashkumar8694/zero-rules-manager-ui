@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
 interface VersionDialogData {
   id: string;
@@ -9,51 +9,43 @@ interface VersionDialogData {
 @Component({
   selector: 'app-delete-version-dialog',
   template: `
-    <div class="dialog-container">
-      <h2>Delete Version</h2>
-      <p>Are you sure you want to delete version "{{ data.name }}"?</p>
-      <p class="warning">This action cannot be undone.</p>
-      
-      <div class="dialog-actions">
-        <button mat-button (click)="onCancel()">Cancel</button>
-        <button mat-raised-button color="warn" (click)="onConfirm()">
-          Delete Version
+    <div class="dialog-container paper-theme">
+      <div class="dialog-header">
+        <h2><mat-icon>delete</mat-icon> Delete Version</h2>
+      </div>
+      <div class="dialog-content">
+        <p>Are you sure you want to delete this version?</p>
+        <p class="version-name">"{{ data.name }}"</p>
+        <p class="warning-text">This action cannot be undone.</p>
+      </div>
+      <div class="dialog-actions">        <button type="button" mat-button (click)="onCancel()" class="secondary">Cancel</button>
+        <button type="button" mat-button (click)="onConfirm()" [disabled]="loading" class="primary">
+          <span *ngIf="!loading">Delete</span>
+          <mat-spinner *ngIf="loading" diameter="20" color="primary"></mat-spinner>
         </button>
       </div>
     </div>
   `,
   styles: [`
-    .dialog-container {
-      padding: 24px;
-      max-width: 400px;
-    }
-
-    h2 {
-      margin: 0 0 16px;
-      color: #333;
-    }
-
-    p {
-      margin: 0 0 16px;
-      color: #666;
-    }
-
-    .warning {
-      color: #d32f2f;
+    .version-name {
       font-weight: 500;
+      color: var(--text-primary);
+      margin: var(--spacing-md) 0;
     }
 
-    .dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 24px;
+    .warning-text {
+      color: var(--error-color);
+      font-size: var(--font-size-base);
+      margin-top: var(--spacing-sm);
     }
-  `]
+  `],
+  standalone: false
 })
 export class DeleteVersionDialogComponent {
+  loading = false;
+
   constructor(
-    public dialogRef: MatDialogRef<DeleteVersionDialogComponent>,
+    private dialogRef: MatDialogRef<DeleteVersionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: VersionDialogData
   ) {}
 

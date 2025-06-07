@@ -1,24 +1,108 @@
+
 .nodes-container {
-  padding: 20px;
+  padding: 1.5rem;
+  z-index: 1000;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
 
-  mat-card {
-    max-width: 800px;
-    margin: 0 auto;
+.nodes-header {
+  /* Enhanced header styling applied globally via styles.scss */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
 
-    mat-card-header {
-      margin-bottom: 20px;
-    }
+  h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
-    mat-list-item {
-      margin-bottom: 10px;
+  button {
+    /* Enhanced button styling applied via global .nodes-header in styles.scss */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+}
 
-      h3 {
-        font-weight: 500;
-      }
+.nodes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  padding: 0 1rem;
+  position: relative;
+  z-index: 1;
+}
 
-      p {
-        color: #666;
-      }
-    }
+.node-card {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 1.25rem;
+  cursor: move;
+  user-select: none;
+  transition: all 0.2s ease;
+  position: relative;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  &.cdk-drag-preview {
+    position: fixed !important;
+    background: white;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: scale(1.02);
+    z-index: 9999;
+    pointer-events: none;
+    margin: 0;
+  }
+
+  &.cdk-drag-placeholder {
+    opacity: 0.4;
+    background: #f0f0f0;
+    border: 2px dashed #ccc;
+  }
+}
+
+.node-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.node-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.node-type {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.node-category {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.node-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .nodes-grid {
+    grid-template-columns: 1fr;
   }
 }

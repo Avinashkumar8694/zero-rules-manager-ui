@@ -1,0 +1,155 @@
+/* Theme variables for Zero Rules Manager UI */
+:root {
+  /* Colors */
+  --primary-color: #6c63ff;
+  --primary-light: #6c63ff40;
+  --primary-lighter: var(--primary-light);
+  --primary-alpha-10: rgba(108, 99, 255, 0.1);
+  --primary-alpha-20: rgba(108, 99, 255, 0.2);
+  --accent-color: #ff6584;
+  --error-color: #d93025;
+  --error-light: #fce8e6;
+  --warning-color: #ffc107;
+  --warning-light: rgba(255, 193, 7, 0.1);
+  --success-color: #28a745;
+  --success-light: rgba(40, 167, 69, 0.1);
+  --danger-color: #dc3545;
+  --danger-light: rgba(220, 53, 69, 0.1);
+  --text-primary: #2a3b4d;
+  --text-secondary: #86868b;
+  --text-light: #b8bcc8;
+  --text-dark: #1d1d1f;
+  --background-primary: #ffffff;
+  --background-secondary: #f8fafd;
+  --surface-dark: #2d2d3a;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-light: rgba(0, 0, 0, 0.05);
+  --white: #ffffff;
+  --black: #000000;
+  --overlay-light: rgba(255, 255, 255, 0.2);
+  --overlay-dark: rgba(0, 0, 0, 0.05);
+
+    /* Form Field Colors */
+  --form-bg: var(--white);
+  --form-border: #ddd;
+  --form-label: #555;
+  --form-hover-bg: rgba(74, 144, 226, 0.05);
+  --form-hover-border: #4a90e2;
+
+   /* Component Colors */
+  --title-color: #2c3e50;
+  --indigo: #3f51b5;
+  --blue: #4a90e2;
+  --blue-hover: #357abd;
+  --blue-alpha-10: rgba(74, 144, 226, 0.1);
+  --gray-100: #f5f5f5;
+  --gray-200: #e9ecef;
+  --gray-300: #ddd;
+  --gray-400: #ccc;
+  --gray-500: #666;
+  
+  
+
+  /* Typography */
+  --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
+  --font-size-sm: 10px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 24px;
+  --letter-spacing-sm: 0.3px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Spacing */
+  --spacing-xs: 3px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Border Radius */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-material: 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  /* Layout */
+  --header-height: 64px;
+  --sidenav-width: 256px;
+  --sidenav-collapsed-width: 80px;
+  --sidenav-padding: 12px;
+  --sidenav-padding-expanded: 16px;
+
+  /* Z-index */
+  --z-index-header: 100;
+  --z-index-sidenav: 200;
+  --z-index-overlay: 300;
+
+  /* Alpha Colors */
+  --white-alpha-10: rgba(255, 255, 255, 0.1);
+  --primary-alpha-08: rgba(108, 99, 255, 0.08);
+  
+  /* Shadows */
+  --box-shadow: 0 4px 16px var(--shadow-color);
+  --sidenav-shadow: 0 0 24px 0 var(--primary-alpha-08);
+  --header-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 2px 6px 2px rgba(60,64,67,.15);
+  --card-shadow: 0 2px 8px var(--shadow-light);
+  --hover-shadow: 0 4px 8px var(--shadow-color);
+  --dialog-shadow: 0 2px 12px var(--primary-alpha-20), 0 1px 3px var(--shadow-color);
+
+  /* Focus State System */
+  --focus-border-color: var(--primary-color);
+  --focus-shadow-color: var(--primary-light);
+  --focus-shadow-size: 0 0 0 2px;
+  --focus-outline: none;
+
+  /* Component Specific */
+  --icon-size-sm: 16px;
+  --icon-size-md: 20px;
+  --icon-size-lg: 24px;
+  --icon-size-xl: 32px;
+  
+  /* Input and Control Sizes */
+  --input-height: 36px;
+  --input-padding: 6px 12px;
+  --search-width: 300px;
+  --badge-padding: 3px 10px;
+  
+  /* Border */
+  --border-width: 1px;
+  --border-style: solid;
+
+
+  /* Form Metrics */
+  --form-field-spacing: 20px;
+  --form-label-spacing: 8px;
+  --form-padding: 8px 12px;
+  --tab-content-padding: 24px;
+
+ 
+  /* Button Colors */
+  --btn-primary-bg: var(--blue);
+  --btn-primary-hover: var(--blue-hover);
+  --btn-primary-disabled: var(--gray-400);
+  --btn-secondary-bg: var(--white);
+  --btn-secondary-color: var(--gray-500);
+  --btn-secondary-border: var(--gray-300);
+  --btn-secondary-hover: var(--gray-100);
+  --btn-danger-color: var(--danger-color);
+  --btn-link-color: var(--blue);
+  
+  /* Border Colors */
+  --border-light: var(--gray-200);
+  
+  /* Editor Colors */
+  --editor-border: var(--gray-200);
+}
